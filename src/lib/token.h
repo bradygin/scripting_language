@@ -8,6 +8,7 @@ enum class TokenType {
     RIGHT_PAREN,
     OPERATOR,
     NUMBER,  
+    END
 };
 
 struct Token {
@@ -15,6 +16,7 @@ struct Token {
     int column;      
     std::string text;
     TokenType type;
+    Token() : line(0), column(0), text(""), type(TokenType::OPERATOR) {} //default constructor
 
     Token(int line, int column, const std::string& text, TokenType type)
         : line(line), column(column), text(text), type(type) {}
