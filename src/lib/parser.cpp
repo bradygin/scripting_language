@@ -96,6 +96,29 @@ ASTNode* Parser::parseTerm() {
     return left;
 }
 
-ASTNode* Parser::parseFactor() {
+ASTNode* Parser::parseFactor() { //used to find important token for tree construction
     return parsePrimary();
+}
+std::string Parser::print(ASTNode* node, int indent) {
+    std::string result;
+
+    if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
+        BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
+
+        result += std::string(indent, ' ');
+        result += "(";
+        result += binOp->toInfix();
+        result += ")\n";
+
+        // Recursively print left and right operands with increased indentation
+        result += print(binOp->left, indent + 4);
+        result += print(binOp->right, indent + 4);
+    } else if (dynamic_cast<Number*>(node) != nullptr) {
+        // If it's a Number node, print the number value
+        result += std::string(indent, ' ');
+        result += std::to_string(dynamic_cast<Number*>(node)->evaluate());
+        result += "\n";
+    }
+
+    return result;
 }

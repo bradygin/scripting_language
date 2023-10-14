@@ -6,14 +6,14 @@
 #include <iostream>
 #include "lexer.h"
 #include "token.h"
-
+//for constructing AST
 class ASTNode {
 public:
     virtual ~ASTNode() {}
     virtual double evaluate() const = 0;
     virtual std::string toInfix() const = 0;
 };
-
+//assist with operators
 class BinaryOperation : public ASTNode {
 public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
@@ -22,7 +22,7 @@ public:
     double evaluate() const override;
     std::string toInfix() const override;
 
-private:
+
     char op;
     ASTNode* left;
     ASTNode* right;
@@ -38,11 +38,11 @@ public:
 private:
     double value;
 };
-
+//actually parse the tokens
 class Parser {
 public:
     Parser(Lexer& lexer) : lexer(lexer) {}
-
+    std::string print(ASTNode* node, int indent); //print tree
     ASTNode* parse();
 
 private:
