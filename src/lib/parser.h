@@ -42,7 +42,7 @@ private:
 class Parser {
 public:
     Parser(Lexer& lexer) : lexer(lexer) {}
-    std::string print(ASTNode* node, int indent); //print tree
+    std::string printInfix(ASTNode* node);
     ASTNode* parse();
 
 private:
