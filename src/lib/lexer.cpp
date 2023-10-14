@@ -29,21 +29,24 @@ Token Lexer::nextToken() {
         } else if (std::isdigit(currChar)) {
             std::string num;
             num += currChar;
-            /*
-            Input: 2.14
-            Start with 2, add to num
-
-            if (currChar + 1 == isDigit) {
-            num += nextChar
-            else if (currChar + 1 == ".") {
-                
+            char nextChar;
+            while (sExpression.get(nextChar)) {
+                if (std::isdigit(nextChar) || nextChar == '.') {
+                    num += nextChar;
+                } else {
+                    sExpression.unget();
+                    break;
+                }
+                column++;
             }
-
-            Now: 2.
-
+            if (num.find('.') != std::string::npos) {
+                // Check if the number has only one decimal point and it's not at the beginning or end.
+                if (num.front() == '.' || num.back() == '.' || num.find('.') != num.rfind('.')) {
+                    throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
+                }
             }
-            */ 
             return Token(line, column - num.length(), num, TokenType::NUMBER);
+
         // SYNTAX ERROR, CAN'T CREATE TOKEN
         } else {
             throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
@@ -54,11 +57,22 @@ Token Lexer::nextToken() {
 }
 
 std::vector<Token> Lexer::tokenize() {
+    // GET THE FIRST TOKEN
     Token currToken = nextToken();
- 
+
+    //std::cout << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
+
+    // GET ALL THE TOKENS IN THE STREAM AND ADD THEM TO THE VECTOR
     while (currToken.text != "END") {
+        std::cout << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
         myTokens.push_back(currToken);
         currToken = nextToken();
     }
+
+    std::cout << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
+    
+    // Push the "END" token after the loop.
+    myTokens.push_back(currToken);
+
     return myTokens;
 }
