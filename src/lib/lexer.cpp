@@ -14,10 +14,10 @@ Lexer::Lexer(std::istream& input) : sExpression(input) {}
 Token Lexer::nextToken() {
     char currChar;
     
-    while (sExpression >> currChar) {
+    while (sExpression >> std::noskipws >> currChar) {
         if (currChar == '\n') {
             line++;
-            column = 1;
+            column = 0;
         } else {
             column++;
         }
@@ -57,7 +57,7 @@ Token Lexer::nextToken() {
                 }
             }
 
-            return Token(line, column, num, TokenType::NUMBER);
+            return Token(line, (column - num.length() + 1), num, TokenType::NUMBER);
 
         } else {
             throw std::runtime_error("#2: Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
@@ -65,7 +65,7 @@ Token Lexer::nextToken() {
     }
 
     // If you reach the end of the input, create and return the "END" token
-    return Token(line, column, "END", TokenType::OPERATOR);
+    return Token(line + 1, 1, "END", TokenType::OPERATOR);
 }
 
 
@@ -76,14 +76,14 @@ std::vector<Token> Lexer::tokenize() {
     while (currToken.text != "END") {  // Check if there are more tokens to read
         myTokens.push_back(currToken);
 
-        std::cout << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
+        //std::cout << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
         
         currToken = nextToken();
     }
 
     myTokens.push_back(currToken);
     
-    std::cout << "FINAL:" << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
+    //std::cout << "FINAL:" << currToken.line << " " << currToken.column << " " << currToken.text << std::endl;
 
     return myTokens;
 }
