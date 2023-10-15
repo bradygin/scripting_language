@@ -42,19 +42,18 @@ Token Lexer::nextToken() {
             while (sExpression.get(nextChar)) {
 
                 if (std::isdigit(nextChar) || nextChar == '.') {
-                    num += nextChar;
                     column++;
+
                     std::cout << "DEBUG #2" << " " << nextChar << " " << column << std::endl;  
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
-                        if (num.front() == '.' || num.back() == '.' || num.find('.') != num.rfind('.')) {
                             throw std::runtime_error(" #1: Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
-                        }
                     }
+                    num += nextChar;
 
                 } else {
                     sExpression.unget();
-                    // should throw syntax error here
+                    break;
                 }
             }
 
