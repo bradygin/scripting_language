@@ -3,8 +3,10 @@
 #include <cctype>
 #include <stdexcept>
 
+// Constructor: Initializes Lexer object with input stream
 Lexer::Lexer(std::istream& input) : sExpression(input) {}
 
+// Function to fetch the next token from the input stream
 Token Lexer::nextToken() {
     char currChar;
     
@@ -58,6 +60,7 @@ Token Lexer::nextToken() {
     return Token(line + 1, 1, "END", TokenType::OPERATOR);
 }
 
+// Function to tokenize the entire input stream and return a vector of tokens
 std::vector<Token> Lexer::tokenize() {
     Token currToken = nextToken();
 
