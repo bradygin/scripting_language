@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "lexer.h"
 #include <iostream>
 
 double BinaryOperation::evaluate() const {
@@ -17,7 +18,7 @@ double BinaryOperation::evaluate() const {
             return leftValue / rightValue;
         default:
             std::cerr << "Invalid operator" << std::endl;
-            exit(1);
+            exit(2);
     }
 }
 
@@ -34,8 +35,8 @@ std::string Number::toInfix() const {
 ASTNode* Parser::parse() {
     nextToken();
     ASTNode* result = parseExpression();
-    if (currentToken.type != TokenType::END) { //ASK ABOUT END
-        std::cerr << "Unexpected token at line " <<
+    if (currentToken.text != "END") {
+        std::cerr << "(1)Unexpected token at line " <<
             lexer.line << " column " <<
             lexer.column << ": " <<
             currentToken.text << std::endl;
@@ -57,7 +58,7 @@ ASTNode* Parser::parsePrimary() {
         nextToken();
         ASTNode* result = parseExpression();
         if (currentToken.type != TokenType::RIGHT_PAREN) {
-            std::cerr << "Unexpected token at line " <<
+            std::cerr << "(2)Unexpected token at line " <<
                 lexer.line << " column " <<
                 lexer.column << ": " <<
                 currentToken.text << std::endl;
@@ -65,14 +66,23 @@ ASTNode* Parser::parsePrimary() {
         }
         nextToken();
         return result;
+    } else if (currentToken.type == TokenType::OPERATOR) {
+        char op = currentToken.text[0];
+        nextToken();
+        ASTNode* right = parsePrimary();
+        return new BinaryOperation(op, nullptr, right);
+    } else if (currentToken.text == "END") {
+        return nullptr; // End of input, no tokens left to parse
     } else {
-        std::cerr << "Unexpected token at line " <<
+        std::cerr << "(3)Unexpected token at line " <<
             lexer.line << " column " <<
             lexer.column << ": " <<
             currentToken.text << std::endl;
-        exit(1);
+        exit(2);
     }
 }
+
+
 
 ASTNode* Parser::parseExpression() {
     ASTNode* left = parseTerm();
@@ -96,7 +106,7 @@ ASTNode* Parser::parseTerm() {
     return left;
 }
 
-ASTNode* Parser::parseFactor() { //used to find important token for tree construction
+ASTNode* Parser::parseFactor() {
     return parsePrimary();
 }
 

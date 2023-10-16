@@ -14,7 +14,7 @@ public:
     virtual std::string toInfix() const = 0;
 };
 //assist with operators
-class BinaryOperation : public ASTNode {
+struct BinaryOperation : public ASTNode {
 public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
         : op(op), left(left), right(right) {}
@@ -28,20 +28,20 @@ public:
     ASTNode* right;
 };
 
-class Number : public ASTNode {
+struct Number : public ASTNode {
 public:
     Number(double value) : value(value) {}
 
     double evaluate() const override { return value; }
     std::string toInfix() const override;
 
-private:
     double value;
 };
 //actually parse the tokens
 class Parser {
 public:
-    Parser(Lexer& lexer) : lexer(lexer) {}
+    //Parser(Lexer& lexer) : lexer(lexer) {}
+    Parser(Lexer& lexer) : lexer(lexer), currentToken(0, 0, "", TokenType::OPERATOR) {}
     std::string printInfix(ASTNode* node);
     ASTNode* parse();
 
