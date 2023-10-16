@@ -1,1 +1,1 @@
-# script_language
+# A lightweight scripting language
