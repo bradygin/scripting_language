@@ -12,6 +12,7 @@ public:
     virtual ~ASTNode() {}
     virtual double evaluate() const = 0;
     virtual std::string toInfix() const = 0;
+    
 };
 //assist with operators
 struct BinaryOperation : public ASTNode {
@@ -41,12 +42,14 @@ public:
 class Parser {
 public:
     //Parser(Lexer& lexer) : lexer(lexer) {}
-    Parser(Lexer& lexer) : lexer(lexer), currentToken(0, 0, "", TokenType::OPERATOR) {}
+    //Parser(Lexer& lexer) : lexer(lexer), currentToken(0, 0, "", TokenType::OPERATOR) {}
+    Parser(const std::vector<Token>& tokens);
     std::string printInfix(ASTNode* node);
     ASTNode* parse();
 
 private:
-    Lexer& lexer;
+    std::vector<Token> tokens;
+    size_t index;
     Token currentToken;
 
     void nextToken();
