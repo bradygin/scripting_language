@@ -6,8 +6,6 @@
 #include <string>
 
 int main() {
-    std::cout << "Enter your input:" << std::endl;
-
     // Initialize the lexer with standard input (cin)
     Lexer lexer(std::cin);
 
@@ -28,7 +26,8 @@ int main() {
         }     
         //std::cout << "After print" << std::endl << std::flush;
 
-    } catch (const std::runtime_error& error) {
+    } 
+    catch (const std::runtime_error& error) {
         // Handle syntax errors
         std::cerr << error.what() << std::endl;
         return 1;
