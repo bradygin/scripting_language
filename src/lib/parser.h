@@ -1,62 +1,44 @@
 #ifndef PARSER_H
 #define PARSER_H
-
-#include <vector>
-#include <string>
-#include <iostream>
-#include "lexer.h"
 #include "token.h"
-//for constructing AST
-class ASTNode {
+#include <vector>
+
+class Node {
 public:
-    virtual ~ASTNode() {}
-    virtual double evaluate() const = 0;
-    virtual std::string toInfix() const = 0;
-    
+    std::string value;
+    std::vector<Node*> children; // vector to store children nodes
+    std::string operation;
+
+    Node(const std::string& val) : value(val), operation("") {}
+    Node(const std::string& val, const std::string& op) : value(val), operation(op) {}
+    ~Node();
+    double evaluate();
+
+    int getPrecedence() const {
+        if (operation == "*" || operation == "/") {
+            return 2;
+        } else if (operation == "+" || operation == "-") {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 };
-//assist with operators
-struct BinaryOperation : public ASTNode {
-public:
-    BinaryOperation(char op, ASTNode* left, ASTNode* right)
-        : op(op), left(left), right(right) {}
 
-    double evaluate() const override;
-    std::string toInfix() const override;
-
-
-    char op;
-    ASTNode* left;
-    ASTNode* right;
-};
-
-struct Number : public ASTNode {
-public:
-    Number(double value) : value(value) {}
-
-    double evaluate() const override { return value; }
-    std::string toInfix() const override;
-
-    double value;
-};
-//actually parse the tokens
 class Parser {
 public:
-    //Parser(Lexer& lexer) : lexer(lexer) {}
-    //Parser(Lexer& lexer) : lexer(lexer), currentToken(0, 0, "", TokenType::OPERATOR) {}
     Parser(const std::vector<Token>& tokens);
-    std::string printInfix(ASTNode* node);
-    ASTNode* parse();
+    ~Parser();
+
+    Node* parse();
+    Node* parseExpression();
+    double evaluate(Node* node);
+    std::string printInfix(Node* node);
 
 private:
-    std::vector<Token> tokens;
-    size_t index;
-    Token currentToken;
-
-    void nextToken();
-    ASTNode* parsePrimary();
-    ASTNode* parseExpression();
-    ASTNode* parseTerm();
-    ASTNode* parseFactor();
+    const std::vector<Token> tokens;
+    size_t currentTokenIndex;
+    Node* root;
 };
 
 #endif
