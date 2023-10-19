@@ -64,7 +64,7 @@ Token Lexer::nextToken() {
     }
 
     // If you reach the end of the input, create and return the "END" token
-    return Token(line + 1, 1, "END", TokenType::OPERATOR);
+    return Token(line, 1, "END", TokenType::OPERATOR);
 }
 
 // Function to tokenize the entire input stream and return a vector of tokens
