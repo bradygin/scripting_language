@@ -19,9 +19,9 @@ int main() {
     for (const Token& token : tokens) {
             std::cout << std::setw(4) << std::right << token.line 
             << std::setw(5) << std::right << token.column << " "
-            << std::setw(6) << std::left << token.text << std::endl;
-        }  
-    } 
+            << std::setw(6) << std::left << token.text << std::setw(0) << std::endl;
+        }
+    }
     catch (const std::runtime_error& error) {
         // Handle syntax errors
         std::cerr << error.what() << std::endl;
