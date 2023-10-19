@@ -40,7 +40,7 @@ Token Lexer::nextToken() {
                         char followingChar = sExpression.peek();  // Peek at the next character
                         if (!std::isdigit(followingChar)) {  // Check if it's not a digit
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
-                            std::cerr << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
+                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
                             exit(1);
                         }
                     }
