@@ -2,9 +2,9 @@
 #include <fstream>
 #include <iomanip>
 #include <vector>
-#include "lexer.h"
-#include "token.h"
-#include "parser.h"
+#include "lib/lexer.h"
+#include "lib/token.h"
+#include "lib/parser.h"
 
 int main() {
     // Read input from standard input (cin)
