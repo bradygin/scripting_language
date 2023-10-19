@@ -18,8 +18,8 @@ int main() {
         // Print the tokens and their line and column numbers
     for (const Token& token : tokens) {
             std::cout << std::setw(4) << std::right << token.line 
-            << std::setw(5) << std::right << token.column << " "
-            << std::setw(6) << std::left << token.text << std::setw(0) << std::endl;
+            << std::setw(5) << std::right << token.column << "    "
+            << std::left << token.text << std::endl;
         }
     }
     catch (const std::runtime_error& error) {
