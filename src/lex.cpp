@@ -21,7 +21,7 @@ int main() {
 
         // Print the tokens and their line and column numbers
       for (const Token& token : tokens) {
-            std::cout << std::setw(4) << token.line << std::setw(4) << token.column << "  "
+            std::cout << token.line << std::setw(4) << token.column << "  "
                       << std::setw(4) << token.text << std::endl;
         }     
         //std::cout << "After print" << std::endl << std::flush;
