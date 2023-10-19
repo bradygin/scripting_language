@@ -35,6 +35,13 @@ Token Lexer::nextToken() {
             while (sExpression.get(nextChar)) {
 
                 if (std::isdigit(nextChar) || nextChar == '.') {
+                    // Check if the next character following a '.' is a digit
+                    if (nextChar == '.' && num.find('.') == std::string::npos) {
+                        char followingChar = sExpression.peek();  // Peek at the next character
+                        if (!std::isdigit(followingChar)) {  // Check if it's not a digit
+                            throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2));
+                        }
+                    }
                     column++;
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
