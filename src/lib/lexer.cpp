@@ -57,14 +57,18 @@ Token Lexer::nextToken() {
             }
 
             return Token(line, (column - num.length() + 1), num, TokenType::NUMBER);
-
         } else {
             throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
         }
     }
 
     // If you reach the end of the input, create and return the "END" token
-    return Token(line, 1, "END", TokenType::OPERATOR);
+    if (currChar == '\n') {
+        return Token(line, 1, "END", TokenType::OPERATOR);
+    }
+    else {
+        return Token(line, column + 1, "END", TokenType::OPERATOR);
+    }
 }
 
 // Function to tokenize the entire input stream and return a vector of tokens
