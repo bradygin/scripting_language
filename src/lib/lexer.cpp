@@ -63,12 +63,7 @@ Token Lexer::nextToken() {
     }
 
     // If you reach the end of the input, create and return the "END" token
-    if (currChar == '\n') {
-        return Token(line, 1, "END", TokenType::OPERATOR);
-    }
-    else {
-        return Token(line, column + 1, "END", TokenType::OPERATOR);
-    }
+    return Token(line, column + 1, "END", TokenType::OPERATOR);
 }
 
 // Function to tokenize the entire input stream and return a vector of tokens
@@ -79,7 +74,7 @@ std::vector<Token> Lexer::tokenize() {
         myTokens.push_back(currToken);   
         currToken = nextToken();
     }
-
+    // Token lastToken = myTokens[myTokens.size() - 1];
     myTokens.push_back(currToken);
 
     return myTokens;
