@@ -33,6 +33,13 @@ Node* Parser::parseExpression() {
     while (currentTokenIndex < tokens.size()) {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
+            std::string next_token = tokens[currentTokenIndex].text;
+            if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/") {
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                << " column " << tokens[currentTokenIndex].column
+                << ": " << tokens[currentTokenIndex].text << std::endl;
+                exit(2);
+            }
             node->operation = tokens[currentTokenIndex].text; 
             currentTokenIndex++;
             while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type != TokenType::RIGHT_PAREN) {
