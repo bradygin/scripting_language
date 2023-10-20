@@ -70,7 +70,13 @@ std::string Parser::printInfix(Node* node) {
     if (node == nullptr) {
         return "";  
     } else if (node->operation == "") {
-        return node->value;
+        double value = std::stod(node->value);
+        if (value == std::floor(value)) {
+            return std::to_string(static_cast<int>(value));
+        }
+        else {
+            return node->value;
+        }
     } else {
         std::string infix = "(";
         for (size_t i = 0; i < node->children.size(); ++i) {
