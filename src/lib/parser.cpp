@@ -20,7 +20,7 @@ Parser::~Parser() {
 Node* Parser::parse() {
     root = parseExpression();
     if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
-        std::cerr <<("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " 
+        std::cout <<("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " 
                     + std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text) << std::endl;
         exit(2);
     }
@@ -41,7 +41,7 @@ Node* Parser::parseExpression() {
                 currentTokenIndex++;
                 return node;
             } else {
-                std::cerr << "Unexpected token at line " +
+                std::cout << "Unexpected token at line " +
                     std::to_string(tokens[currentTokenIndex].line) + " column " +
                     std::to_string(tokens[currentTokenIndex].column) + ": " +
                     tokens[currentTokenIndex].text << std::endl;
@@ -51,7 +51,7 @@ Node* Parser::parseExpression() {
             node->value = tokens[currentTokenIndex++].text;
             return node;
         } else {
-            std::cerr << "Unexpected token at line " +
+            std::cout << "Unexpected token at line " +
                 std::to_string(tokens[currentTokenIndex].line) + " column " +
                 std::to_string(tokens[currentTokenIndex].column) + ": " +
                 tokens[currentTokenIndex].text << std::endl;
@@ -61,7 +61,7 @@ Node* Parser::parseExpression() {
     if (tokens[currentTokenIndex].text == "END") {
         return nullptr;
     } else {
-        std::cerr << "Invalid input: Unexpected end of input." << std::endl;
+        std::cout << "Invalid input: Unexpected end of input." << std::endl;
         exit(2);
     }
 }
