@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 Node::~Node() {
     for (Node* child : children) {
@@ -142,4 +143,5 @@ double Node::evaluate() {
 
     return result;
 }
+
 
