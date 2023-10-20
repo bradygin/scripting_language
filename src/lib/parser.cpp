@@ -105,7 +105,7 @@ double Node::evaluate() {
     } else if (operation == "-") {
         if (children.size() == 0) {
             std::cerr <<("Invalid number of children for operator: " + operation) << std::endl;
-            exit(3);
+            exit(2);
         }
         result = children[0]->evaluate();
         for (size_t i = 1; i < children.size(); ++i) {
