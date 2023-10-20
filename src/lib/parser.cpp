@@ -90,7 +90,7 @@ double Node::evaluate() {
         double result;
         ss >> result;
         if (ss.fail()) {
-            std::cerr <<("Invalid input: " + value) << std::endl;
+            std::cout <<("Invalid input: " + value) << std::endl;
             exit(2);
         }
         return result;
@@ -104,7 +104,7 @@ double Node::evaluate() {
         }
     } else if (operation == "-") {
         if (children.size() == 0) {
-            std::cerr <<("Invalid number of children for operator: " + operation) << std::endl;
+            std::cout <<("Invalid number of children for operator: " + operation) << std::endl;
             exit(2);
         }
         result = children[0]->evaluate();
@@ -118,7 +118,7 @@ double Node::evaluate() {
         }
     } else if (operation == "/") {
         if (children.size() == 0) {
-            std::cerr <<("Invalid number of children for operator: " + operation) << std::endl;
+            std::cout <<("Invalid number of children for operator: " + operation) << std::endl;
             exit(3);
         }
         result = children[0]->evaluate();
