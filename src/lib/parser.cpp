@@ -124,14 +124,14 @@ double Node::evaluate() {
         result = children[0]->evaluate();
         for (size_t i = 1; i < children.size(); ++i) {
             if (children[i]->evaluate() == 0.0) {
-                std::cerr <<("Runtime error: division by zero.") << std::endl;
+                std::cout <<("Runtime error: division by zero.") << std::endl;
                 exit(3);
             }
             result /= children[i]->evaluate();
         }
     } else {
-        std::cerr <<("Invalid operator: " + operation) << std::endl;
-        exit(3);
+        std::cout <<("Invalid operator: " + operation) << std::endl;
+        exit(2);
     }
 
     return result;
