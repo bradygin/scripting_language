@@ -1,4 +1,26 @@
+#include <sstream>
 #include "infixParser.h"
+
+std::map<std::string, double> symbolTable;
+
+Assignment::Assignment(const std::string& varName, ASTNode* expression)
+    : variableName(varName), expression(expression) {}
+
+double Assignment::evaluate() const {
+    double result = expression->evaluate();
+    
+    if (symbolTable.find(variableName) != symbolTable.end()) {
+        symbolTable[variableName] = result;
+        return symbolTable[variableName];
+    } else {
+        std::cerr << "Variable '" << variableName << "' not found." << std::endl;
+        exit(3);
+    }
+}
+
+std::string Assignment::toInfix() const {
+    return "(" + variableName + " = " + expression->toInfix() + ")";
+}
 
 double BinaryOperation::evaluate() const {
     double leftValue = left->evaluate();
@@ -27,7 +49,10 @@ std::string BinaryOperation::toInfix() const {
 }
 
 std::string Number::toInfix() const {
-    return std::to_string(value);
+    std::ostringstream oss;
+    oss << value;
+    std::string num = oss.str();
+    return num;
 }
 
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), index(0) {
@@ -84,37 +109,66 @@ ASTNode* Parser::parseFactor() {
 ASTNode* Parser::parsePrimary() {
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
-        nextToken();  
+        nextToken();
         return new Number(value);
-    } else if (currentToken.type == TokenType::LEFT_PAREN) {
+    } else if (currentToken.type == TokenType::IDENTIFIER) {
+        std::string varName = currentToken.text;
         nextToken();  
+
+        if (currentToken.type == TokenType::ASSIGNMENT) {
+            nextToken();  
+            ASTNode* expr = parseExpression();
+
+            // Store the variable value in the symbolTable
+            symbolTable[varName] = expr->evaluate();
+
+            return new Assignment(varName, expr);
+        } else {
+            if (symbolTable.find(varName) != symbolTable.end()) {
+                return new Number(symbolTable[varName]);
+            } else {
+                std::cerr << "Variable '" << varName << "' not found." << std::endl;
+                exit(3);
+            }
+        }
+    } else if (currentToken.type == TokenType::LEFT_PAREN) {
+        nextToken();
         ASTNode* result = parseExpression();
         if (currentToken.type == TokenType::RIGHT_PAREN) {
-            nextToken();  
+            nextToken();
             return result;
         } else {
-            std::cerr << "(2) Unexpected token at line " << currentToken.line
+            std::cerr << "Unexpected token at line " << currentToken.line
                       << " column " << currentToken.column << ": " << currentToken.text << std::endl;
             exit(2);
         }
     } else {
-        std::cerr << "(3) Unexpected token at line " << currentToken.line
+        std::cerr << "Unexpected token at line " << currentToken.line
                   << " column " << currentToken.column << ": " << currentToken.text << std::endl;
         exit(2);
     }
 }
 
-
- std::string Parser::printInfix(ASTNode* node) {
+std::string Parser::printInfix(ASTNode* node) {
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
         std::string leftStr = printInfix(binOp->left);
         std::string rightStr = printInfix(binOp->right);
         return "(" + leftStr + " " + binOp->op + " " + rightStr + ")";
     } else if (dynamic_cast<Number*>(node) != nullptr) {
-        return std::to_string(dynamic_cast<Number*>(node)->value);
+        std::ostringstream oss;
+        oss << dynamic_cast<Number*>(node)->value;
+        return oss.str();
+    } else if (dynamic_cast<Assignment*>(node) != nullptr) {
+        Assignment* assignment = dynamic_cast<Assignment*>(node);
+        return "(" + assignment->variableName + " = " + printInfix(assignment->expression) + ")";
+    } else if (dynamic_cast<Variable*>(node) != nullptr) {
+        Variable* variable = dynamic_cast<Variable*>(node);
+        return variable->variableName;
     } else {
         std::cerr << "Invalid node type" << std::endl;
         exit(4);
     }
 }
+
+
