@@ -70,6 +70,7 @@ Token Lexer::nextToken() {
             while (sExpression.get(nextChar)) {
                 if (isalnum(nextChar) || nextChar == '_') {
                     identifier += nextChar;
+                    column++;
                 } else {
                     sExpression.unget();
                     break;
