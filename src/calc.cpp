@@ -33,11 +33,11 @@ int main() {
                 // Evaluate the expression
                 double result = root->evaluate();
                 std::cout << result << std::endl;
-                delete root;
+                //delete root;
             } else {
                 std::cerr << "Failed to parse the input expression." << std::endl;
             }
-
+        delete root;
         } catch (const std::runtime_error& error) {
             // Handle syntax errors
             std::cerr << error.what() << std::endl;
