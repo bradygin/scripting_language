@@ -20,10 +20,7 @@ struct BinaryOperation : public ASTNode {
 public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
         : op(op), left(left), right(right) {}
-~BinaryOperation() {
-    delete left;
-    delete right;
-}
+
     double evaluate() const override;
     std::string toInfix() const override;
 
@@ -65,9 +62,7 @@ private:
 class Assignment : public ASTNode {
 public:
     Assignment(const std::string& varName, ASTNode* expression);
-    ~Assignment() {
-    delete expression;
-}
+
     double evaluate() const override;
     std::string toInfix() const override;
 

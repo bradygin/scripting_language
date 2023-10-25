@@ -13,8 +13,8 @@ double Assignment::evaluate() const {
         symbolTable[variableName] = result;
         return symbolTable[variableName];
     } else {
-        std::cout << "Variable '" << variableName << "' not found." << std::endl;
-        exit(2);
+        std::cerr << "Variable '" << variableName << "' not found." << std::endl;
+        exit(3);
     }
 }
 
@@ -37,7 +37,7 @@ double BinaryOperation::evaluate() const {
             }
             return leftValue / rightValue;
         default:
-            std::cout << "Invalid operator" << std::endl;
+            std::cerr << "Invalid operator" << std::endl;
             exit(2);
     }
 }
@@ -127,7 +127,7 @@ ASTNode* Parser::parsePrimary() {
             if (symbolTable.find(varName) != symbolTable.end()) {
                 return new Number(symbolTable[varName]);
             } else {
-                std::cout << "Variable '" << varName << "' not found." << std::endl;
+                std::cerr << "Variable '" << varName << "' not found." << std::endl;
                 exit(3);
             }
         }
@@ -138,12 +138,12 @@ ASTNode* Parser::parsePrimary() {
             nextToken();
             return result;
         } else {
-            std::cout << "Unexpected token at line " << currentToken.line
+            std::cerr << "Unexpected token at line " << currentToken.line
                       << " column " << currentToken.column << ": " << currentToken.text << std::endl;
             exit(2);
         }
     } else {
-        std::cout << "Unexpected token at line " << currentToken.line
+        std::cerr << "Unexpected token at line " << currentToken.line
                   << " column " << currentToken.column << ": " << currentToken.text << std::endl;
         exit(2);
     }
@@ -166,7 +166,7 @@ std::string Parser::printInfix(ASTNode* node) {
         Variable* variable = dynamic_cast<Variable*>(node);
         return variable->variableName;
     } else {
-        std::cout << "Invalid node type" << std::endl;
+        std::cerr << "Invalid node type" << std::endl;
         exit(4);
     }
 }
