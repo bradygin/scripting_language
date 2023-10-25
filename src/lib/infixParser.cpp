@@ -96,11 +96,21 @@ ASTNode* Parser::parseExpression() {
         char op = currentToken.text[0];
         nextToken();  
         ASTNode* right = parseTerm();
-        left = new BinaryOperation(op, left, right);
+
+        // Create a new BinaryOperation node
+        BinaryOperation* binaryOp = new BinaryOperation(op, left, right);
+
+        // Delete the old 'left' and 'right' nodes, as they are no longer needed
+        delete left;
+        delete right;
+
+        left = binaryOp;
     }
 
     return left;
 }
+
+
 
 
 ASTNode* Parser::parseTerm() {
