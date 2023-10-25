@@ -123,10 +123,10 @@ ASTNode* Parser::parsePrimary() {
         return new Number(value);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
-        nextToken();
+        nextToken();  
 
         if (currentToken.type == TokenType::ASSIGNMENT) {
-            nextToken();
+            nextToken();  
             ASTNode* expr = parseExpression();
 
             // Store the variable value in the symbolTable
@@ -135,11 +135,10 @@ ASTNode* Parser::parsePrimary() {
             return new Assignment(varName, expr);
         } else {
             if (symbolTable.find(varName) != symbolTable.end()) {
-                // Check if the variable name is in the symbolTable, and if so, return it as a variable node
-                return new Variable(varName);
+                return new Number(symbolTable[varName]);
             } else {
-                // Variable not found in the symbolTable, return it as a Number with a value of 0
-                return new Number(0.0);
+                std::cout << "Runtime error: unknown identifier " << varName << std::endl;
+                exit(3);
             }
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
@@ -159,6 +158,7 @@ ASTNode* Parser::parsePrimary() {
         exit(2);
     }
 }
+
 std::string Parser::printInfix(ASTNode* node) {
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
