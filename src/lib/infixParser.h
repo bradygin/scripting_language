@@ -20,7 +20,7 @@ struct BinaryOperation : public ASTNode {
 public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
         : op(op), left(left), right(right) {}
-    ~BinaryOperation();
+
     double evaluate() const override;
     std::string toInfix() const override;
 
@@ -33,7 +33,7 @@ public:
 struct Number : public ASTNode {
 public:
     Number(double value) : value(value) {}
-    ~Number();
+
     double evaluate() const override { return value; }
     std::string toInfix() const override;
 
@@ -45,7 +45,6 @@ public:
     Parser(const std::vector<Token>& tokens);
     std::string printInfix(ASTNode* node);
     ASTNode* parse();
-    ~Parser();
 
 private:
     std::vector<Token> tokens;
@@ -63,7 +62,7 @@ private:
 class Assignment : public ASTNode {
 public:
     Assignment(const std::string& varName, ASTNode* expression);
-    ~Assignment();
+
     double evaluate() const override;
     std::string toInfix() const override;
 
@@ -88,4 +87,3 @@ public:
 };
 
 #endif
-

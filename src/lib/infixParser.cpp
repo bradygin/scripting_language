@@ -13,8 +13,8 @@ double Assignment::evaluate() const {
         symbolTable[variableName] = result;
         return symbolTable[variableName];
     } else {
-        std::cerr << "Variable '" << variableName << "' not found." << std::endl;
-        exit(3);
+        std::cout << "Variable '" << variableName << "' not found." << std::endl;
+        exit(2);
     }
 }
 
@@ -37,7 +37,7 @@ double BinaryOperation::evaluate() const {
             }
             return leftValue / rightValue;
         default:
-            std::cerr << "Invalid operator" << std::endl;
+            std::cout << "Invalid operator" << std::endl;
             exit(2);
     }
 }
@@ -72,22 +72,8 @@ void Parser::nextToken() {
 }
 
 ASTNode* Parser::parse() {
-    ASTNode* root = parseExpression();
-    return root;
-    //return parseExpression();
+    return parseExpression();
 }
-Assignment::~Assignment() {
-    delete expression;
-}
-
-BinaryOperation::~BinaryOperation() {
-    delete left;
-    delete right;
-}
-Parser::~Parser(){}
-
-Number::~Number() {}
-
 
 ASTNode* Parser::parseExpression() {
     ASTNode* left = parseTerm();
@@ -96,21 +82,11 @@ ASTNode* Parser::parseExpression() {
         char op = currentToken.text[0];
         nextToken();  
         ASTNode* right = parseTerm();
-
-        // Create a new BinaryOperation node
-        BinaryOperation* binaryOp = new BinaryOperation(op, left, right);
-
-        // Delete the old 'left' and 'right' nodes, as they are no longer needed
-        delete left;
-        delete right;
-
-        left = binaryOp;
+        left = new BinaryOperation(op, left, right);
     }
 
     return left;
 }
-
-
 
 
 ASTNode* Parser::parseTerm() {
@@ -151,7 +127,7 @@ ASTNode* Parser::parsePrimary() {
             if (symbolTable.find(varName) != symbolTable.end()) {
                 return new Number(symbolTable[varName]);
             } else {
-                std::cerr << "Variable '" << varName << "' not found." << std::endl;
+                std::cout << "Variable '" << varName << "' not found." << std::endl;
                 exit(3);
             }
         }
@@ -162,12 +138,12 @@ ASTNode* Parser::parsePrimary() {
             nextToken();
             return result;
         } else {
-            std::cerr << "Unexpected token at line " << currentToken.line
+            std::cout << "Unexpected token at line " << currentToken.line
                       << " column " << currentToken.column << ": " << currentToken.text << std::endl;
             exit(2);
         }
     } else {
-        std::cerr << "Unexpected token at line " << currentToken.line
+        std::cout << "Unexpected token at line " << currentToken.line
                   << " column " << currentToken.column << ": " << currentToken.text << std::endl;
         exit(2);
     }
@@ -190,9 +166,7 @@ std::string Parser::printInfix(ASTNode* node) {
         Variable* variable = dynamic_cast<Variable*>(node);
         return variable->variableName;
     } else {
-        std::cerr << "Invalid node type" << std::endl;
+        std::cout << "Invalid node type" << std::endl;
         exit(4);
     }
 }
-
-
