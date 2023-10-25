@@ -15,7 +15,7 @@ double Assignment::evaluate() const {
         return symbolTable[variableName];
     } else {
         std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
-        exit(2);
+        exit(3);
     }
 }
 
@@ -87,9 +87,16 @@ ASTNode* Parser::parseExpression() {
     }
 
     return left;
-    delete left;
 }
 
+BinaryOperation::~BinaryOperation() {
+        delete left;
+        delete right;
+    }
+
+Assignment::~Assignment() {
+        delete expression;
+    }
 
 ASTNode* Parser::parseTerm() {
     ASTNode* left = parseFactor();

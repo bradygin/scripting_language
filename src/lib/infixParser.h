@@ -21,6 +21,8 @@ public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
         : op(op), left(left), right(right) {}
 
+    ~BinaryOperation();
+
     double evaluate() const override;
     std::string toInfix() const override;
 
@@ -46,6 +48,7 @@ public:
     std::string printInfix(ASTNode* node);
     ASTNode* parse();
 
+
 private:
     std::vector<Token> tokens;
     size_t index;
@@ -62,6 +65,8 @@ private:
 class Assignment : public ASTNode {
 public:
     Assignment(const std::string& varName, ASTNode* expression);
+
+        ~Assignment();
 
     double evaluate() const override;
     std::string toInfix() const override;
