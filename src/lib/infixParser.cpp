@@ -168,4 +168,3 @@ std::string Parser::printInfix(ASTNode* node) {
         exit(4);
     }
 }
-

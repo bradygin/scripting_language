@@ -17,12 +17,11 @@ int main() {
         }
         std::istringstream inputStream(inputLine);
         Lexer lexer(inputStream);
-        // Lexer lexer(std::cin);
 
         try {
             // Tokenize and parse the current line
             std::vector<Token> tokens = lexer.tokenize();
-            Parser parser(tokens, symbolTable); // Pass symbolTable to Parser
+            Parser parser(tokens, symbolTable);
 
             ASTNode* root = parser.parse();
 
@@ -31,16 +30,24 @@ int main() {
                 std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
 
-                // Evaluate the expression
-                double result = root->evaluate(symbolTable);
-                std::cout << result << std::endl;
+                // Evaluate the expression and catch custom exceptions
+                try {
+                    double result = root->evaluate(symbolTable);
+                    std::cout << result << std::endl;
+                } catch (const DivisionByZeroException& e) {
+                    std::cerr << e.what() << std::endl;
+                } catch (const InvalidOperatorException& e) {
+                    std::cerr << e.what() << std::endl;
+                } catch (const UnknownIdentifierException& e) {
+                    std::cerr << e.what() << std::endl;
+                }
+
+                delete root;
             } else {
                 std::cerr << "Failed to parse the input expression." << std::endl;
             }
-            delete root;
-        } catch (const std::runtime_error& error) {
-            // Handle syntax errors
-            std::cerr << error.what() << std::endl;
+        } catch (const UnexpectedTokenException& e) {
+            std::cerr << e.what() << std::endl;
         }
     }
 
