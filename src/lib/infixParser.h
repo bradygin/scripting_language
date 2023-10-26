@@ -80,15 +80,7 @@ class Variable : public ASTNode {
 public:
     Variable(const std::string& varName) : variableName(varName) {}
 
-    double evaluate(std::map<std::string, double>& symbolTable) const;  //{
-        // if (symbolTable.find(variableName) != symbolTable.end()) {
-        //     return symbolTable.at(variableName);
-        // } else {
-        //     throw UnknownIdentifierException(symbolTable);
-        //     // std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
-        //     // exit(3);
-        // }
-    //}
+    double evaluate(std::map<std::string, double>& symbolTable) const;  
 
     std::string toInfix() const override {
         return variableName;
@@ -96,6 +88,7 @@ public:
 
     std::string variableName;
 };
+
 //EXCEPTION HANDELING
 class UnknownIdentifierException : public std::runtime_error{
     public:
