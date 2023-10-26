@@ -5,8 +5,8 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "lib/lexer.h"
-#include "lib/token.h"
+#include "lexer.h"
+#include "token.h"
 
 class ASTNode {
 public:
@@ -94,7 +94,4 @@ public:
 
     std::string variableName;
 };
-
-
-
 #endif
