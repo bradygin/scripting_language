@@ -78,31 +78,14 @@ ASTNode* Parser::parse() {
     return parseExpression();
 }
 
-// ASTNode* Parser::parseExpression() {
-//     ASTNode* left = parseTerm();
-
-//     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
-//         char op = currentToken.text[0];
-//         nextToken();  
-//         ASTNode* right = parseTerm();
-//         left = new BinaryOperation(op, left, right);
-//     }
-
-//     return left;
-// }
 ASTNode* Parser::parseExpression() {
     ASTNode* left = parseTerm();
 
     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
         char op = currentToken.text[0];
-        nextToken();
+        nextToken();  
         ASTNode* right = parseTerm();
         left = new BinaryOperation(op, left, right);
-    }
-
-    // Check for an unmatched closing parenthesis
-    if (currentToken.type == TokenType::RIGHT_PAREN) {
-        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 
     return left;
