@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <stdexcept>
 #include "lexer.h"
 #include "token.h"
 
@@ -79,20 +80,59 @@ class Variable : public ASTNode {
 public:
     Variable(const std::string& varName) : variableName(varName) {}
 
-    double evaluate(std::map<std::string, double>& symbolTable) const  {
-        if (symbolTable.find(variableName) != symbolTable.end()) {
-            return symbolTable.at(variableName);
-        } else {
-            std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
-            exit(3);
-        }
-    }
+    double evaluate(std::map<std::string, double>& symbolTable) const;  //{
+        // if (symbolTable.find(variableName) != symbolTable.end()) {
+        //     return symbolTable.at(variableName);
+        // } else {
+        //     throw UnknownIdentifierException(symbolTable);
+        //     // std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
+        //     // exit(3);
+        // }
+    //}
 
     std::string toInfix() const override {
         return variableName;
     }
 
     std::string variableName;
+};
+//EXCEPTION HANDELING
+class UnknownIdentifierException : public std::runtime_error{
+    public:
+    UnknownIdentifierException(std::map<std::string, double>& symbolTable, const std::string& variableName) 
+        : std::runtime_error("Runtime error: unknown identifier " + variableName) {}
+
+        int getErrorCode() const {
+        return 3; 
+    }
+};
+
+class DivisionByZeroException : public std::runtime_error {
+public:
+    DivisionByZeroException() : std::runtime_error("Runtime error: division by zero") {}
+    
+    int getErrorCode() const {
+        return 3; 
+    }
+};
+
+class InvalidOperatorException : public std::runtime_error {
+public:
+    InvalidOperatorException() : std::runtime_error("Invalid operator") {}
+    
+    int getErrorCode() const {
+        return 2; 
+    }
+};
+
+class UnexpectedTokenException : public std::runtime_error {
+public:
+    UnexpectedTokenException(const std::string& tokenText, int line, int column) 
+        : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    
+    int getErrorCode() const {
+        return 2; 
+    }
 };
 
 #endif

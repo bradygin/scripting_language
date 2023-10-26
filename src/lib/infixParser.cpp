@@ -1,4 +1,5 @@
 #include <sstream>
+#include <stdexcept>
 #include "infixParser.h"
 
 std::map<std::string, double> symbolTable;
@@ -11,6 +12,14 @@ double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = expression->evaluate(symbolTable);
     symbolTable[variableName] = result;
     return result;   
+}
+
+double Variable::evaluate(std::map<std::string, double>& symbolTable) const {
+    if (symbolTable.find(variableName) != symbolTable.end()) {
+            return symbolTable.at(variableName);
+        } else {
+            throw UnknownIdentifierException(symbolTable, variableName);
+        }
 }
 
 std::string Assignment::toInfix() const {
@@ -27,13 +36,11 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
         case '*': return leftValue * rightValue;
         case '/':
             if (rightValue == 0) {
-                std::cout << "Runtime error: division by zero." << std::endl;
-                exit(3);
+                throw DivisionByZeroException();
             }
             return leftValue / rightValue;
         default:
-            std::cout << "Invalid operator" << std::endl;
-            exit(2);
+        throw InvalidOperatorException();
     }
 }
 
@@ -50,11 +57,6 @@ std::string Number::toInfix() const {
     return num;
 }
 
-// Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), index(0) {
-//     if (!tokens.empty()) {
-//         currentToken = tokens[index];
-//     }
-// }
 Parser::Parser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable)
     : tokens(tokens), index(0), symbolTable(symbolTable) {
     if (!tokens.empty()) {
@@ -109,7 +111,6 @@ ASTNode* Parser::parseTerm() {
     }
 
     return left;
-    delete left;
 }
 
 ASTNode* Parser::parseFactor() {
@@ -128,19 +129,9 @@ ASTNode* Parser::parsePrimary() {
         if (currentToken.type == TokenType::ASSIGNMENT) {
             nextToken();  
             ASTNode* expr = parseExpression();
-
-            // Store the variable value in the symbolTable
-            // symbolTable[varName] = expr->evaluate(symbolTable);
-
             return new Assignment(varName, expr);
         } else {
             return new Variable(varName);
-            // if (symbolTable.find(varName) != symbolTable.end()) {
-            //     return new Number(symbolTable[varName]);
-            // } else {
-            //     std::cout << "Runtime error: unknown identifier " << varName << std::endl;
-            //     exit(3);
-            // }
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
         nextToken();
@@ -149,20 +140,14 @@ ASTNode* Parser::parsePrimary() {
             nextToken();
             return result;
         } else {
-            std::cout << "Unexpected token at line " << currentToken.line
-                      << " column " << currentToken.column << ": " << currentToken.text << std::endl;
-            exit(2);
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
     } else {
-        std::cout << "Unexpected token at line " << currentToken.line
-                  << " column " << currentToken.column << ": " << currentToken.text << std::endl;
-        exit(2);
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 }
 
 std::string Parser::printInfix(ASTNode* node) {
-    // return node->toInfix();
-
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
         std::string leftStr = printInfix(binOp->left);
