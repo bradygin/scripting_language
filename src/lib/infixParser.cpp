@@ -1,5 +1,5 @@
 #include <sstream>
-#include "infixParser.h"
+#include "lib/infixParser.h"
 
 std::map<std::string, double> symbolTable;
 

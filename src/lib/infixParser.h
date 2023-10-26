@@ -5,8 +5,8 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "lexer.h"
-#include "token.h"
+#include "lib/lexer.h"
+#include "lib/token.h"
 
 class ASTNode {
 public:

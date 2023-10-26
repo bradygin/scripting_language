@@ -2,9 +2,9 @@
 #include <fstream>
 #include <iomanip>
 
-#include "lexer.h"
-#include "token.h"
-#include "infixParser.h"
+#include "lib/lexer.h"
+#include "lib/token.h"
+#include "lib/infixParser.h"
 
 int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
