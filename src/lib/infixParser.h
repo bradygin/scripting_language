@@ -11,7 +11,7 @@
 class ASTNode {
 public:
     virtual ~ASTNode() {}
-    virtual double evaluate() const = 0;
+    virtual double evaluate(const std::map<std::string, double>& symbolTable) const = 0;
     virtual std::string toInfix() const = 0;
     
 };
@@ -23,7 +23,7 @@ public:
 
     ~BinaryOperation();
 
-    double evaluate() const override;
+    double evaluate(const std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
 
 
@@ -36,7 +36,7 @@ struct Number : public ASTNode {
 public:
     Number(double value) : value(value) {}
 
-    double evaluate() const override { return value; }
+    double evaluate(const std::map<std::string, double>& symbolTable) const override { return value; }
     std::string toInfix() const override;
 
     double value;
@@ -47,13 +47,13 @@ public:
     Parser(const std::vector<Token>& tokens);
     std::string printInfix(ASTNode* node);
     ASTNode* parse();
-
+    Parser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable);
 
 private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
-    std::map<std::string, double> variables;
+    std::map<std::string, double>& symbolTable;
 
     void nextToken();
     ASTNode* parsePrimary();
@@ -68,7 +68,7 @@ public:
 
         ~Assignment();
 
-    double evaluate() const override;
+    double evaluate(const std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
 
     std::string variableName;
@@ -79,16 +79,22 @@ class Variable : public ASTNode {
 public:
     Variable(const std::string& varName) : variableName(varName) {}
 
-    double evaluate() const override {
-        return 0.0; 
+    double evaluate(const std::map<std::string, double>& symbolTable) const  {
+        if (symbolTable.find(variableName) != symbolTable.end()) {
+            return symbolTable.at(variableName);
+        } else {
+            std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
+            exit(3);
+        }
     }
 
     std::string toInfix() const override {
         return variableName;
     }
 
-
     std::string variableName;
 };
+
+
 
 #endif

@@ -7,12 +7,11 @@ Assignment::Assignment(const std::string& varName, ASTNode* expression)
     : variableName(varName), expression(expression) {}
 
 
-double Assignment::evaluate() const {
-    double result = expression->evaluate();
+double Assignment::evaluate(const std::map<std::string, double>& symbolTable) const {
+    double result = expression->evaluate(symbolTable);   
     
     if (symbolTable.find(variableName) != symbolTable.end()) {
-        symbolTable[variableName] = result;
-        return symbolTable[variableName];
+        return result;
     } else {
         std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
         exit(3);
@@ -23,9 +22,9 @@ std::string Assignment::toInfix() const {
     return "(" + variableName + " = " + expression->toInfix() + ")";
 }
 
-double BinaryOperation::evaluate() const {
-    double leftValue = left->evaluate();
-    double rightValue = right->evaluate();
+double BinaryOperation::evaluate(const std::map<std::string, double>& symbolTable) const {
+    double leftValue = left->evaluate(symbolTable);
+    double rightValue = right->evaluate(symbolTable);
 
     switch (op) {
         case '+': return leftValue + rightValue;
@@ -56,7 +55,13 @@ std::string Number::toInfix() const {
     return num;
 }
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), index(0) {
+// Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), index(0) {
+//     if (!tokens.empty()) {
+//         currentToken = tokens[index];
+//     }
+// }
+Parser::Parser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable)
+    : tokens(tokens), index(0), symbolTable(symbolTable) {
     if (!tokens.empty()) {
         currentToken = tokens[index];
     }
@@ -130,16 +135,17 @@ ASTNode* Parser::parsePrimary() {
             ASTNode* expr = parseExpression();
 
             // Store the variable value in the symbolTable
-            symbolTable[varName] = expr->evaluate();
+            symbolTable[varName] = expr->evaluate(symbolTable);
 
             return new Assignment(varName, expr);
         } else {
-            if (symbolTable.find(varName) != symbolTable.end()) {
-                return new Number(symbolTable[varName]);
-            } else {
-                std::cout << "Runtime error: unknown identifier " << varName << std::endl;
-                exit(3);
-            }
+            return new Variable(varName);
+            // if (symbolTable.find(varName) != symbolTable.end()) {
+            //     return new Number(symbolTable[varName]);
+            // } else {
+            //     std::cout << "Runtime error: unknown identifier " << varName << std::endl;
+            //     exit(3);
+            // }
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
         nextToken();
@@ -160,6 +166,8 @@ ASTNode* Parser::parsePrimary() {
 }
 
 std::string Parser::printInfix(ASTNode* node) {
+    // return node->toInfix();
+
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
         std::string leftStr = printInfix(binOp->left);
@@ -180,3 +188,4 @@ std::string Parser::printInfix(ASTNode* node) {
         exit(4);
     }
 }
+
