@@ -7,22 +7,17 @@ Assignment::Assignment(const std::string& varName, ASTNode* expression)
     : variableName(varName), expression(expression) {}
 
 
-double Assignment::evaluate(const std::map<std::string, double>& symbolTable) const {
-    double result = expression->evaluate(symbolTable);   
-    
-    if (symbolTable.find(variableName) != symbolTable.end()) {
-        return result;
-    } else {
-        std::cout << "Runtime error: unknown identifier " << variableName << std::endl;
-        exit(3);
-    }
+double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
+    double result = expression->evaluate(symbolTable);
+    symbolTable[variableName] = result;
+    return result;   
 }
 
 std::string Assignment::toInfix() const {
     return "(" + variableName + " = " + expression->toInfix() + ")";
 }
 
-double BinaryOperation::evaluate(const std::map<std::string, double>& symbolTable) const {
+double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) const {
     double leftValue = left->evaluate(symbolTable);
     double rightValue = right->evaluate(symbolTable);
 
@@ -135,7 +130,7 @@ ASTNode* Parser::parsePrimary() {
             ASTNode* expr = parseExpression();
 
             // Store the variable value in the symbolTable
-            symbolTable[varName] = expr->evaluate(symbolTable);
+            // symbolTable[varName] = expr->evaluate(symbolTable);
 
             return new Assignment(varName, expr);
         } else {
