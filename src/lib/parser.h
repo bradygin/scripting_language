@@ -7,6 +7,7 @@ class Node {
 public:
     std::string value;
     std::vector<Node*> children; // vector to store children nodes
+    //std::vector<Node*> parse(); //add?
     std::string operation;
 
     Node(const std::string& val) : value(val), operation("") {}
