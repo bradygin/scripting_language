@@ -102,7 +102,7 @@ class UnknownIdentifierException : public std::runtime_error{
 
 class DivisionByZeroException : public std::runtime_error {
 public:
-    DivisionByZeroException() : std::runtime_error("Runtime error: division by zero") {}
+    DivisionByZeroException() : std::runtime_error("Runtime error: division by zero.") {}
     
     int getErrorCode() const {
         return 3; 
