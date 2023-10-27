@@ -11,6 +11,7 @@ Assignment::Assignment(const std::string& varName, ASTNode* expression)
 double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = expression->evaluate(symbolTable);
     symbolTable[variableName] = result;
+    delete expression;
     return result;   
 }
 
