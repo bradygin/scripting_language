@@ -1,5 +1,6 @@
 #include <sstream>
 #include <stdexcept>
+#include <memory>
 #include "infixParser.h"
 
 std::map<std::string, double> symbolTable;
@@ -78,17 +79,29 @@ ASTNode* infixParser::infixparse() {
     return infixparseExpression();
 }
 
+// ASTNode* infixParser::infixparseExpression() {
+//     ASTNode* left = infixparseTerm();
+
+//     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
+//         char op = currentToken.text[0];
+//         nextToken();  
+//         ASTNode* right = infixparseTerm();
+//         left = new BinaryOperation(op, left, right);
+//     }
+
+//     return left;
+// }
 ASTNode* infixParser::infixparseExpression() {
-    ASTNode* left = infixparseTerm();
+    std::unique_ptr<ASTNode> left(infixparseTerm());
 
     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
         char op = currentToken.text[0];
         nextToken();  
-        ASTNode* right = infixparseTerm();
-        left = new BinaryOperation(op, left, right);
+        std::unique_ptr<ASTNode> right(infixparseTerm());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
 
-    return left;
+    return left.release();
 }
 
 BinaryOperation::~BinaryOperation() {
@@ -100,17 +113,29 @@ Assignment::~Assignment() {
         delete expression;
     }
 
+// ASTNode* infixParser::infixparseTerm() {
+//     ASTNode* left = infixparseFactor();
+
+//     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "*" || currentToken.text == "/")) {
+//         char op = currentToken.text[0];
+//         nextToken();  
+//         ASTNode* right = infixparseFactor();
+//         left = new BinaryOperation(op, left, right);
+//     }
+
+//     return left;
+// }
 ASTNode* infixParser::infixparseTerm() {
-    ASTNode* left = infixparseFactor();
+    std::unique_ptr<ASTNode> left (infixparseFactor());
 
     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "*" || currentToken.text == "/")) {
         char op = currentToken.text[0];
         nextToken();  
-        ASTNode* right = infixparseFactor();
-        left = new BinaryOperation(op, left, right);
+        std::unique_ptr<ASTNode> right(infixparseFactor());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
 
-    return left;
+    return left.release();
 }
 
 ASTNode* infixParser::infixparseFactor() {
@@ -118,34 +143,64 @@ ASTNode* infixParser::infixparseFactor() {
 }
 
 
+// ASTNode* infixParser::infixparsePrimary() {
+//     //int parenCount = 0;
+//     if (currentToken.type == TokenType::NUMBER) {
+//         double value = std::stod(currentToken.text);
+//         nextToken();
+//          return new Number(value);
+//     } else if (currentToken.type == TokenType::IDENTIFIER) {
+//         std::string varName = currentToken.text;
+//         nextToken();  
+//         if (currentToken.type == TokenType::ASSIGNMENT) {
+//             nextToken();  
+//             ASTNode* expr = infixparseExpression();
+//             return new Assignment(varName, expr);
+//         } else {
+//             return new Variable(varName);
+//         }
+//     } else if (currentToken.type == TokenType::LEFT_PAREN) {
+//         //parenCount++;
+//         nextToken();
+//         ASTNode* result = infixparseExpression();
+//         if (currentToken.type == TokenType::RIGHT_PAREN) {
+//             //parenCount--;
+//             nextToken();
+//             return result;
+//         } else {
+//             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+//         }
+//     }else if (currentToken.type == TokenType::RIGHT_PAREN) {
+//         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+//     } else {
+//         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+//     }
+// }
 ASTNode* infixParser::infixparsePrimary() {
-    //int parenCount = 0;
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
         nextToken();
-         return new Number(value);
+        return std::make_unique<Number>(value).release();
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
-        nextToken();  
+        nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT) {
-            nextToken();  
-            ASTNode* expr = infixparseExpression();
-            return new Assignment(varName, expr);
+            nextToken();
+            std::unique_ptr<ASTNode> expr(infixparseExpression());
+            return std::make_unique<Assignment>(varName, expr.release()).release();
         } else {
-            return new Variable(varName);
+            return std::make_unique<Variable>(varName).release();
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
-        //parenCount++;
         nextToken();
-        ASTNode* result = infixparseExpression();
+        std::unique_ptr<ASTNode> result(infixparseExpression());
         if (currentToken.type == TokenType::RIGHT_PAREN) {
-            //parenCount--;
             nextToken();
-            return result;
+            return result.release();
         } else {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
-    }else if (currentToken.type == TokenType::RIGHT_PAREN) {
+    } else if (currentToken.type == TokenType::RIGHT_PAREN) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
