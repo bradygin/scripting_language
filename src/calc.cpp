@@ -27,7 +27,7 @@ int main() {
 
             if (root) {
                 // Print the AST in infix notation
-                std::string infixExpression = parser.printInfix(root);
+                std::string infixExpression = infixparser.printInfix(root);
                 std::cout << infixExpression << std::endl;
 
                 // Evaluate the expression and catch custom exceptions
