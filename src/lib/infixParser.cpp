@@ -79,18 +79,6 @@ ASTNode* infixParser::infixparse() {
     return infixparseExpression();
 }
 
-// ASTNode* infixParser::infixparseExpression() {
-//     ASTNode* left = infixparseTerm();
-
-//     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
-//         char op = currentToken.text[0];
-//         nextToken();  
-//         ASTNode* right = infixparseTerm();
-//         left = new BinaryOperation(op, left, right);
-//     }
-
-//     return left;
-// }
 ASTNode* infixParser::infixparseExpression() {
     std::unique_ptr<ASTNode> left(infixparseTerm());
 
@@ -113,18 +101,6 @@ Assignment::~Assignment() {
         delete expression;
     }
 
-// ASTNode* infixParser::infixparseTerm() {
-//     ASTNode* left = infixparseFactor();
-
-//     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "*" || currentToken.text == "/")) {
-//         char op = currentToken.text[0];
-//         nextToken();  
-//         ASTNode* right = infixparseFactor();
-//         left = new BinaryOperation(op, left, right);
-//     }
-
-//     return left;
-// }
 ASTNode* infixParser::infixparseTerm() {
     std::unique_ptr<ASTNode> left (infixparseFactor());
 
@@ -142,40 +118,6 @@ ASTNode* infixParser::infixparseFactor() {
     return infixparsePrimary();
 }
 
-
-// ASTNode* infixParser::infixparsePrimary() {
-//     //int parenCount = 0;
-//     if (currentToken.type == TokenType::NUMBER) {
-//         double value = std::stod(currentToken.text);
-//         nextToken();
-//          return new Number(value);
-//     } else if (currentToken.type == TokenType::IDENTIFIER) {
-//         std::string varName = currentToken.text;
-//         nextToken();  
-//         if (currentToken.type == TokenType::ASSIGNMENT) {
-//             nextToken();  
-//             ASTNode* expr = infixparseExpression();
-//             return new Assignment(varName, expr);
-//         } else {
-//             return new Variable(varName);
-//         }
-//     } else if (currentToken.type == TokenType::LEFT_PAREN) {
-//         //parenCount++;
-//         nextToken();
-//         ASTNode* result = infixparseExpression();
-//         if (currentToken.type == TokenType::RIGHT_PAREN) {
-//             //parenCount--;
-//             nextToken();
-//             return result;
-//         } else {
-//             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-//         }
-//     }else if (currentToken.type == TokenType::RIGHT_PAREN) {
-//         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-//     } else {
-//         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-//     }
-// }
 ASTNode* infixParser::infixparsePrimary() {
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
