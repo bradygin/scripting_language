@@ -35,11 +35,11 @@ int main() {
                     double result = root->evaluate(symbolTable);
                     std::cout << result << std::endl;
                 } catch (const DivisionByZeroException& e) {
-                    std::cerr << e.what() << std::endl;
+                    std::cout << e.what() << std::endl;
                 } catch (const InvalidOperatorException& e) {
-                    std::cerr << e.what() << std::endl;
+                    std::cout << e.what() << std::endl;
                 } catch (const UnknownIdentifierException& e) {
-                    std::cerr << e.what() << std::endl;
+                    std::cout << e.what() << std::endl;
                 }
 
                 delete root;
