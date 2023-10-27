@@ -47,7 +47,7 @@ int main() {
                 std::cerr << "Failed to parse the input expression." << std::endl;
             }
         } catch (const UnexpectedTokenException& e) {
-            std::cerr << e.what() << std::endl;
+            std::cout << e.what() << std::endl;
         }
     }
 
