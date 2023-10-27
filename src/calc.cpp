@@ -44,10 +44,10 @@ int main() {
 
                 delete root;
             } else {
-                std::cerr << "Failed to parse the input expression." << std::endl;
+                std::cout << "Failed to parse the input expression." << std::endl;
             }
         } catch (const UnexpectedTokenException& e) {
-            std::cerr << e.what() << std::endl;
+            std::cout << e.what() << std::endl;
         }
     }
 
