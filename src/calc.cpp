@@ -21,9 +21,9 @@ int main() {
         try {
             // Tokenize and parse the current line
             std::vector<Token> tokens = lexer.tokenize();
-            Parser parser(tokens, symbolTable);
+            Parser infixparser(tokens, symbolTable);
 
-            ASTNode* root = parser.parse();
+            ASTNode* root = parser.infixparse();
 
             if (root) {
                 // Print the AST in infix notation

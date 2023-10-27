@@ -57,14 +57,14 @@ std::string Number::toInfix() const {
     return num;
 }
 
-Parser::Parser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable)
+infixParser::infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable)
     : tokens(tokens), index(0), symbolTable(symbolTable) {
     if (!tokens.empty()) {
         currentToken = tokens[index];
     }
 }
 
-void Parser::nextToken() {
+void infixParser::nextToken() {
     if (index < tokens.size() - 1) {
         index++;
         currentToken = tokens[index];
@@ -74,17 +74,17 @@ void Parser::nextToken() {
     }
 }
 
-ASTNode* Parser::parse() {
-    return parseExpression();
+ASTNode* infixParser::infixparse() {
+    return infixparseExpression();
 }
 
-ASTNode* Parser::parseExpression() {
-    ASTNode* left = parseTerm();
+ASTNode* infixParser::infixparseExpression() {
+    ASTNode* left = infixparseTerm();
 
     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
         char op = currentToken.text[0];
         nextToken();  
-        ASTNode* right = parseTerm();
+        ASTNode* right = infixparseTerm();
         left = new BinaryOperation(op, left, right);
     }
 
@@ -100,54 +100,59 @@ Assignment::~Assignment() {
         delete expression;
     }
 
-ASTNode* Parser::parseTerm() {
-    ASTNode* left = parseFactor();
+ASTNode* infixParser::infixparseTerm() {
+    ASTNode* left = infixparseFactor();
 
     while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "*" || currentToken.text == "/")) {
         char op = currentToken.text[0];
         nextToken();  
-        ASTNode* right = parseFactor();
+        ASTNode* right = infixparseFactor();
         left = new BinaryOperation(op, left, right);
     }
 
     return left;
 }
 
-ASTNode* Parser::parseFactor() {
-    return parsePrimary();
+ASTNode* infixParser::infixparseFactor() {
+    return infixparsePrimary();
 }
 
-ASTNode* Parser::parsePrimary() {
+
+ASTNode* infixParser::infixparsePrimary() {
+    //int parenCount = 0;
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
         nextToken();
-        return new Number(value);
+         return new Number(value);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();  
-
         if (currentToken.type == TokenType::ASSIGNMENT) {
             nextToken();  
-            ASTNode* expr = parseExpression();
+            ASTNode* expr = infixparseExpression();
             return new Assignment(varName, expr);
         } else {
             return new Variable(varName);
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
+        //parenCount++;
         nextToken();
-        ASTNode* result = parseExpression();
+        ASTNode* result = infixparseExpression();
         if (currentToken.type == TokenType::RIGHT_PAREN) {
+            //parenCount--;
             nextToken();
             return result;
         } else {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
+    }else if (currentToken.type == TokenType::RIGHT_PAREN) {
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 }
 
-std::string Parser::printInfix(ASTNode* node) {
+std::string infixParser::printInfix(ASTNode* node) {
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
         std::string leftStr = printInfix(binOp->left);
