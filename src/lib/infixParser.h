@@ -6,7 +6,7 @@
 #include <iostream>
 #include <map>
 #include <stdexcept>
-#include "lexer.h"
+#include "infixlexer.h"
 #include "token.h"
 
 class ASTNode {

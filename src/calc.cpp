@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <stdexcept>
 
 #include "lib/infixlexer.h"
 #include "lib/token.h"
