@@ -123,10 +123,7 @@ ASTNode* infixParser::infixparsePrimary() {
         double value = std::stod(currentToken.text);
         nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT && currentToken.text == "=") {
-            // Check if '=' is followed by the end of the expression (e.g., END token).
-            if (PeekNextToken().text == "END") {
-                throw UnexpectedTokenException("=", currentToken.line, currentToken.column);
-            }
+            throw UnexpectedTokenException("=", currentToken.line, currentToken.column);
         }
         return std::make_unique<Number>(value).release();
     } else if (currentToken.type == TokenType::IDENTIFIER) {
