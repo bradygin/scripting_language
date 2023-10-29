@@ -41,7 +41,7 @@ Node* Parser::parseExpression() {
             
             
             if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/"&& next_token != "=") {
-                std::cout << "2Unexpected token at line " << tokens[currentTokenIndex].line
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                 << " column " << tokens[currentTokenIndex].column
                 << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
@@ -64,7 +64,7 @@ Node* Parser::parseExpression() {
     //std::cout << "test parseExpression(): 2 (" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
                 return node;
             } else {
-                std::cout << "3Unexpected token at line " +
+                std::cout << "Unexpected token at line " +
                     std::to_string(tokens[currentTokenIndex].line) + " column " +
                     std::to_string(tokens[currentTokenIndex].column) + ": " +
                     tokens[currentTokenIndex].text << std::endl;
@@ -86,7 +86,7 @@ Node* Parser::parseExpression() {
     //std::cout << "test parseExpression(): 5(" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
             return node;
         } else {
-            std::cout << "4Unexpected token at line " +
+            std::cout << "Unexpected token at line " +
                 std::to_string(tokens[currentTokenIndex].line) + " column " +
                 std::to_string(tokens[currentTokenIndex].column) + ": " +
                 tokens[currentTokenIndex].text << std::endl;
