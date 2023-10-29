@@ -123,7 +123,7 @@ ASTNode* infixParser::infixparsePrimary() {
         double value = std::stod(currentToken.text);
         nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT && currentToken.text == "=") {
-            throw UnexpectedTokenException("=", currentToken.line, currentToken.column);
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_unique<Number>(value).release();
     } else if (currentToken.type == TokenType::IDENTIFIER) {

@@ -30,13 +30,13 @@ int main() {
                 } else if (token.type == TokenType::RIGHT_PAREN) {
                     openParenthesesCount--;
                     if (openParenthesesCount < 0) {
-                        throw SyntaxError(lexer.line, lexer.column);
+                        throw UnexpectedTokenException(")", lexer.line, lexer.column);
                     }
                 }
             }
 
             if (openParenthesesCount > 0) {
-                throw SyntaxError(lexer.line, lexer.column);
+                throw UnexpectedTokenException("(", lexer.line, lexer.column);
             }
 
             infixParser parser(tokens, symbolTable);

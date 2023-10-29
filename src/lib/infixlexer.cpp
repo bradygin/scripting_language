@@ -47,7 +47,7 @@ Token InfixLexer::infixnextToken() {
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
-                            throw SyntaxError(line, (column+2));
+                            throw SyntaxError(line, (column));
                     }
 
                     num += nextChar;
@@ -80,7 +80,7 @@ Token InfixLexer::infixnextToken() {
             return Token(line, column, "=", TokenType::ASSIGNMENT);
 
         } else {
-            throw SyntaxError(line, (column+2));
+            throw SyntaxError(line, (column));
         }
     }
 
