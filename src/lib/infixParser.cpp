@@ -122,6 +122,12 @@ ASTNode* infixParser::infixparsePrimary() {
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
         nextToken();
+        if (currentToken.type == TokenType::ASSIGNMENT && currentToken.text == "=") {
+            // Check if '=' is followed by the end of the expression (e.g., END token).
+            if (PeekNextToken().text == "END") {
+                throw UnexpectedTokenException("=", currentToken.line, currentToken.column);
+            }
+        }
         return std::make_unique<Number>(value).release();
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
@@ -147,6 +153,13 @@ ASTNode* infixParser::infixparsePrimary() {
     } else {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
+}
+
+Token infixParser::PeekNextToken() {
+    if (index < tokens.size() - 1) {
+        return tokens[index + 1];
+    }
+    return Token(0, 0, "END", TokenType::OPERATOR);
 }
 
 std::string infixParser::printInfix(ASTNode* node) {
