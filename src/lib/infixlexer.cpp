@@ -40,7 +40,7 @@ Token InfixLexer::infixnextToken() {
                         char followingChar = sExpression.peek();  // Peek at the next character
                         if (!std::isdigit(followingChar)) {  // Check if it's not a digit
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
-                            throw SyntaxError(line, (column));
+                            throw SyntaxError(line, (column+2));
                         }
                     }
                     column++;
@@ -80,7 +80,7 @@ Token InfixLexer::infixnextToken() {
             return Token(line, column, "=", TokenType::ASSIGNMENT);
 
         } else {
-            throw SyntaxError(line, (column));
+            throw SyntaxError(line, (column+2));
         }
     }
 
