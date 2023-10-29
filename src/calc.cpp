@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iomanip>
 
-#include "lib/lexer.h"
+#include "lib/infixlexer.h"
 #include "lib/token.h"
 #include "lib/infixParser.h"
 
@@ -16,21 +16,35 @@ int main() {
             break;
         }
         std::istringstream inputStream(inputLine);
-        Lexer lexer(inputStream);
+        InfixLexer lexer(inputStream);
 
         try {
             // Tokenize and parse the current line
-            std::vector<Token> tokens = lexer.tokenize();
-            infixParser infixparser(tokens, symbolTable);
+            std::vector<Token> tokens = lexer.infixtokenize();
 
-            ASTNode* root = infixparser.infixparse();
+            int openParenthesesCount = 0;  // Track open parentheses
+            for (const Token& token : tokens) {
+                if (token.type == TokenType::LEFT_PAREN) {
+                    openParenthesesCount++;
+                } else if (token.type == TokenType::RIGHT_PAREN) {
+                    openParenthesesCount--;
+                    if (openParenthesesCount < 0) {
+                        throw SyntaxError(lexer.line, lexer.column);
+                    }
+                }
+            }
+
+            if (openParenthesesCount > 0) {
+                throw SyntaxError(lexer.line, lexer.column);
+            }
+
+            infixParser parser(tokens, symbolTable);
+            ASTNode* root = parser.infixparse();
 
             if (root) {
                 // Print the AST in infix notation
-                std::string infixExpression = infixparser.printInfix(root);
+                std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
-
-                // Evaluate the expression and catch custom exceptions
                 try {
                     double result = root->evaluate(symbolTable);
                     std::cout << result << std::endl;
@@ -40,13 +54,17 @@ int main() {
                     std::cout << e.what() << std::endl;
                 } catch (const UnknownIdentifierException& e) {
                     std::cout << e.what() << std::endl;
+                } catch (const SyntaxError& e) {
+                    std::cout << e.what() << std::endl;
                 }
 
                 delete root;
             } else {
-                std::cerr << "Failed to parse the input expression." << std::endl;
+                std::cout << "Failed to parse the input expression." << std::endl;
             }
         } catch (const UnexpectedTokenException& e) {
+            std::cout << e.what() << std::endl;
+        } catch (const SyntaxError& e) {
             std::cout << e.what() << std::endl;
         }
     }
