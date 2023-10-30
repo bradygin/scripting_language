@@ -43,11 +43,20 @@ Node* Parser::parseExpression() {
             } else if (type == TokenType::RIGHT_PAREN) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(2);
+                exit(3);
+            } else if (type == TokenType::LEFT_PAREN) {
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
+                exit(3);
             }
             node->type = type;
             node->value = tokens[currentTokenIndex++].text;
             if (type == TokenType::ASSIGNMENT && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
+                exit(2);
+            }
+            if (type == TokenType::IDENTIFIER && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
