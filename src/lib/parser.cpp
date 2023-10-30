@@ -82,8 +82,8 @@ Node* Parser::parseExpression() {
 
         }
     }
-    //return node;
-    delete node;
+    return node;
+    
     if (tokens[currentTokenIndex].text == "END") {
         return nullptr;
     } else {
