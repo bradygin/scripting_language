@@ -36,10 +36,12 @@ Node* Parser::parseExpression() {
             currentTokenIndex++;
             TokenType type = tokens[currentTokenIndex].type;
             if (type == TokenType::LEFT_PAREN) {
+                delete node;
                 throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
             } else if (type != TokenType::OPERATOR && type != TokenType::ASSIGNMENT) {
+                delete node;
                 throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
@@ -47,6 +49,7 @@ Node* Parser::parseExpression() {
             node->type = type;
             node->value = tokens[currentTokenIndex++].text;
             if (type == TokenType::ASSIGNMENT && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+                delete node;
                throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
@@ -58,6 +61,7 @@ Node* Parser::parseExpression() {
                 currentTokenIndex++;
                 return node;
             } else {
+                delete node;
                 std::cout << "Unexpected token at line " +
                     std::to_string(tokens[currentTokenIndex].line) + " column " +
                     std::to_string(tokens[currentTokenIndex].column) + ": " +
@@ -77,6 +81,7 @@ Node* Parser::parseExpression() {
             node->value = tokens[currentTokenIndex++].text;
             return node;
         } else {
+            delete node;
                throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
