@@ -33,7 +33,6 @@ int main() {
                     return 2;
                 }
                 // Delete the AST after evaluation to prevent memory leak
-                delete root;
             } else {
                 std::cout << "Failed to parse one of the input expressions." << std::endl;
             }
