@@ -36,17 +36,22 @@ Node* Parser::parseExpression() {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
             TokenType type = tokens[currentTokenIndex].type;
-            if (type != TokenType::OPERATOR && type != TokenType::ASSIGNMENT) {
+            if (type == TokenType::OPERATOR || type == TokenType::ASSIGNMENT) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
             } else if (type == TokenType::RIGHT_PAREN) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(3);
+                exit(2);
             }
             node->type = type;
             node->value = tokens[currentTokenIndex++].text;
+            if (type == TokenType::ASSIGNMENT && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
+                exit(2);
+            }
             while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type != TokenType::RIGHT_PAREN) {
                 node->children.push_back(parseExpression()); 
             }
@@ -125,7 +130,7 @@ double Node::evaluate() {
         } else if (value == "-") {
             if (children.size() == 0) {
                 std::cout <<("Invalid number of children for operator: " + value) << std::endl;
-                exit(2);
+                exit(3);
             }
             result = children[0]->evaluate();
             for (size_t i = 1; i < children.size(); ++i) {
@@ -151,7 +156,7 @@ double Node::evaluate() {
             }
         } else {
             std::cout <<("Invalid operator: " + value) << std::endl;
-            exit(2);
+            exit(3);
         }
         break;
     case TokenType::IDENTIFIER:
@@ -160,7 +165,7 @@ double Node::evaluate() {
     case TokenType::ASSIGNMENT:
         if (children.size() == 0) {
             std::cout <<("Invalid number of children for assignment: " + value) << std::endl;
-            exit(2);
+            exit(3);
         } else {
         bool found_result = false;
         for (size_t i = 0; i < children.size(); ++i) {
@@ -177,7 +182,7 @@ double Node::evaluate() {
             }
         } else {
             std::cout <<("Invalid value for assignment: " + value) << std::endl;
-            exit(2);
+            exit(3);
         }}
         break;
     case TokenType::NUMBER:
@@ -185,15 +190,14 @@ double Node::evaluate() {
         ss >> result;
         if (ss.fail()) {
             std::cout <<("Invalid input: " + value) << std::endl;
-            exit(2);
+            exit(3);
         }}
         break; 
     default: 
         {std::cout <<("Invalid input: " + value) << std::endl;
-        exit(2);
+        exit(3);
         break;
       }
     }
     return result;
 }
-
