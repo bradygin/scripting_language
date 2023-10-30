@@ -81,6 +81,7 @@ Node* Parser::parseExpression() {
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
         }
+        return node;
     }
     if (tokens[currentTokenIndex].text == "END") {
         return nullptr;
