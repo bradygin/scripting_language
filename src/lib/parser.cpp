@@ -78,7 +78,6 @@ Node* Parser::parseExpression() {
             node->value = tokens[currentTokenIndex++].text;
             return node;
         } else {
-            std::cout << "Unexpected token at line " +
                throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
                        std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
 
