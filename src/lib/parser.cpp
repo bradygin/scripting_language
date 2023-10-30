@@ -15,10 +15,8 @@ Node::~Node() {
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
 Parser::~Parser() {
-    if (!roots.empty()) {
-        for (auto root : roots) {
-            delete root;
-        }
+    for (auto root : roots) {
+        delete root;
     }
 }
 
@@ -26,6 +24,7 @@ std::vector<Node*> Parser::parse() {
    while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
       auto root = parseExpression();
       roots.push_back(root);
+      root = nullptr;
     }
     return roots;
 }
