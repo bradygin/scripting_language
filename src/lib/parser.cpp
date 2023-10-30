@@ -52,11 +52,6 @@ Node* Parser::parseExpression() {
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
             }
-            if (type == TokenType::IDENTIFIER && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
-                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(2); //(foo) error
-            }
             while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type != TokenType::RIGHT_PAREN) {
                 node->children.push_back(parseExpression()); 
             }
