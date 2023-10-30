@@ -1,52 +1,31 @@
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <vector>
 #include "lib/lexer.h"
 #include "lib/token.h"
-#include "lib/parser.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 int main() {
-    // Read and tokenize the entire standard input in one pass
+    // Initialize the lexer with standard input (cin)
     Lexer lexer(std::cin);
 
     try {
+        /* Create a vector of tokens by calling the lexer's tokenize() member function which uses 
+        the nextToken() helper function to create tokens and then pushes them into a vector */
+
         std::vector<Token> tokens = lexer.tokenize();
 
-        // Parse the tokens into a sequence of ASTs
-        Parser parser(tokens);
-        //Node* root = parser.parse();
-        std::vector<Node*> asts = parser.parse();
-
-        for (Node* root : asts) {
-            if (root) {
-                // Print the AST in infix notation
-                std::string infixExpression = parser.printInfix(root);
-                std::cout << infixExpression << std::endl;
-
-                // Evaluate the expression
-                try {
-                    double result = root->evaluate();
-                    std::cout << result << std::endl;
-                } catch (const std::runtime_error& error) {
-                    std::cerr << error.what() << std::endl;
-                    // Deallocate any remaining ASTs before exiting
-                    for (Node* node : asts) {
-                        delete node;
-                    }
-                    return 3;
-                }
-                // Delete the AST after evaluation to prevent memory leak
-                delete root;
-            } else {
-                std::cerr << "Failed to parse one of the input expressions." << std::endl;
-            }
+        // Print the tokens and their line and column numbers
+    for (const Token& token : tokens) {
+            std::cout << std::setw(4) << std::right << token.line 
+            << std::setw(5) << std::right << token.column << "  "
+            << std::left << token.text << std::endl;
         }
-
-    } catch (const std::runtime_error& error) {
+    }
+    catch (const std::runtime_error& error) {
+        // Handle syntax errors
         std::cerr << error.what() << std::endl;
         return 1;
     }
-
     return 0;
 }
