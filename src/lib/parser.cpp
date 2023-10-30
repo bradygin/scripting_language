@@ -12,7 +12,6 @@ Node::~Node() {
     }
 }
 
-//Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0), roots({}) {}
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
 Parser::~Parser() {
@@ -34,37 +33,28 @@ std::vector<Node*> Parser::parse() {
 Node* Parser::parseExpression() {
     Node* node = new Node(""); 
     while (currentTokenIndex < tokens.size()) {
-    //std::cout << "test parseExpression(): (" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
-            std::string next_token = tokens[currentTokenIndex].text;
-            
-            
-            if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/"&& next_token != "=") {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
-                << " column " << tokens[currentTokenIndex].column
-                << ": " << tokens[currentTokenIndex].text << std::endl;
+            TokenType type = tokens[currentTokenIndex].type;
+            if (type == TokenType::OPERATOR || type == TokenType::ASSIGNMENT) {
+                std::cout << "1 Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
+            } else if (type == TokenType::RIGHT_PAREN) {
+                std::cout << "2 Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
+                exit(3);
             }
-            node->type = tokens[currentTokenIndex].type;
+            node->type = type;
             node->value = tokens[currentTokenIndex++].text;
-            
-            /*if (next_token == "=") {
-              if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::IDENTIFIER) {
-            }*/
-            
             while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type != TokenType::RIGHT_PAREN) {
                 node->children.push_back(parseExpression()); 
             }
             if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
                 currentTokenIndex++;
-                
-                
-                
-    //std::cout << "test parseExpression(): 2 (" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
                 return node;
             } else {
-                std::cout << "Unexpected token at line " +
+                std::cout << "3 Unexpected token at line " +
                     std::to_string(tokens[currentTokenIndex].line) + " column " +
                     std::to_string(tokens[currentTokenIndex].column) + ": " +
                     tokens[currentTokenIndex].text << std::endl;
@@ -73,20 +63,17 @@ Node* Parser::parseExpression() {
         } else if (tokens[currentTokenIndex].type == TokenType::NUMBER) {
             node->type = tokens[currentTokenIndex].type;
             node->value = tokens[currentTokenIndex++].text;
-    //std::cout << "test parseExpression(): 3(" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
             return node;
         } else if (tokens[currentTokenIndex].type == TokenType::ASSIGNMENT) {
             node->type = tokens[currentTokenIndex].type;
             node->value = tokens[currentTokenIndex++].text; 
-    //std::cout << "test parseExpression(): 4(" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
             return node;
         } else if (tokens[currentTokenIndex].type == TokenType::IDENTIFIER) {
             node->type = tokens[currentTokenIndex].type;
             node->value = tokens[currentTokenIndex++].text;
-    //std::cout << "test parseExpression(): 5(" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column<< ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
             return node;
         } else {
-            std::cout << "Unexpected token at line " +
+            std::cout << "4 Unexpected token at line " +
                 std::to_string(tokens[currentTokenIndex].line) + " column " +
                 std::to_string(tokens[currentTokenIndex].column) + ": " +
                 tokens[currentTokenIndex].text << std::endl;
@@ -94,7 +81,6 @@ Node* Parser::parseExpression() {
         }
     }
     if (tokens[currentTokenIndex].text == "END") {
-    //std::cout << "test parseExpression(): 6 (" << currentTokenIndex << " : " << tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].column << ") : " << (int)tokens[currentTokenIndex].type << ", " << tokens[currentTokenIndex].text << std::endl;
         return nullptr;
     } else {
         std::cout << "Invalid input: Unexpected end of input." << std::endl;
@@ -102,9 +88,7 @@ Node* Parser::parseExpression() {
     }
 }
 
-    std::string Parser::printInfix(Node* node) {
-    //std::cout << "test printInfix()  type: " << (int)node->type << " value: " << node->value << std::endl;
-
+std::string Parser::printInfix(Node* node) {
     if (node == nullptr) {
         return "";  
     } else if (node->type == TokenType::IDENTIFIER) {
@@ -131,12 +115,7 @@ Node* Parser::parseExpression() {
 }
 
 double Node::evaluate() {
-    //std::cout << "test  evaluate() (type : value) = " << (int)type << " : " << value << " map " << variableMap[value] << std::endl;
-
-
-  
     double result = 0.0;
-
     switch (type) {
     case TokenType::OPERATOR:
         if (value == "+") {
@@ -176,7 +155,6 @@ double Node::evaluate() {
         }
         break;
     case TokenType::IDENTIFIER:
-    //std::cout << "test  evaluate() IDENTIFIER (type : value) = " << (int)type << " : " << value << " map " << variableMap[value] << std::endl;
         result = variableMap[value];
         break;
     case TokenType::ASSIGNMENT:
@@ -195,12 +173,8 @@ double Node::evaluate() {
             for (size_t i = 0; i < children.size(); ++i) {
                 if (children[i]->type == TokenType::IDENTIFIER) {
                    variableMap[children[i]->value] = result;
-    //std::cout << "test evaluate() 2 (type : value) = " << (int)type << " : " << children[i]->value << " map " << variableMap[children[i]->value] << std::endl;
                 }
             }
-//for (auto& var : Node::variableMap) {
-    //std::cout << "test  evaluate() var  = " << var.first << " : " << var.second << std::endl;
-//}
         } else {
             std::cout <<("Invalid value for assignment: " + value) << std::endl;
             exit(2);
