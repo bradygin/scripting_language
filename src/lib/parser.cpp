@@ -36,7 +36,7 @@ Node* Parser::parseExpression() {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
             TokenType type = tokens[currentTokenIndex].type;
-            if (type == TokenType::OPERATOR || type == TokenType::ASSIGNMENT) {
+            if (type != TokenType::OPERATOR && type != TokenType::ASSIGNMENT) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
