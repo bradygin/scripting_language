@@ -37,11 +37,11 @@ Node* Parser::parseExpression() {
             currentTokenIndex++;
             TokenType type = tokens[currentTokenIndex].type;
             if (type == TokenType::OPERATOR || type == TokenType::ASSIGNMENT) {
-                std::cout << "1 Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(2);
             } else if (type == TokenType::RIGHT_PAREN) {
-                std::cout << "2 Unexpected token at line " << tokens[currentTokenIndex].line << " column "
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
                 exit(3);
             }
@@ -54,7 +54,7 @@ Node* Parser::parseExpression() {
                 currentTokenIndex++;
                 return node;
             } else {
-                std::cout << "3 Unexpected token at line " +
+                std::cout << "Unexpected token at line " +
                     std::to_string(tokens[currentTokenIndex].line) + " column " +
                     std::to_string(tokens[currentTokenIndex].column) + ": " +
                     tokens[currentTokenIndex].text << std::endl;
@@ -73,7 +73,7 @@ Node* Parser::parseExpression() {
             node->value = tokens[currentTokenIndex++].text;
             return node;
         } else {
-            std::cout << "4 Unexpected token at line " +
+            std::cout << "Unexpected token at line " +
                 std::to_string(tokens[currentTokenIndex].line) + " column " +
                 std::to_string(tokens[currentTokenIndex].column) + ": " +
                 tokens[currentTokenIndex].text << std::endl;
