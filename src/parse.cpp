@@ -40,7 +40,7 @@ int main() {
 
     } catch (const std::runtime_error& error) {
         std::cout << error.what() << std::endl;
-        return 3;
+        return 2;
     }
 
     return 0;
