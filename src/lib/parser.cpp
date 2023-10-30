@@ -181,7 +181,10 @@ double Node::evaluate() {
                 }
             }
         } else {
-            std::cout <<("Invalid value for assignment: " + value) << std::endl;
+            std::cout << "Unexpected token at line " +
+                std::to_string(tokens[currentTokenIndex].line) + " column " +
+                std::to_string(tokens[currentTokenIndex].column) + ": " +
+                tokens[currentTokenIndex].text << std::endl;
             exit(2);
         }}
         break;
