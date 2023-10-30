@@ -36,7 +36,7 @@ int main() {
             }
 
             if (openParenthesesCount > 0) {
-                throw UnexpectedTokenException("END", lexer.line, lexer.column);
+                throw UnexpectedTokenException("END", lexer.line, lexer.column+1);
             }
 
             infixParser parser(tokens, symbolTable);
