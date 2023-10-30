@@ -39,7 +39,7 @@ Node* Parser::parseExpression() {
             if (type == TokenType::LEFT_PAREN) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(3);
+                exit(2);
             } else if (type != TokenType::OPERATOR && type != TokenType::ASSIGNMENT) {
                 std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
                 << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
@@ -130,7 +130,7 @@ double Node::evaluate() {
         } else if (value == "-") {
             if (children.size() == 0) {
                 std::cout <<("Invalid number of children for operator: " + value) << std::endl;
-                exit(3);
+                exit(2);
             }
             result = children[0]->evaluate();
             for (size_t i = 1; i < children.size(); ++i) {
@@ -144,7 +144,7 @@ double Node::evaluate() {
         } else if (value == "/") {
             if (children.size() == 0) {
                 std::cout <<("Invalid number of children for operator: " + value) << std::endl;
-                exit(3);
+                exit(2);
             }
             result = children[0]->evaluate();
             for (size_t i = 1; i < children.size(); ++i) {
@@ -182,7 +182,7 @@ double Node::evaluate() {
             }
         } else {
             std::cout <<("Invalid value for assignment: " + value) << std::endl;
-            exit(3);
+            exit(2);
         }}
         break;
     case TokenType::NUMBER:
@@ -190,12 +190,12 @@ double Node::evaluate() {
         ss >> result;
         if (ss.fail()) {
             std::cout <<("Invalid input: " + value) << std::endl;
-            exit(3);
+            exit(2);
         }}
         break; 
     default: 
         {std::cout <<("Invalid input: " + value) << std::endl;
-        exit(3);
+        exit(2);
         break;
       }
     }

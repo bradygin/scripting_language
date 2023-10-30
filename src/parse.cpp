@@ -30,7 +30,7 @@ int main() {
                 } catch (const std::runtime_error& error) {
                     std::cout << error.what() << std::endl;
                     // Deallocate any remaining ASTs before exiting
-                    return 3;
+                    return 2;
                 }
                 // Delete the AST after evaluation to prevent memory leak
             } else {
@@ -40,7 +40,7 @@ int main() {
 
     } catch (const std::runtime_error& error) {
         std::cout << error.what() << std::endl;
-        return 1;
+        return 3;
     }
 
     return 0;
