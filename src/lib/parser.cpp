@@ -43,11 +43,8 @@ std::unique_ptr<Node> Parser::parseExpression() {
                 currentTokenIndex++;
                 return node;
             } else {
-                std::cout << "Unexpected token at line " +
-                    std::to_string(tokens[currentTokenIndex].line) + " column " +
-                    std::to_string(tokens[currentTokenIndex].column) + ": " +
-                    tokens[currentTokenIndex].text << std::endl;
-                exit(2);
+                throw std::runtime_error("Unexpected token at line " + std::to_string(tokens[currentTokenIndex].line) + " column " +
+                    std::to_string(tokens[currentTokenIndex].column) + ": " + tokens[currentTokenIndex].text);
             }
         } else if (tokens[currentTokenIndex].type == TokenType::NUMBER) {
             node->type = tokens[currentTokenIndex].type;
