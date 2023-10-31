@@ -80,11 +80,26 @@ Node* Parser::parseExpression() {
     }
 }
 
+std::string customToString(double numericValue) {
+    std::string stringValue = std::to_string(numericValue);
+
+    size_t pos = stringValue.find_last_not_of('0');
+    if (pos != std::string::npos && stringValue[pos] == '.') {
+        pos--; // Remove the trailing decimal point
+    }
+
+    return stringValue.substr(0, pos + 1);
+}
+
 std::string Parser::printInfix(Node* node) {
     if (node == nullptr) {
         return "";
-    } else if (node->type == TokenType::IDENTIFIER || node->type == TokenType::NUMBER) {
+    } else if (node->type == TokenType::IDENTIFIER) {
         return node->value;
+    } else if (node->type == TokenType::NUMBER) {
+        double numericValue = std::stod(node->value);
+        std::string castedValue = customToString(numericValue);
+        return castedValue;
     } else {
         std::string infix = "(";
         for (size_t i = 0; i < node->children.size(); ++i) {
@@ -97,6 +112,9 @@ std::string Parser::printInfix(Node* node) {
         return infix;
     }
 }
+
+
+
 
 double Node::evaluate() {
     double result = 0.0;
