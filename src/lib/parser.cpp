@@ -84,7 +84,7 @@ Node* Parser::parseExpression() {
             return node;
         } else {
             if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+               std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                           << " column " << tokens[currentTokenIndex].column
                           << ": " << tokens[currentTokenIndex].text << std::endl;
             } else {

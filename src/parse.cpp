@@ -8,7 +8,7 @@
 
 int main() {
     // Read and tokenize the entire standard input in one pass
-    Lexer lexer(std::cin);
+    InfixLexer lexer(std::cin);
 
     try {
         std::vector<Token> tokens = lexer.tokenize();

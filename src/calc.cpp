@@ -17,11 +17,11 @@ int main() {
             break;
         }
         std::istringstream inputStream(inputLine);
-        Lexer lexer(inputStream);
+        InfixLexer lexer(inputStream);
 
         try {
             // Tokenize and parse the current line
-            std::vector<Token> tokens = lexer.tokenize();
+            std::vector<Token> tokens = lexer.infixtokenize();
 
             int openParenthesesCount = 0;  // Track open parentheses
             for (const Token& token : tokens) {

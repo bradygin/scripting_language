@@ -8,13 +8,13 @@
 // Main function of lexer
 int main() {
     // Initialize the lexer with standard input (cin)
-    Lexer lexer(std::cin);
+    InfixLexer lexer(std::cin);
 
     try {
         /* Create a vector of tokens by calling the lexer's tokenize() member function which uses 
         the nextToken() helper function to create tokens and then pushes them into a vector */
 
-        std::vector<Token> tokens = lexer.tokenize();
+        std::vector<Token> tokens = lexer.infixtokenize();
 
         // Print the tokens and their line and column numbers
     for (const Token& token : tokens) {
