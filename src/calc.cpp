@@ -47,8 +47,11 @@ int main() {
                 std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
                 try {
-                    double result = root->evaluate(symbolTable);
-                    std::cout << result << std::endl;
+                    std::map<std::string, double> temp = symbolTable;
+                    std::cout << root->evaluate(temp) << std::endl;
+                    symbolTable = temp;
+                    // double result = root->evaluate(symbolTable);
+                    // std::cout << result << std::endl;
                 } catch (const DivisionByZeroException& e) {
                     std::cout << e.what() << std::endl;
                 } catch (const InvalidOperatorException& e) {
