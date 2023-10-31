@@ -7,7 +7,7 @@
 #include "token.h"
 #include <stdexcept>
 
-// Lexer class definition
+//Lexer class definition
 struct Lexer {
 public:
     // Constructor declaration: takes an input stream

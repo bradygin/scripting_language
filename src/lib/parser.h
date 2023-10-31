@@ -9,7 +9,7 @@ public:
     static std::unordered_map<std::string, double> variableMap;  //store variable's value
     std::string value;
     TokenType type;
-    std::vector<Node*> children;   // vector to store children nodes
+    std::vector<Node*> children;   // Vector to store children nodes
 
 
     Node(const std::string& val) : value(val), type(TokenType::OPERATOR) {}

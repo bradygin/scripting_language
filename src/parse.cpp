@@ -12,7 +12,6 @@ int main() {
 
     try {
         std::vector<Token> tokens = lexer.tokenize();
-
         // Parse the tokens into a sequence of ASTs
         Parser parser(tokens);
         std::vector<Node*> asts = parser.parse();

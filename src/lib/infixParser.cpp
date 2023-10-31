@@ -3,6 +3,7 @@
 #include <memory>
 #include "infixParser.h"
 
+
 std::map<std::string, double> symbolTable;
 
 Assignment::Assignment(const std::string& varName, ASTNode* expression)

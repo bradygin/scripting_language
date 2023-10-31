@@ -47,7 +47,6 @@ Token Lexer::nextToken() {
                     column++;
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
-                            // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
                             std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
                             exit(1);
                     }
