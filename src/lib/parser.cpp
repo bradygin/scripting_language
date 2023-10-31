@@ -14,13 +14,6 @@ Node::~Node() {
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
 Parser::~Parser() {
-
-/*    if (!roots.empty()) {
-        for (auto root : roots) {
-            delete root;
-        }
-    }
-*/
 }
 
 std::vector<Node*> Parser::parse() {

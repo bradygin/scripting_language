@@ -11,7 +11,7 @@ int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
 
     while (true) {
-        // Read input
+        // Reads input
         std::string inputLine;
         if (!std::getline(std::cin, inputLine)) {
             break;

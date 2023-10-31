@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+// Main function of lexer
 int main() {
     // Initialize the lexer with standard input (cin)
     InfixLexer lexer(std::cin);

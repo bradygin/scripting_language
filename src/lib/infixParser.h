@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "token.h"
 
+// Class for node
 class ASTNode {
 public:
     virtual ~ASTNode() {}
