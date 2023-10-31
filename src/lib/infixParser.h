@@ -82,7 +82,7 @@ public:
     std::string variableName;
 };
 
-//EXCEPTION HANDELING
+//EXCEPTION HANDLING
 class UnknownIdentifierException : public std::runtime_error{
 public:
     UnknownIdentifierException(std::map<std::string, double>& symbolTable, const std::string& variableName)
