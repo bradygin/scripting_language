@@ -7,32 +7,39 @@
 #include "lib/parser.h"
 
 int main() {
-    // Read input from standard input (cin)
+    // Read and tokenize the entire standard input in one pass
     Lexer lexer(std::cin);
 
     try {
-        // Tokenize the input
         std::vector<Token> tokens = lexer.tokenize();
 
-        // Create a parser and pass the tokens for parsing
+        // Parse the tokens into a sequence of ASTs
         Parser parser(tokens);
-        Node* root = parser.parse();
+        std::vector<Node*> asts = parser.parse();
 
-        if (root) {
-            // Print the AST in infix notation
-            std::string infixExpression = parser.printInfix(root);
-            std::cout << infixExpression << std::endl;
+        for (Node* root : asts) {
+            if (root) {
+                // Print the AST in infix notation
+                std::string infixExpression = parser.printInfix(root);
+                std::cout << infixExpression << std::endl;
 
-            //Evaluate the expression
-            try {
-                double result = root->evaluate();
-                std::cout << result << std::endl;
-            } catch (const std::runtime_error& error) {
-                std::cerr << error.what() << std::endl;
-                return 3;
+                // Evaluate the expression
+                try {
+                    double result = root->evaluate();
+                    std::cout << result << std::endl;
+                } catch (const std::runtime_error& error) {
+                    std::cerr << error.what() << std::endl;
+                    // Deallocate any remaining ASTs before exiting
+                    for (Node* node : asts) {
+                        delete node;
+                    }
+                    return 3;
+                }
+                // Delete the AST after evaluation to prevent memory leak
+                delete root;
+            } else {
+                std::cerr << "Failed to parse one of the input expressions." << std::endl;
             }
-        } else {
-            std::cerr << "Failed to parse the input expression." << std::endl;
         }
 
     } catch (const std::runtime_error& error) {
