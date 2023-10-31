@@ -12,7 +12,7 @@
 class ASTNode {
 public:
     virtual ~ASTNode() {}
-    virtual double evaluate(std::map<std::string, double>& symbolTable) const = 0;
+    virtual double evaluate(std::map<std::string, double>& symbolTable /* unused */) const = 0;
     virtual std::string toInfix() const = 0;
 };
 
@@ -22,7 +22,7 @@ public:
     BinaryOperation(char op, ASTNode* left, ASTNode* right)
     : op(op), left(left), right(right) {}
     ~BinaryOperation();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     char op;
     ASTNode* left;
@@ -33,7 +33,7 @@ public:
 struct Number : public ASTNode {
 public:
     Number(double value) : value(value) {}
-    double evaluate(std::map<std::string, double>& symbolTable) const override { return value; }
+    double evaluate(std::map<std::string, double>& /* unused */) const override { return value; }
     std::string toInfix() const override;
     double value;
 };
@@ -65,7 +65,7 @@ class Assignment : public ASTNode {
 public:
     Assignment(const std::string& varName, ASTNode* expression);
     ~Assignment();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     std::string variableName;
     ASTNode* expression;
@@ -75,7 +75,7 @@ public:
 class Variable : public ASTNode {
 public:
     Variable(const std::string& varName) : variableName(varName) {}
-    double evaluate(std::map<std::string, double>& symbolTable) const; 
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override {
     return variableName;
 }
@@ -85,7 +85,7 @@ public:
 //EXCEPTION HANDLING
 class UnknownIdentifierException : public std::runtime_error{
 public:
-    UnknownIdentifierException(std::map<std::string, double>& symbolTable, const std::string& variableName)
+    UnknownIdentifierException(std::map<std::string, double>& /* unused */, const std::string& variableName)
     : std::runtime_error("Runtime error: unknown identifier " + variableName) {}
 
     int getErrorCode() const {
