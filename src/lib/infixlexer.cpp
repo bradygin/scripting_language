@@ -105,9 +105,9 @@ Token InfixLexer::infixnextToken() {
             }
 
             if (identifier == "true" || identifier == "false") {
-                return Token(line, column /*- identifier.length() + 1*/, identifier, TokenType::BOOLEAN);
+                return Token(line, column /*- identifier.length() */ +1, identifier, TokenType::BOOLEAN);
             } else {
-                return Token(line, column /*- identifier.length() + 1*/, identifier, TokenType::IDENTIFIER);
+                return Token(line, column /*- identifier.length() */ +1, identifier, TokenType::IDENTIFIER);
             }
         } else {
             throw SyntaxError(line, (column));
