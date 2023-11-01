@@ -8,10 +8,10 @@
 
 int main() {
     // Read and tokenize the entire standard input in one pass
-    InfixLexer lexer(std::cin);
+    Lexer lexer(std::cin);
 
     try {
-        std::vector<Token> tokens = lexer.tokenize();
+        std::vector<Token> tokens = lexer.infixtokenize();
         // Parse the tokens into a sequence of ASTs
         Parser parser(tokens);
         std::vector<Node*> asts = parser.parse();

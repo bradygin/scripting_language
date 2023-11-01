@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 // Constructor: Initializes Lexer object with input stream
-InfixLexer::InfixLexer(std::istream& input) : sExpression(input) {}
+Lexer::Lexer(std::istream& input) : sExpression(input) {}
 
 // Function to fetch the next token from the input stream
-Token InfixLexer::infixnextToken() {
+Token Lexer::infixnextToken() {
     char currChar;
     
     while (sExpression >> std::noskipws >> currChar) {
@@ -90,7 +90,7 @@ Token InfixLexer::infixnextToken() {
 }
 
 // Function to tokenize the entire input stream and return a vector of tokens
-std::vector<Token> InfixLexer::infixtokenize() {
+std::vector<Token> Lexer::infixtokenize() {
     Token currToken = infixnextToken();
 
     while (currToken.text != "END") {  // Check if there are more tokens to read

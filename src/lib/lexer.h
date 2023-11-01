@@ -11,7 +11,7 @@
 struct Lexer {
 public:
     //Defines a constructor for the Lexer struct that takes a reference to an std::istream as an argument.
-    InfixLexer(std::istream& input);
+    Lexer(std::istream& input);
     std::vector<Token> myTokens;
     // A reference to an std::istream
     std::istream& sExpression;

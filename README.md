@@ -7,14 +7,16 @@ The Lightweight Scripting Language Project provides a simple yet powerful soluti
 To compile the program:
 -Navigate to the project root directory 
 -Open a terminal or command prompt
--Type: g++ -o program lib/lexer.cpp lib/infixParser.cpp lib/parser.cpp calc.cpp -std=c++17 -Wall -Wextra -Werror
+-Type: make
 
 ## Running the Program
-After compiling, you can run the program as follows: ./my_program < input.txt
+After compiling, you can run the program as follows: ./program < input.txt
 
-Replace `input.txt` with the path to your input file. The program will parse and evaluate the mathematical expressions in the file.
+Replace `input.txt` with the path to your input file which should be in the root directory. The program will parse and evaluate the mathematical expressions in the file.
+
+To run the program in a one-liner, run make && ./program < input.txt
 
 ## Using the Executables
-my_program: This is the main program executable. It accepts and processes input files containing mathematical expressions. You can use it to perform calculations, assign values to variables, and more.
+program: This is the main program executable. It accepts and processes input files containing mathematical expressions. You can use it to perform calculations, assign values to variables, and more.
 
-Additional executables may be included for specific functionalities or custom extensions of the project.
+

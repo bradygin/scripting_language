@@ -17,7 +17,7 @@ int main() {
             break;
         }
         std::istringstream inputStream(inputLine);
-        InfixLexer lexer(inputStream);
+        Lexer lexer(inputStream);
 
         try {
             // Tokenize and parse the current line

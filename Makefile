@@ -1,27 +1,22 @@
-# Compiler and flags
-CC = g++
-CFLAGS = -std=c++17 -Wall -Wextra -Werror -Isrc/lib
+# Compiler and Flags
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -Werror
 
-# Directories
-SRC_DIR = src/lib
+# Source and Object Files
+MAIN_SRC = src/calc.cpp
+LIB_SRC = src/lib/lexer.cpp src/lib/infixParser.cpp src/lib/parser.cpp
+SRC = $(MAIN_SRC) $(LIB_SRC)
+OBJ = $(SRC:.cpp=.o)
 
-# Files
-SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
-OBJ_FILES = $(patsubst %.cpp,%.o,$(SRC_FILES))
-MAIN_FILE = src/lex.cpp
-EXE_FILE = my_program
+# Compile and Link
+all: program
 
-# Main target
-all: $(EXE_FILE)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Linking
-$(EXE_FILE): $(OBJ_FILES) $(MAIN_FILE)
-	$(CC) $(CFLAGS) $^ -o $@
-
-# Compiling
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+program: $(OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 # Clean
 clean:
-	rm -f $(SRC_DIR)/*.o $(EXE_FILE)
+	rm -f $(OBJ) program
