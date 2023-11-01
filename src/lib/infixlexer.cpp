@@ -75,7 +75,7 @@ Token InfixLexer::infixnextToken() {
                     if (nextChar == '.' && num.find('.') == std::string::npos) {
                         char followingChar = sExpression.peek();
                         if (!std::isdigit(followingChar)) {
-                            throw SyntaxError(line, (column + 1));
+                            throw SyntaxError(line, (column + 2));
                         }
                     }
                     column++;
@@ -93,6 +93,7 @@ Token InfixLexer::infixnextToken() {
         } else if (isalpha(currChar) || currChar == '_') {
             std::string identifier;
             identifier += currChar;
+            column++;
             char nextChar;
 
             while (sExpression.get(nextChar)) {
