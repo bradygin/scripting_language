@@ -7,7 +7,10 @@ enum class TokenType {
     LEFT_PAREN,
     RIGHT_PAREN,
     OPERATOR,
-    NUMBER
+    NUMBER,
+    IDENTIFIER,
+    ASSIGNMENT,
+    BOOLEAN
 };
 
 struct Token {
@@ -19,8 +22,7 @@ struct Token {
     Token(int line, int column, const std::string& text, TokenType type)
         : line(line), column(column), text(text), type(type) {}
 
-        Token() : line(0), column(0), text(""), type(TokenType::OPERATOR) {}
-
+    Token() : line(0), column(0), text(""), type(TokenType::OPERATOR) {}
 
 };
 

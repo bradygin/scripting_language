@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "infixlexer.h"
 #include "token.h"
 #include <iostream>
 #include <iomanip>
@@ -6,19 +6,27 @@
 #include <string>
 
 int main() {
-    std::cout << "Enter your input:" << std::endl;
+
     // Initialize the lexer with standard input (cin)
-    Lexer lexer(std::cin);
+    InfixLexer lexer(std::cin);
 
     try {
-        // Create a vector of tokens by calling the lexer's tokenize function
-        std::vector<Token> tokens = lexer.tokenize();
+        /* Create a vector of tokens by calling the lexer's tokenize() member function which uses 
+        the nextToken() helper function to create tokens and then pushes them into a vector */
+        //std::cout << "Before tokenize()" << std::endl << std::flush;
+
+        std::vector<Token> tokens = lexer.infixtokenize();
+
+        //std::cout << "After tokenize()" << std::endl << std::flush;
+
+
         // Print the tokens and their line and column numbers
-        for (const Token& token : tokens) {
+      for (const Token& token : tokens) {
             std::cout << std::setw(4) << token.line << std::setw(4) << token.column << "  "
                       << std::setw(4) << token.text << std::endl;
-        }
-        
+        }     
+        //std::cout << "After print" << std::endl << std::flush;
+
     } catch (const std::runtime_error& error) {
         // Handle syntax errors
         std::cerr << error.what() << std::endl;
