@@ -54,13 +54,7 @@ Token InfixLexer::infixnextToken() {
                 throw SyntaxError(line, column);
             }
         } else if (currChar == '&') {
-            char nextChar = sExpression.peek();
-            if (nextChar == '&') {
-                sExpression.get();
-                return Token(line, column, "&&", TokenType::OPERATOR);
-            } else {
-                throw SyntaxError(line, column);
-            }
+            return Token(line, column, "&", TokenType::OPERATOR);
         } else if (currChar == '|') {
             char nextChar = sExpression.peek();
             if (nextChar == '|') {

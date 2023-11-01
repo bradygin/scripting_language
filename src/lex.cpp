@@ -25,7 +25,7 @@ int main() {
     }
     catch (const std::runtime_error& error) {
         // Handle syntax errors
-        std::cerr << error.what() << std::endl;
+        std::cout << error.what() << std::endl;
         return 1;
     }
     return 0;
