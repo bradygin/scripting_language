@@ -1,5 +1,5 @@
-#include "infixlexer.h"
-#include "token.h"
+#include "lib/infixlexer.h"
+#include "lib/token.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
