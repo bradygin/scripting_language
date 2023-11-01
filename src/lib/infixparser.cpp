@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <memory>
 #include <cmath>
-#include "infixParser.h"
+#include "infixparser.h"
 
 std::map<std::string, double> symbolTable;
 

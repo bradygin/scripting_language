@@ -3,7 +3,7 @@
 #include <iomanip>
 #include "lib/infixlexer.h"
 #include "lib/token.h"
-#include "lib/infixParser.h"
+#include "lib/infixparser.h"
 
 int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
