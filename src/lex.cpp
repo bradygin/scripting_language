@@ -8,7 +8,7 @@
 // Main function of lexer
 int main() {
     // Initialize the lexer with standard input (cin)
-    InfixLexer lexer(std::cin);
+    Lexer lexer(std::cin);
 
     try {
         /* Create a vector of tokens by calling the lexer's tokenize() member function which uses 
