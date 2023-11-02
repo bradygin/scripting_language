@@ -56,16 +56,14 @@ Token InfixLexer::infixnextToken() {
         } else if (currChar == '&') {
             return Token(line, column, "&", TokenType::OPERATOR);
         } else if (currChar == '|') {
-            char nextChar = sExpression.peek();
-            if (nextChar == '|') {
-                sExpression.get();
-                return Token(line, column, "||", TokenType::OPERATOR);
-            } else {
-                throw SyntaxError(line, column);
-            }
+            return Token(line, column, "|", TokenType::OPERATOR);
         } else if (currChar == '^') {
             return Token(line, column, "^", TokenType::OPERATOR);
-        } else if (std::isdigit(currChar)) {
+        } else if (currChar == '{') {
+            return Token(line, column, "{", TokenType::OPERATOR);
+        } else if (currChar == '}') {
+            return Token(line, column, "}", TokenType::OPERATOR);
+        }else if (std::isdigit(currChar)) {
             std::string num;
             num += currChar;
             char nextChar;
@@ -93,7 +91,6 @@ Token InfixLexer::infixnextToken() {
         } else if (isalpha(currChar) || currChar == '_') {
             std::string identifier;
             identifier += currChar;
-            //column++;
             char nextChar;
 
             while (sExpression.get(nextChar)) {
@@ -104,14 +101,12 @@ Token InfixLexer::infixnextToken() {
                     break;
                 }
             }
-
             int tempColumn = column;
             column += identifier.length() -1 ;
-            
             if (identifier == "true" || identifier == "false") {
                 return Token(line, tempColumn , identifier, TokenType::BOOLEAN);
             } else {
-                return Token(line, tempColumn , identifier, TokenType::IDENTIFIER);
+                return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
             }
         } else {
             throw SyntaxError(line, (column));
