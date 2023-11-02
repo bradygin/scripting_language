@@ -33,7 +33,8 @@ Token InfixLexer::infixnextToken() {
             char nextChar = sExpression.peek();
             if (nextChar == '=') {
                 sExpression.get();
-                return Token(line, column+1, "==", TokenType::OPERATOR);
+                column ++;
+                return Token(line, column-1, "==", TokenType::OPERATOR);
             } else {
                 return Token(line, column, "=", TokenType::ASSIGNMENT);
             }
@@ -49,7 +50,8 @@ Token InfixLexer::infixnextToken() {
             char nextChar = sExpression.peek();
             if (nextChar == '=') {
                 sExpression.get();
-                return Token(line, column+1, "!=", TokenType::OPERATOR);
+                column ++;
+                return Token(line, column-1, "!=", TokenType::OPERATOR);
             } else {
                 throw SyntaxError(line, column);
             }
