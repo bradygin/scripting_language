@@ -7,7 +7,7 @@
 Lexer::Lexer(std::istream& input) : sExpression(input) {}
 
 // Function to fetch the next token from the input stream
-Token Lexer::infixnextToken() {
+Token Lexer::nextToken() {
     char currChar;
     
     while (sExpression >> std::noskipws >> currChar) {
@@ -40,15 +40,16 @@ Token Lexer::infixnextToken() {
                         char followingChar = sExpression.peek();  // Peek at the next character
                         if (!std::isdigit(followingChar)) {  // Check if it's not a digit
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
-                            throw SyntaxError(line, (column+2));
+                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
+                            exit(1);
                         }
                     }
                     column++;
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
+                            // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
                             std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
                             exit(1);
-
                     }
 
                     num += nextChar;
@@ -69,6 +70,7 @@ Token Lexer::infixnextToken() {
             while (sExpression.get(nextChar)) {
                 if (isalnum(nextChar) || nextChar == '_') {
                     identifier += nextChar;
+                    column++;
                 } else {
                     sExpression.unget();
                     break;
@@ -81,7 +83,8 @@ Token Lexer::infixnextToken() {
             return Token(line, column, "=", TokenType::ASSIGNMENT);
 
         } else {
-            throw SyntaxError(line, (column));
+            std::cout << "Syntax error on line " << line << " column " << column << "." << std::endl;
+            exit(1);
         }
     }
 
@@ -90,15 +93,17 @@ Token Lexer::infixnextToken() {
 }
 
 // Function to tokenize the entire input stream and return a vector of tokens
-std::vector<Token> Lexer::infixtokenize() {
-    Token currToken = infixnextToken();
+std::vector<Token> Lexer::tokenize() {
+    Token currToken = nextToken();
 
     while (currToken.text != "END") {  // Check if there are more tokens to read
         myTokens.push_back(currToken);   
-        currToken = infixnextToken();
+        currToken = nextToken();
     }
     // Token lastToken = myTokens[myTokens.size() - 1];
     myTokens.push_back(currToken);
 
     return myTokens;
 }
+
+

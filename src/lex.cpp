@@ -14,7 +14,7 @@ int main() {
         /* Create a vector of tokens by calling the lexer's tokenize() member function which uses 
         the nextToken() helper function to create tokens and then pushes them into a vector */
 
-        std::vector<Token> tokens = lexer.infixtokenize();
+        std::vector<Token> tokens = lexer.tokenize();
 
         // Print the tokens and their line and column numbers
     for (const Token& token : tokens) {
