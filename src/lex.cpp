@@ -1,4 +1,4 @@
-#include "lib/infixlexer.h"
+#include "lib/lexer.h"
 #include "lib/token.h"
 #include <iostream>
 #include <iomanip>
