@@ -1,26 +1,33 @@
-#ifndef INFIXLEXER_H
-#define INFIXLEXER_H
+
+#ifndef LEXER_H
+#define LEXER_H
 
 #include <iostream>
 #include <vector>
-#include <stdexcept>
 #include "token.h"
+#include <stdexcept>
 
-
-//Lexer class definition
+// Lexer class definition
 struct Lexer {
 public:
-    //Defines a constructor for the Lexer struct that takes a reference to an std::istream as an argument.
+    // Constructor declaration: takes an input stream
     Lexer(std::istream& input);
+    
+    // Member variable to hold tokens
     std::vector<Token> myTokens;
-    // A reference to an std::istream
+    
+    // Member variable to hold the input stream
     std::istream& sExpression;
-
-    std::vector<Token> infixtokenize();
-    Token infixnextToken();
-
+    
+    // Member variables to track line and column numbers
     int line = 1;
     int column = 0;
+    
+    // Function declaration for tokenization
+    std::vector<Token> tokenize();
+    
+    // Function declaration for fetching the next token
+    Token nextToken();
 };
 
 class SyntaxError : public std::runtime_error {
