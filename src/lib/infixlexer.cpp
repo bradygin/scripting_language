@@ -105,10 +105,13 @@ Token InfixLexer::infixnextToken() {
                 }
             }
 
+            int tempColumn = column;
+            column += identifier.length() -1 ;
+            
             if (identifier == "true" || identifier == "false") {
-                return Token(line, column /*- identifier.length() + 1 */, identifier, TokenType::BOOLEAN);
+                return Token(line, tempColumn , identifier, TokenType::BOOLEAN);
             } else {
-                return Token(line, column /*- identifier.length() + 1*/, identifier, TokenType::IDENTIFIER);
+                return Token(line, tempColumn , identifier, TokenType::IDENTIFIER);
             }
         } else {
             throw SyntaxError(line, (column));
