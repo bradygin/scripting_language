@@ -41,8 +41,26 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
                 throw DivisionByZeroException();
             }
             return leftValue / rightValue;
+        case '<': 
+            if (right->toInfix() == "=") {
+                return leftValue <= rightValue ? 1 : 0;
+            } else {
+                return leftValue < rightValue ? 1 : 0;
+            }
+        case '>': 
+            if (right->toInfix() == "=") {
+                return leftValue >= rightValue ? 1 : 0;
+            } else {
+                return leftValue > rightValue ? 1 : 0;
+            }
+        // case '==': return leftValue == rightValue ? 1 : 0; // Need to figure out how to deal with '==' and '!='
+        // case '!=': return leftValue != rightValue ? 1 : 0; // May need to change op variable to string instead of char
+        case '&': return static_cast<int>(leftValue) & static_cast<int>(rightValue);
+        case '|': return static_cast<int>(leftValue) | static_cast<int>(rightValue);
+        case '^': return static_cast<int>(leftValue) ^ static_cast<int>(rightValue);
+        case '%': return std::fmod(leftValue, rightValue);
         default:
-        throw InvalidOperatorException();
+            throw InvalidOperatorException();
     }
 }
 

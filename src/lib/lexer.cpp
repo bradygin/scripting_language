@@ -31,7 +31,8 @@ Token Lexer::nextToken() {
                    || currChar == '/'
                    || currChar == '%') {
             return Token(line, column, std::string(1, currChar), TokenType::OPERATOR);
-        } else if (currChar == '=') {
+        } 
+        else if (currChar == '=') {
             char nextChar = sExpression.peek();
             if (nextChar == '=') {
                 sExpression.get();
