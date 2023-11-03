@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <memory>
+#include <cmath>
 #include "infixParser.h"
 
 
