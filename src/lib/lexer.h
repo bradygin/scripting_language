@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 #include "token.h"
 #include <stdexcept>
 
