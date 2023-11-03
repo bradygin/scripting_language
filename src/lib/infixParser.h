@@ -20,12 +20,12 @@ public:
 
 struct BinaryOperation : public ASTNode {
 public:
-    BinaryOperation(char op, ASTNode* left, ASTNode* right)
+    BinaryOperation(const std::string& op, ASTNode* left, ASTNode* right)
     : op(op), left(left), right(right) {}
     ~BinaryOperation();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
-    char op;
+    std::string op; 
     ASTNode* left;
     ASTNode* right;
 };

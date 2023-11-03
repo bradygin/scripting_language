@@ -33,36 +33,27 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
     double leftValue = left->evaluate(symbolTable);
     double rightValue = right->evaluate(symbolTable);
 
-    switch (op) {
-        case '+': return leftValue + rightValue;
-        case '-': return leftValue - rightValue;
-        case '*': return leftValue * rightValue;
-        case '/':
-            if (rightValue == 0) {
-                throw DivisionByZeroException();
-            }
-            return leftValue / rightValue;
-        case '<': 
-            if (right->toInfix() == "=") {
-                return leftValue <= rightValue ? 1 : 0;
-            } else {
-                return leftValue < rightValue ? 1 : 0;
-            }
-        case '>': 
-            if (right->toInfix() == "=") {
-                return leftValue >= rightValue ? 1 : 0;
-            } else {
-                return leftValue > rightValue ? 1 : 0;
-            }
-        // case '==': return leftValue == rightValue ? 1 : 0; // Need to figure out how to deal with '==' and '!='
-        // case '!=': return leftValue != rightValue ? 1 : 0; // May need to change op variable to string instead of char
-        case '&': return static_cast<int>(leftValue) & static_cast<int>(rightValue);
-        case '|': return static_cast<int>(leftValue) | static_cast<int>(rightValue);
-        case '^': return static_cast<int>(leftValue) ^ static_cast<int>(rightValue);
-        case '%': return std::fmod(leftValue, rightValue);
-        default:
-            throw InvalidOperatorException();
+    if (op == "+") return leftValue + rightValue;
+    if (op == "-") return leftValue - rightValue;
+    if (op == "*") return leftValue * rightValue;
+    if (op == "/") {
+        if (rightValue == 0) {
+            throw DivisionByZeroException();
+        }
+        return leftValue / rightValue;
     }
+    if (op == "%") return std::fmod(leftValue, rightValue);
+    if (op == "<") return leftValue < rightValue ? 1 : 0;
+    if (op == ">") return leftValue > rightValue ? 1 : 0;
+    if (op == "<=") return leftValue <= rightValue ? 1 : 0;
+    if (op == ">=") return leftValue >= rightValue ? 1 : 0;
+    if (op == "==") return leftValue == rightValue ? 1 : 0;
+    if (op == "!=") return leftValue != rightValue ? 1 : 0;
+    if (op == "&") return static_cast<int>(leftValue) & static_cast<int>(rightValue);
+    if (op == "^") return static_cast<int>(leftValue) ^ static_cast<int>(rightValue);
+    if (op == "|") return static_cast<int>(leftValue) | static_cast<int>(rightValue);
+
+    throw InvalidOperatorException();
 }
 
 std::string BinaryOperation::toInfix() const {
@@ -106,7 +97,7 @@ ASTNode* infixParser::infixparseExpression() {
         char op = currentToken.text[0];
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseTerm());
-        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+        left = std::make_unique<BinaryOperation>(std::string(1, op), left.release(), right.release());
     }
 
     return left.release();
@@ -128,7 +119,7 @@ ASTNode* infixParser::infixparseTerm() {
         char op = currentToken.text[0];
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseFactor());
-        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+        left = std::make_unique<BinaryOperation>(std::string(1, op), left.release(), right.release());
     }
 
     return left.release();
