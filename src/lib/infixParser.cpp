@@ -93,7 +93,11 @@ ASTNode* infixParser::infixparse() {
 ASTNode* infixParser::infixparseExpression() {
     std::unique_ptr<ASTNode> left(infixparseTerm());
 
-    while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
+    while (currentToken.type == TokenType::OPERATOR && 
+      (currentToken.text == "+" || currentToken.text == "-" || 
+       currentToken.text == "<" || currentToken.text == ">" || 
+       currentToken.text == "<=" || currentToken.text == ">=" || 
+       currentToken.text == "==" || currentToken.text == "!=")) {
         char op = currentToken.text[0];
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseTerm());
@@ -115,7 +119,10 @@ Assignment::~Assignment() {
 ASTNode* infixParser::infixparseTerm() {
     std::unique_ptr<ASTNode> left (infixparseFactor());
 
-    while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "*" || currentToken.text == "/")) {
+    while (currentToken.type == TokenType::OPERATOR && 
+      (currentToken.text == "*" || currentToken.text == "/" || 
+       currentToken.text == "%" || currentToken.text == "&" || 
+       currentToken.text == "^" || currentToken.text == "|")) {
         char op = currentToken.text[0];
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseFactor());
@@ -140,12 +147,12 @@ ASTNode* infixParser::infixparsePrimary() {
     } else if (currentToken.type == TokenType::BOOLEAN) {
         if (currentToken.text == "true") {
             nextToken();
-            return new Boolean(true);
+            return new Number(1.0);
         } else if (currentToken.text == "false") {
             nextToken();
-            return new Boolean(false);
+            return new Number(0.0);
         }
-        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();
@@ -199,8 +206,4 @@ std::string infixParser::printInfix(ASTNode* node) {
         std::cout << "Invalid node type" << std::endl;
         exit(4);
     }
-}
-
-double Boolean::evaluate(std::map<std::string, double>& /* unused */) const {
-    return value ? 1.0 : 0.0;  
 }

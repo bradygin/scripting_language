@@ -83,16 +83,6 @@ public:
     std::string variableName;
 };
 
-class Boolean : public ASTNode {
-public:
-    Boolean(bool value) : value(value) {}
-    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
-    std::string toInfix() const override {
-        return value ? "true" : "false";
-    }
-    bool value;
-};
-
 //EXCEPTION HANDLING
 class UnknownIdentifierException : public std::runtime_error{
 public:

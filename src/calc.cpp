@@ -7,6 +7,11 @@
 #include "lib/token.h"
 #include "lib/infixParser.h"
 
+class TypeError : public std::runtime_error {
+public:
+    TypeError(const std::string& message) : std::runtime_error(message) {}
+};
+
 int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
 
@@ -48,10 +53,15 @@ int main() {
                 std::cout << infixExpression << std::endl;
                 try {
                     std::map<std::string, double> temp = symbolTable;
-                    std::cout << root->evaluate(temp) << std::endl;
+                    double result = root->evaluate(temp);
                     symbolTable = temp;
-                    // double result = root->evaluate(symbolTable);
-                    // std::cout << result << std::endl;
+                    if (result == 1.0) {
+                        std::cout << "true" << std::endl;
+                    } else if (result == 0.0) {
+                        std::cout << "false" << std::endl;
+                    } else {
+                        std::cout << result << std::endl;
+                    }
                 } catch (const DivisionByZeroException& e) {
                     std::cout << e.what() << std::endl;
                 } catch (const InvalidOperatorException& e) {
@@ -60,6 +70,8 @@ int main() {
                     std::cout << e.what() << std::endl;
                 } catch (const SyntaxError& e) {
                     std::cout << e.what() << std::endl;
+                } catch (const TypeError& e) {
+                    std::cout << "Runtime error: " << e.what() << std::endl;
                 }
 
                 delete root;
