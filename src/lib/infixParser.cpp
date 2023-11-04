@@ -137,6 +137,15 @@ ASTNode* infixParser::infixparsePrimary() {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_unique<Number>(value).release();
+    } else if (currentToken.type == TokenType::BOOLEAN) {
+        if (currentToken.text == "true") {
+            nextToken();
+            return new Boolean(true);
+        } else if (currentToken.text == "false") {
+            nextToken();
+            return new Boolean(false);
+        }
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();
@@ -190,4 +199,8 @@ std::string infixParser::printInfix(ASTNode* node) {
         std::cout << "Invalid node type" << std::endl;
         exit(4);
     }
+}
+
+double Boolean::evaluate(std::map<std::string, double>& /* unused */) const {
+    return value ? 1.0 : 0.0;  
 }
