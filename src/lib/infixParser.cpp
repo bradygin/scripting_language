@@ -98,10 +98,10 @@ ASTNode* infixParser::infixparseExpression() {
        currentToken.text == "<" || currentToken.text == ">" || 
        currentToken.text == "<=" || currentToken.text == ">=" || 
        currentToken.text == "==" || currentToken.text == "!=")) {
-        char op = currentToken.text[0];
+        std::string op = currentToken.text;
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseTerm());
-        left = std::make_unique<BinaryOperation>(std::string(1, op), left.release(), right.release());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
 
     return left.release();
@@ -123,10 +123,10 @@ ASTNode* infixParser::infixparseTerm() {
       (currentToken.text == "*" || currentToken.text == "/" || 
        currentToken.text == "%" || currentToken.text == "&" || 
        currentToken.text == "^" || currentToken.text == "|")) {
-        char op = currentToken.text[0];
+        std::string op = currentToken.text;
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseFactor());
-        left = std::make_unique<BinaryOperation>(std::string(1, op), left.release(), right.release());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
 
     return left.release();
