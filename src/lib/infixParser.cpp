@@ -69,6 +69,26 @@ std::string Number::toInfix() const {
     return num;
 }
 
+class BooleanNode : public ASTNode {
+public:
+    BooleanNode(bool value);
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    bool value;
+};
+
+BooleanNode::BooleanNode(bool value) : value(value) {}
+
+double BooleanNode::evaluate(std::map<std::string, double>& /*unused*/) const {
+    return value ? 1.0 : 0.0;
+}
+
+std::string BooleanNode::toInfix() const {
+    return value ? "true" : "false";
+}
+
 infixParser::infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable)
     : tokens(tokens), index(0), symbolTable(symbolTable) {
     if (!tokens.empty()) {
@@ -147,12 +167,12 @@ ASTNode* infixParser::infixparsePrimary() {
     } else if (currentToken.type == TokenType::BOOLEAN) {
         if (currentToken.text == "true") {
             nextToken();
-            return new Number(1.0);
+            return new BooleanNode(true);
         } else if (currentToken.text == "false") {
             nextToken();
-            return new Number(0.0);
+            return new BooleanNode(false);
         }
-            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();
@@ -199,6 +219,8 @@ std::string infixParser::printInfix(ASTNode* node) {
     } else if (dynamic_cast<Assignment*>(node) != nullptr) {
         Assignment* assignment = dynamic_cast<Assignment*>(node);
         return "(" + assignment->variableName + " = " + printInfix(assignment->expression) + ")";
+    } else if (dynamic_cast<BooleanNode*>(node) != nullptr) {
+        return dynamic_cast<BooleanNode*>(node)->toInfix();
     } else if (dynamic_cast<Variable*>(node) != nullptr) {
         Variable* variable = dynamic_cast<Variable*>(node);
         return variable->variableName;
