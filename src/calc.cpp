@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iomanip>
 #include <stdexcept>
-
-#include "lib/infixlexer.h"
+#include <sstream>
+#include "lib/lexer.h"
 #include "lib/token.h"
 #include "lib/infixParser.h"
 
@@ -11,17 +11,17 @@ int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
 
     while (true) {
-        // Read input
+        // Reads input
         std::string inputLine;
         if (!std::getline(std::cin, inputLine)) {
             break;
         }
         std::istringstream inputStream(inputLine);
-        InfixLexer lexer(inputStream);
+        Lexer lexer(inputStream);
 
         try {
             // Tokenize and parse the current line
-            std::vector<Token> tokens = lexer.infixtokenize();
+            std::vector<Token> tokens = lexer.tokenize();
 
             int openParenthesesCount = 0;  // Track open parentheses
             for (const Token& token : tokens) {
@@ -47,8 +47,11 @@ int main() {
                 std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
                 try {
-                    double result = root->evaluate(symbolTable);
-                    std::cout << result << std::endl;
+                    std::map<std::string, double> temp = symbolTable;
+                    std::cout << root->evaluate(temp) << std::endl;
+                    symbolTable = temp;
+                    // double result = root->evaluate(symbolTable);
+                    // std::cout << result << std::endl;
                 } catch (const DivisionByZeroException& e) {
                     std::cout << e.what() << std::endl;
                 } catch (const InvalidOperatorException& e) {

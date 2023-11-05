@@ -1,9 +1,12 @@
+
 #ifndef LEXER_H
 #define LEXER_H
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 #include "token.h"
+#include <stdexcept>
 
 // Lexer class definition
 struct Lexer {
@@ -26,6 +29,15 @@ public:
     
     // Function declaration for fetching the next token
     Token nextToken();
+};
+
+class SyntaxError : public std::runtime_error {
+public:
+    SyntaxError(int line, int column)
+    : std::runtime_error ("Syntax error on line " + std::to_string(line) + " column " +std::to_string(column) + ".") {}
+    int getErrorCode() const {
+    return 1;
+    }
 };
 
 #endif

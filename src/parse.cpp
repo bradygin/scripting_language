@@ -12,7 +12,6 @@ int main() {
 
     try {
         std::vector<Token> tokens = lexer.tokenize();
-
         // Parse the tokens into a sequence of ASTs
         Parser parser(tokens);
         std::vector<Node*> asts = parser.parse();
@@ -30,9 +29,13 @@ int main() {
                 } catch (const std::runtime_error& error) {
                     std::cerr << error.what() << std::endl;
                     // Deallocate any remaining ASTs before exiting
+                    for (Node* node : asts) {
+                        delete node;
+                    }
                     return 3;
                 }
                 // Delete the AST after evaluation to prevent memory leak
+                delete root;
             } else {
                 std::cerr << "Failed to parse one of the input expressions." << std::endl;
             }

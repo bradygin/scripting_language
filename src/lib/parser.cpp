@@ -1,5 +1,4 @@
 #include "parser.h"
-#include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -15,97 +14,114 @@ Node::~Node() {
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
 Parser::~Parser() {
-    if (!roots.empty()) {
-        for (auto root : roots) {
-            delete root;
-        }
-    }
 }
 
 std::vector<Node*> Parser::parse() {
-   while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
-      auto root = parseExpression();
-      roots.push_back(root);
+    while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
+        auto root = parseExpression();
+        roots.push_back(root);
     }
     return roots;
 }
 
 Node* Parser::parseExpression() {
-    Node* node = new Node(""); 
+    Node* node = new Node("");
     while (currentTokenIndex < tokens.size()) {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
-            TokenType type = tokens[currentTokenIndex].type;
-            if (type == TokenType::LEFT_PAREN) {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
-                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(3);
-            } else if (type != TokenType::OPERATOR && type != TokenType::ASSIGNMENT) {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
-                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
+            std::string next_token = tokens[currentTokenIndex].text;
+
+            if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/" && next_token != "=") {
+                if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+                    std::cout << "1 Unexpected token at line " << tokens[currentTokenIndex].line
+                              << " column " << tokens[currentTokenIndex].column
+                              << ": " << tokens[currentTokenIndex].text << std::endl;
+                } else {
+                    std::cout << "2 Unexpected token at line " << tokens[currentTokenIndex].line
+                              << " column " << tokens[currentTokenIndex].column
+                              << ": " << tokens[currentTokenIndex].text << std::endl;
+                }
                 exit(2);
             }
-            node->type = type;
+            node->type = tokens[currentTokenIndex].type;
             node->value = tokens[currentTokenIndex++].text;
-            if (type == TokenType::ASSIGNMENT && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line << " column "
-                << tokens[currentTokenIndex].column << ": " << tokens[currentTokenIndex].text << std::endl;
-                exit(2);
-            }
+
             while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type != TokenType::RIGHT_PAREN) {
-                node->children.push_back(parseExpression()); 
+                node->children.push_back(parseExpression());
             }
             if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
                 currentTokenIndex++;
+                if (node->type == TokenType::ASSIGNMENT) {
+                    // Check for unexpected token cases in assignment
+                    if (node->children.empty()) {
+                        std::cout << "3 Unexpected token at line " << tokens[currentTokenIndex].line
+                                  << " column " << tokens[currentTokenIndex].column
+                                  << ": " << tokens[currentTokenIndex].text << std::endl;
+                        exit(2);
+                    } else if (node->children.size() == 1) {
+                        std::cout << "4 Unexpected token at line " << tokens[currentTokenIndex].line
+                                  << " column " << tokens[currentTokenIndex].column
+                                  << ": " << tokens[currentTokenIndex].text << std::endl;
+                        exit(2);
+                    }
+                }
                 return node;
             } else {
-                std::cout << "Unexpected token at line " +
-                    std::to_string(tokens[currentTokenIndex].line) + " column " +
-                    std::to_string(tokens[currentTokenIndex].column) + ": " +
-                    tokens[currentTokenIndex].text << std::endl;
+                if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+                    std::cout << "5 Unexpected token at line " << tokens[currentTokenIndex].line
+                              << " column " << tokens[currentTokenIndex].column
+                              << ": " << tokens[currentTokenIndex].text << std::endl;
+                } else {
+                    std::cout << "6 Unexpected token at line " << tokens[currentTokenIndex].line
+                              << " column " << tokens[currentTokenIndex].column
+                              << ": " << tokens[currentTokenIndex].text << std::endl;
+                }
                 exit(2);
             }
-        } else if (tokens[currentTokenIndex].type == TokenType::NUMBER) {
-            node->type = tokens[currentTokenIndex].type;
-            node->value = tokens[currentTokenIndex++].text;
-            return node;
-        } else if (tokens[currentTokenIndex].type == TokenType::ASSIGNMENT) {
-            node->type = tokens[currentTokenIndex].type;
-            node->value = tokens[currentTokenIndex++].text; 
-            return node;
-        } else if (tokens[currentTokenIndex].type == TokenType::IDENTIFIER) {
+        } else if (tokens[currentTokenIndex].type == TokenType::NUMBER || tokens[currentTokenIndex].type == TokenType::IDENTIFIER || tokens[currentTokenIndex].type == TokenType::ASSIGNMENT) {
             node->type = tokens[currentTokenIndex].type;
             node->value = tokens[currentTokenIndex++].text;
             return node;
         } else {
-            std::cout << "Unexpected token at line " +
-                std::to_string(tokens[currentTokenIndex].line) + " column " +
-                std::to_string(tokens[currentTokenIndex].column) + ": " +
-                tokens[currentTokenIndex].text << std::endl;
+            if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
+               std::cout << "7 Unexpected token at line " << tokens[currentTokenIndex].line
+                          << " column " << tokens[currentTokenIndex].column
+                          << ": " << tokens[currentTokenIndex].text << std::endl;
+            } else {
+                std::cout << "8 Unexpected token at line " << tokens[currentTokenIndex].line
+                          << " column " << tokens[currentTokenIndex].column
+                          << ": " << tokens[currentTokenIndex].text << std::endl;
+            }
             exit(2);
         }
     }
-    if (tokens[currentTokenIndex].text == "END") {
-        return nullptr;
-    } else {
-        std::cout << "Invalid input: Unexpected end of input." << std::endl;
-        exit(2);
+    std::cout << "Invalid input: Unexpected end of input." << std::endl;
+    exit(2);
+}
+
+
+
+
+std::string customToString(double numericValue) {
+    std::string stringValue = std::to_string(numericValue);
+
+    size_t pos = stringValue.find_last_not_of('0');
+    if (pos != std::string::npos && stringValue[pos] == '.') {
+        pos--; // Remove the trailing decimal point
     }
+
+    return stringValue.substr(0, pos + 1);
 }
 
 std::string Parser::printInfix(Node* node) {
     if (node == nullptr) {
-        return "";  
+        return "";
     } else if (node->type == TokenType::IDENTIFIER) {
-      return node->value;
+        return node->value;
     } else if (node->type == TokenType::NUMBER) {
-        double value = std::stod(node->value);
-        if (value == std::floor(value)) {
-            return std::to_string(static_cast<int>(value));
-        }
-        else {
-            return node->value;
-        }
+        double numericValue = std::stod(node->value);
+        std::string castedValue = customToString(numericValue);
+        return castedValue;
     } else {
         std::string infix = "(";
         for (size_t i = 0; i < node->children.size(); ++i) {
@@ -119,18 +135,21 @@ std::string Parser::printInfix(Node* node) {
     }
 }
 
+
+
+
 double Node::evaluate() {
     double result = 0.0;
-    switch (type) {
-    case TokenType::OPERATOR:
+
+    if (type == TokenType::OPERATOR) {
         if (value == "+") {
             for (Node* child : children) {
                 result += child->evaluate();
             }
         } else if (value == "-") {
             if (children.size() == 0) {
-                std::cout <<("Invalid number of children for operator: " + value) << std::endl;
-                exit(3);
+                std::cout << "Invalid number of children for operator: " + value << std::endl;
+                exit(2);
             }
             result = children[0]->evaluate();
             for (size_t i = 1; i < children.size(); ++i) {
@@ -143,61 +162,57 @@ double Node::evaluate() {
             }
         } else if (value == "/") {
             if (children.size() == 0) {
-                std::cout <<("Invalid number of children for operator: " + value) << std::endl;
+                std::cout << "Invalid number of children for operator: " + value << std::endl;
                 exit(3);
             }
             result = children[0]->evaluate();
             for (size_t i = 1; i < children.size(); ++i) {
                 if (children[i]->evaluate() == 0.0) {
-                    std::cout <<("Runtime error: division by zero.") << std::endl;
+                    std::cout << "Runtime error: division by zero." << std::endl;
                     exit(3);
                 }
                 result /= children[i]->evaluate();
             }
         } else {
-            std::cout <<("Invalid operator: " + value) << std::endl;
-            exit(3);
+            std::cout << "Invalid operator: " + value << std::endl;
+            exit(2);
         }
-        break;
-    case TokenType::IDENTIFIER:
+    } else if (type == TokenType::IDENTIFIER) {
         result = variableMap[value];
-        break;
-    case TokenType::ASSIGNMENT:
+    } else if (type == TokenType::ASSIGNMENT) {
         if (children.size() == 0) {
-            std::cout <<("Invalid number of children for assignment: " + value) << std::endl;
-            exit(3);
+            std::cout << "Invalid number of children for assignment: " + value << std::endl;
+            exit(2);
         } else {
-        bool found_result = false;
-        for (size_t i = 0; i < children.size(); ++i) {
-            if (children[i]->type != TokenType::IDENTIFIER) {
-              found_result = true;
-              result = children[i]->evaluate();
-            }
-        }
-        if (found_result) {
+            bool found_result = false;
             for (size_t i = 0; i < children.size(); ++i) {
-                if (children[i]->type == TokenType::IDENTIFIER) {
-                   variableMap[children[i]->value] = result;
+                if (children[i]->type != TokenType::IDENTIFIER) {
+                    found_result = true;
+                    result = children[i]->evaluate();
                 }
             }
-        } else {
-            std::cout <<("Invalid value for assignment: " + value) << std::endl;
-            exit(3);
-        }}
-        break;
-    case TokenType::NUMBER:
-        {std::istringstream ss(value);
+            if (found_result) {
+                for (size_t i = 0; i < children.size(); ++i) {
+                    if (children[i]->type == TokenType::IDENTIFIER) {
+                        variableMap[children[i]->value] = result;
+                    }
+                }
+            } else {
+                std::cout << "Invalid value for assignment: " + value << std::endl;
+                exit(2);
+            }
+        }
+    } else if (type == TokenType::NUMBER) {
+        std::istringstream ss(value);
         ss >> result;
         if (ss.fail()) {
-            std::cout <<("Invalid input: " + value) << std::endl;
-            exit(3);
-        }}
-        break; 
-    default: 
-        {std::cout <<("Invalid input: " + value) << std::endl;
-        exit(3);
-        break;
-      }
+            std::cout << "Invalid input: " + value << std::endl;
+            exit(2);
+        }
+    } else {
+        std::cout << "Invalid input: " + value << std::endl;
+        exit(2);
     }
+
     return result;
 }
