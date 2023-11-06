@@ -63,7 +63,7 @@ int main() {
                     } else {
                         std::cout << "false" << std::endl;
                     }
-                } else if (dynamic_cast<BooleanNode*>(root) || dynamic_cast<Variable*>(root) || (dynamic_cast<BinaryOperation*>(root) && (
+                } else if (dynamic_cast<BooleanNode*>(root) || (dynamic_cast<Variable*>(root) && (result == 1.0 || result == 0.0)) || (dynamic_cast<BinaryOperation*>(root) && (
                     root->toInfix().find("<") != std::string::npos ||
                     root->toInfix().find(">") != std::string::npos ||
                     root->toInfix().find("==") != std::string::npos ||
