@@ -15,25 +15,19 @@ int main() {
         std::vector<Token> tokens = lexer.tokenize();
         infixParser parser(tokens, symbolTable);
         std::vector<ASTNode*> asts = parser.infixparse();
-        if (!asts.empty()) {
-            try {
-                double result = parser.evaluate(symbolTable);
-                std::cout << result << std::endl;
-            } catch (const DivisionByZeroException& e) {
-                std::cout << e.what() << std::endl;
-            } catch (const InvalidOperatorException& e) {
-                std::cout << e.what() << std::endl;
-            } catch (const UnknownIdentifierException& e) {
-                std::cout << e.what() << std::endl;
-            } catch (const SyntaxError& e) {
-                std::cout << e.what() << std::endl;
+        double result = 0.0;
+        for (ASTNode* root : asts) {
+            if (root) {
+                result = parser.evaluate(root, symbolTable);
+                delete root;
+            } else {
+                std::cout << "Failed to parse the input expression." << std::endl;
             }
-            delete root;
         }
-    } catch (const UnexpectedTokenException& e) {
-        std::cout << e.what() << std::endl;
-    } catch (const SyntaxError& e) {
-        std::cout << e.what() << std::endl;
+        std::cout << result << std::endl;
+    } catch (const std::runtime_error& error) {
+        std::cerr << error.what() << std::endl;
+        return 1;
     }
     return 0;
 }

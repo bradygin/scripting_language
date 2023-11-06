@@ -23,7 +23,6 @@ int main() {
                 std::cout << infixExpression << std::endl;
                 delete root;
             } else {
-std::cout << "Daisy fotmat:: main() UnexpectedTokenException" << std::endl;
                 std::cout << "Failed to parse the input expression." << std::endl;
             }
         }
