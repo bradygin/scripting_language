@@ -55,7 +55,13 @@ int main() {
                     std::map<std::string, double> temp = symbolTable;
                     double result = root->evaluate(temp);
                     symbolTable = temp;
-                    if (dynamic_cast<BooleanNode*>(root)) {
+                    if (dynamic_cast<BooleanNode*>(root) || (dynamic_cast<BinaryOperation*>(root) && (
+                        root->toInfix().find("<") != std::string::npos ||
+                        root->toInfix().find(">") != std::string::npos ||
+                        root->toInfix().find("==") != std::string::npos ||
+                        root->toInfix().find("!=") != std::string::npos ||
+                        root->toInfix().find("<=") != std::string::npos ||
+                        root->toInfix().find(">=") != std::string::npos))) {
                         if (result == 1.0) {
                             std::cout << "true" << std::endl;
                         } else {
