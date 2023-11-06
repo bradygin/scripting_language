@@ -55,7 +55,15 @@ int main() {
                     std::map<std::string, double> temp = symbolTable;
                     double result = root->evaluate(temp);
                     symbolTable = temp;
-                if (dynamic_cast<BooleanNode*>(root) || (dynamic_cast<BinaryOperation*>(root) && (
+                // Check for assignment to a boolean value
+                Assignment* assignmentNode = dynamic_cast<Assignment*>(root);
+                if (assignmentNode && dynamic_cast<BooleanNode*>(assignmentNode->expression)) {
+                    if (result == 1.0) {
+                        std::cout << "true" << std::endl;
+                    } else {
+                        std::cout << "false" << std::endl;
+                    }
+                } else if (dynamic_cast<BooleanNode*>(root) || (dynamic_cast<BinaryOperation*>(root) && (
                     root->toInfix().find("<") != std::string::npos ||
                     root->toInfix().find(">") != std::string::npos ||
                     root->toInfix().find("==") != std::string::npos ||
@@ -65,11 +73,11 @@ int main() {
                     root->toInfix().find("&") != std::string::npos ||
                     root->toInfix().find("^") != std::string::npos ||
                     root->toInfix().find("|") != std::string::npos))) {
-                    if (result == 1.0) {
-                        std::cout << "true" << std::endl;
-                    } else {
-                        std::cout << "false" << std::endl;
-                    }
+                        if (result == 1.0) {
+                            std::cout << "true" << std::endl;
+                        } else {
+                            std::cout << "false" << std::endl;
+                        }
                 } else {
                     std::cout << result << std::endl;
                 }
