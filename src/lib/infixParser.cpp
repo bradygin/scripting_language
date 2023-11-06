@@ -107,24 +107,11 @@ void infixParser::nextToken() {
 }
 
 ASTNode* infixParser::infixparse() {
-    return infixparseExpression();
+    return infixparseAssignment();
 }
 
 ASTNode* infixParser::infixparseExpression() {
-    std::unique_ptr<ASTNode> left(infixparseTerm());
-
-    while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "+" || currentToken.text == "-" || 
-       currentToken.text == "<" || currentToken.text == ">" || 
-       currentToken.text == "<=" || currentToken.text == ">=" || 
-       currentToken.text == "==" || currentToken.text == "!=")) {
-        std::string op = currentToken.text;
-        nextToken();  
-        std::unique_ptr<ASTNode> right(infixparseTerm());
-        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
-    }
-
-    return left.release();
+    return infixparseAssignment();
 }
 
 BinaryOperation::~BinaryOperation() {
@@ -137,12 +124,10 @@ Assignment::~Assignment() {
     }
 
 ASTNode* infixParser::infixparseTerm() {
-    std::unique_ptr<ASTNode> left (infixparseFactor());
+    std::unique_ptr<ASTNode> left(infixparseFactor());
 
     while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "*" || currentToken.text == "/" || 
-       currentToken.text == "%" || currentToken.text == "&" || 
-       currentToken.text == "^" || currentToken.text == "|")) {
+      (currentToken.text == "+" || currentToken.text == "-")) {
         std::string op = currentToken.text;
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseFactor());
@@ -152,8 +137,99 @@ ASTNode* infixParser::infixparseTerm() {
     return left.release();
 }
 
+ASTNode* infixParser::infixparseComparison() {
+    std::unique_ptr<ASTNode> left(infixparseTerm());
+
+    while (currentToken.type == TokenType::OPERATOR && 
+      (currentToken.text == "<" || currentToken.text == ">" || 
+       currentToken.text == "<=" || currentToken.text == ">=")) {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparseTerm());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
+}
+
+ASTNode* infixParser::infixparseLogicalAnd() {
+    std::unique_ptr<ASTNode> left(infixparseEquality());
+
+    while (currentToken.type == TokenType::OPERATOR && currentToken.text == "&") {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparseEquality());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
+}
+
+ASTNode* infixParser::infixparseLogicalXor() {
+    std::unique_ptr<ASTNode> left(infixparseLogicalAnd());
+
+    while (currentToken.type == TokenType::OPERATOR && currentToken.text == "^") {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparseLogicalAnd());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
+}
+
+ASTNode* infixParser::infixparseLogicalOr() {
+    std::unique_ptr<ASTNode> left(infixparseLogicalXor());
+
+    while (currentToken.type == TokenType::OPERATOR && currentToken.text == "|") {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparseLogicalXor());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
+}
+
+ASTNode* infixParser::infixparseAssignment() {
+    std::unique_ptr<ASTNode> left(infixparseLogicalOr());
+
+    while (currentToken.type == TokenType::OPERATOR && currentToken.text == "=") {
+        std::string varName = dynamic_cast<Variable*>(left.get())->variableName;
+        nextToken();  
+        std::unique_ptr<ASTNode> expr(infixparseLogicalOr());
+        left = std::make_unique<Assignment>(varName, expr.release());
+    }
+
+    return left.release();
+}
+
+ASTNode* infixParser::infixparseEquality() {
+    std::unique_ptr<ASTNode> left(infixparseComparison());
+
+    while (currentToken.type == TokenType::OPERATOR && 
+      (currentToken.text == "==" || currentToken.text == "!=")) {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparseComparison());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
+}
+
 ASTNode* infixParser::infixparseFactor() {
-    return infixparsePrimary();
+    std::unique_ptr<ASTNode> left(infixparsePrimary());
+
+    while (currentToken.type == TokenType::OPERATOR && 
+      (currentToken.text == "*" || currentToken.text == "/" || currentToken.text == "%")) {
+        std::string op = currentToken.text;
+        nextToken();  
+        std::unique_ptr<ASTNode> right(infixparsePrimary());
+        left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
+    }
+
+    return left.release();
 }
 
 ASTNode* infixParser::infixparsePrimary() {

@@ -59,6 +59,12 @@ private:
     ASTNode* infixparseExpression();
     ASTNode* infixparseTerm();
     ASTNode* infixparseFactor();
+    ASTNode* infixparseAssignment();
+    ASTNode* infixparseComparison();
+    ASTNode* infixparseEquality();
+    ASTNode* infixparseLogicalAnd();
+    ASTNode* infixparseLogicalOr();
+    ASTNode* infixparseLogicalXor();
 };
 
 
