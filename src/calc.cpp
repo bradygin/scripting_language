@@ -55,9 +55,9 @@ int main() {
                     std::map<std::string, double> temp = symbolTable;
                     double result = root->evaluate(temp);
                     symbolTable = temp;
-                // Check for assignment to a boolean value
+                // Check for assignment that evaluates to a boolean value
                 Assignment* assignmentNode = dynamic_cast<Assignment*>(root);
-                if (assignmentNode && dynamic_cast<BooleanNode*>(assignmentNode->expression)) {
+                if (assignmentNode && (result == 1.0 || result == 0.0)) {
                     if (result == 1.0) {
                         std::cout << "true" << std::endl;
                     } else {
