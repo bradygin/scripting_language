@@ -283,7 +283,7 @@ ASTNode* infixParser::infixparsePrimary() {
     } else if (currentToken.type == TokenType::RIGHT_PAREN) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
-        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        throw UnknownIdentifierException(symbolTable,currentToken.text);
     }
 }
 
