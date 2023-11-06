@@ -21,8 +21,7 @@ double Variable::evaluate(std::map<std::string, double>& symbolTable) const {
     if (symbolTable.find(variableName) != symbolTable.end()) {
             return symbolTable.at(variableName);
         } else {
-            //throw UnknownIdentifierException(symbolTable, variableName);
-            throw UnexpectedTokenException(variableName, 1, 1);
+            throw UnknownIdentifierException(symbolTable, variableName);
         }
 }
 
