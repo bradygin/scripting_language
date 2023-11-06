@@ -20,14 +20,24 @@ public:
 
 struct BinaryOperation : public ASTNode {
 public:
-    BinaryOperation(char op, ASTNode* left, ASTNode* right)
+    BinaryOperation(const std::string& op, ASTNode* left, ASTNode* right)
     : op(op), left(left), right(right) {}
     ~BinaryOperation();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
-    char op;
+    std::string op; 
     ASTNode* left;
     ASTNode* right;
+};
+
+class BooleanNode : public ASTNode {
+public:
+    BooleanNode(bool value);
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    bool value;
 };
 
 
@@ -59,6 +69,12 @@ private:
     ASTNode* infixparseExpression();
     ASTNode* infixparseTerm();
     ASTNode* infixparseFactor();
+    ASTNode* infixparseAssignment();
+    ASTNode* infixparseComparison();
+    ASTNode* infixparseEquality();
+    ASTNode* infixparseLogicalAnd();
+    ASTNode* infixparseLogicalOr();
+    ASTNode* infixparseLogicalXor();
 };
 
 
@@ -123,5 +139,13 @@ public:
     }
 };
 
+class InvalidOperandTypeException : public std::runtime_error {
+public:
+    InvalidOperandTypeException() : std::runtime_error("Runtime error: invalid operand type.") {}
+
+    int getErrorCode() const {
+        return 3; 
+    }
+};
 
 #endif
