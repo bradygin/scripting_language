@@ -80,16 +80,18 @@ Token Lexer::nextToken() {
                         char followingChar = sExpression.peek();  // Peek at the next character
                         if (!std::isdigit(followingChar)) {  // Check if it's not a digit
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
-                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
-                            exit(1);
+                            // std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
+                            // exit(1);
+                            throw SyntaxError(line, column);
                         }
                     }
                     column++;
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
-                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
-                            exit(1);
+                            // std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
+                            // exit(1);
+                            throw SyntaxError(line, column);
                     }
                     num += nextChar;
                 } else {
@@ -120,8 +122,9 @@ Token Lexer::nextToken() {
                 return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
             }
         } else {
-            std::cout << "Syntax error on line " << line << " column " << column << "." << std::endl;
-            exit(1);
+            // std::cout << "Syntax error on line " << line << " column " << column << "." << std::endl;
+            // exit(1);
+            throw SyntaxError(line, column);
         }
     }
 
