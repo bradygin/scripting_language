@@ -30,6 +30,16 @@ public:
     ASTNode* right;
 };
 
+class BooleanNode : public ASTNode {
+public:
+    BooleanNode(bool value);
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    bool value;
+};
+
 
 struct Number : public ASTNode {
 public:
@@ -129,5 +139,13 @@ public:
     }
 };
 
+class InvalidOperandTypeException : public std::runtime_error {
+public:
+    InvalidOperandTypeException() : std::runtime_error("Runtime error: invalid operand type.") {}
+
+    int getErrorCode() const {
+        return 3; 
+    }
+};
 
 #endif

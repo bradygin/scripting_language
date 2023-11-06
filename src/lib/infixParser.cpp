@@ -32,6 +32,21 @@ std::string Assignment::toInfix() const {
 double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) const {
     double leftValue = left->evaluate(symbolTable);
     double rightValue = right->evaluate(symbolTable);
+    
+    // Type checking for arithmetic operations
+    if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%") {
+        if (dynamic_cast<BooleanNode*>(left) || dynamic_cast<BooleanNode*>(right)) {
+            throw InvalidOperandTypeException();
+        }
+    }
+
+    // Type checking for comparison operations
+    if (op == "<" || op == ">" || op == "<=" || op == ">=" || op == "==" || op == "!=") {
+        if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) || 
+            (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right))) {
+            throw InvalidOperandTypeException();
+        }
+    }
 
     if (op == "+") return leftValue + rightValue;
     if (op == "-") return leftValue - rightValue;
@@ -68,16 +83,6 @@ std::string Number::toInfix() const {
     std::string num = oss.str();
     return num;
 }
-
-class BooleanNode : public ASTNode {
-public:
-    BooleanNode(bool value);
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
-    std::string toInfix() const override;
-
-private:
-    bool value;
-};
 
 BooleanNode::BooleanNode(bool value) : value(value) {}
 
