@@ -31,7 +31,9 @@ std::string Assignment::toInfix() const {
 
 double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) const {
     double leftValue = left->evaluate(symbolTable);
+    std::cout << "LEFT: " << leftValue << std::endl;
     double rightValue = right->evaluate(symbolTable);
+    std::cout << "RIGHT: " << rightValue << std::endl;
     
     // Type checking for arithmetic operations
     if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%") {
@@ -57,7 +59,20 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
         }
         return leftValue / rightValue;
     }
-    if (op == "%") return std::fmod(leftValue, rightValue);
+    if (op == "%") {
+        // Ensure that both values are accurately represented as double
+        leftValue = static_cast<double>(leftValue);
+        rightValue = static_cast<double>(rightValue);
+
+        // Calculate the remainder for floating-point numbers
+        double result = leftValue - std::floor(leftValue / rightValue) * rightValue;
+
+        if (std::isnan(result) || std::isinf(result)) {
+            throw DivisionByZeroException();
+        }
+
+        return result;
+    }
     if (op == "<") return leftValue < rightValue ? 1 : 0;
     if (op == ">") return leftValue > rightValue ? 1 : 0;
     if (op == "<=") return leftValue <= rightValue ? 1 : 0;
