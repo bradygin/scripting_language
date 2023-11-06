@@ -55,10 +55,12 @@ int main() {
                     std::map<std::string, double> temp = symbolTable;
                     double result = root->evaluate(temp);
                     symbolTable = temp;
-                    if (result == 1.0) {
-                        std::cout << "true" << std::endl;
-                    } else if (result == 0.0) {
-                        std::cout << "false" << std::endl;
+                    if (dynamic_cast<BooleanNode*>(root)) {
+                        if (result == 1.0) {
+                            std::cout << "true" << std::endl;
+                        } else {
+                            std::cout << "false" << std::endl;
+                        }
                     } else {
                         std::cout << result << std::endl;
                     }
