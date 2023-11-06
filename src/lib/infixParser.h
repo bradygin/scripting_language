@@ -17,6 +17,59 @@ public:
     virtual std::string toInfix() const = 0;
 };
 
+class Statement : public ASTNode {
+public:
+    virtual ~Statement() {}
+    virtual double evaluate(std::map<std::string, double>& symbolTable) const override = 0;
+};
+
+class Block : public Statement {
+public:
+    Block(const std::vector<Statement*>& statements);
+    ~Block();
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    std::vector<Statement*> statements;
+};
+
+class IfStatement : public Statement {
+public:
+    IfStatement(ASTNode* condition, Statement* ifBlock, Statement* elseBlock = nullptr);
+    ~IfStatement();
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    ASTNode* condition;
+    Statement* ifBlock;
+    Statement* elseBlock;
+};
+
+class WhileStatement : public Statement {
+public:
+    WhileStatement(ASTNode* condition, Statement* loopBlock);
+    ~WhileStatement();
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    ASTNode* condition;
+    Statement* loopBlock;
+};
+
+class PrintStatement : public Statement {
+public:
+    PrintStatement(ASTNode* expression);
+    ~PrintStatement();
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    ASTNode* expression;
+};
+
 
 struct BinaryOperation : public ASTNode {
 public:
@@ -57,11 +110,11 @@ public:
     ASTNode* infixparse();
     infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable);
     Token PeekNextToken();
+    Token currentToken;
 
 private:
     std::vector<Token> tokens;
     size_t index;
-    Token currentToken;
     std::map<std::string, double>& symbolTable;
 
     void nextToken();

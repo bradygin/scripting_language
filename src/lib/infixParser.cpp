@@ -11,18 +11,63 @@ Assignment::Assignment(const std::string& varName, ASTNode* expression)
     : variableName(varName), expression(expression) {}
 
 
+void infixParser::nextToken() {
+    if (index < tokens.size() - 1) {
+        index++;
+        currentToken = tokens[index];
+    } else {
+        // when END is reached
+        currentToken = Token(0, 0, "END", TokenType::OPERATOR);
+    }
+}
+
+double Block::evaluate(std::map<std::string, double>& symbolTable) const {
+    double result = 0.0;
+    for (const Statement* statement : statements) {
+        result = statement->evaluate(symbolTable);
+    }
+    return result;
+}
+
+double IfStatement::evaluate(std::map<std::string, double>& symbolTable) const {
+    double result = 0.0;
+    double conditionValue = condition->evaluate(symbolTable);
+    if (conditionValue != 0.0) {
+        result = ifBlock->evaluate(symbolTable);
+    } else if (elseBlock) {
+        result = elseBlock->evaluate(symbolTable);
+    }
+    return result;
+}
+
+double WhileStatement::evaluate(std::map<std::string, double>& symbolTable) const {
+    double result = 0.0;
+    double conditionValue = condition->evaluate(symbolTable);
+    while (conditionValue != 0.0) {
+        result = loopBlock->evaluate(symbolTable);
+        conditionValue = condition->evaluate(symbolTable);
+    }
+    return result;
+}
+
+double PrintStatement::evaluate(std::map<std::string, double>& symbolTable) const {
+    double result = expression->evaluate(symbolTable);
+    std::cout << result << std::endl;
+    return result;
+}
+
 double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = expression->evaluate(symbolTable);
     symbolTable[variableName] = result;
-    return result;   
+    return result;
 }
 
 double Variable::evaluate(std::map<std::string, double>& symbolTable) const {
     if (symbolTable.find(variableName) != symbolTable.end()) {
-            return symbolTable.at(variableName);
-        } else {
-            throw UnknownIdentifierException(symbolTable, variableName);
-        }
+        return symbolTable.at(variableName);
+    } else {
+        throw UnknownIdentifierException(symbolTable, variableName);
+    }
 }
 
 std::string Assignment::toInfix() const {
@@ -32,7 +77,7 @@ std::string Assignment::toInfix() const {
 double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) const {
     double leftValue = left->evaluate(symbolTable);
     double rightValue = right->evaluate(symbolTable);
-    
+
     // Type checking for arithmetic operations
     if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%") {
         if (dynamic_cast<BooleanNode*>(left) || dynamic_cast<BooleanNode*>(right)) {
@@ -41,8 +86,8 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
     }
     // Type checking for comparison operations
     if (op == "<" || op == ">" || op == "<=" || op == ">=" || op == "==" || op == "!=") {
-        if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) || 
-            (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right))) {
+        if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) ||
+            (!dynamic_cast<BooleanNode*>(right))) {
             throw InvalidOperandTypeException();
         }
     }
@@ -108,16 +153,6 @@ infixParser::infixParser(const std::vector<Token>& tokens, std::map<std::string,
     }
 }
 
-void infixParser::nextToken() {
-    if (index < tokens.size() - 1) {
-        index++;
-        currentToken = tokens[index];
-    } else {
-        // when END is reached
-        currentToken = Token(0, 0, "END", TokenType::OPERATOR);
-    }
-}
-
 ASTNode* infixParser::infixparse() {
     return infixparseAssignment();
 }
@@ -127,21 +162,21 @@ ASTNode* infixParser::infixparseExpression() {
 }
 
 BinaryOperation::~BinaryOperation() {
-        delete left;
-        delete right;
-    }
+    delete left;
+    delete right;
+}
 
 Assignment::~Assignment() {
-        delete expression;
-    }
+    delete expression;
+}
 
 ASTNode* infixParser::infixparseTerm() {
     std::unique_ptr<ASTNode> left(infixparseFactor());
 
-    while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "+" || currentToken.text == "-")) {
+    while (currentToken.type == TokenType::OPERATOR &&
+        (currentToken.text == "+" || currentToken.text == "-")) {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseFactor());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -152,11 +187,11 @@ ASTNode* infixParser::infixparseTerm() {
 ASTNode* infixParser::infixparseComparison() {
     std::unique_ptr<ASTNode> left(infixparseTerm());
 
-    while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "<" || currentToken.text == ">" || 
-       currentToken.text == "<=" || currentToken.text == ">=")) {
+    while (currentToken.type == TokenType::OPERATOR &&
+        (currentToken.text == "<" || currentToken.text == ">" ||
+            currentToken.text == "<=" || currentToken.text == ">=")) {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseTerm());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -169,7 +204,7 @@ ASTNode* infixParser::infixparseLogicalAnd() {
 
     while (currentToken.type == TokenType::OPERATOR && currentToken.text == "&") {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseEquality());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -182,7 +217,7 @@ ASTNode* infixParser::infixparseLogicalXor() {
 
     while (currentToken.type == TokenType::OPERATOR && currentToken.text == "^") {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseLogicalAnd());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -195,7 +230,7 @@ ASTNode* infixParser::infixparseLogicalOr() {
 
     while (currentToken.type == TokenType::OPERATOR && currentToken.text == "|") {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseLogicalXor());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -208,7 +243,7 @@ ASTNode* infixParser::infixparseAssignment() {
 
     while (currentToken.type == TokenType::OPERATOR && currentToken.text == "=") {
         std::string varName = dynamic_cast<Variable*>(left.get())->variableName;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> expr(infixparseLogicalOr());
         left = std::make_unique<Assignment>(varName, expr.release());
     }
@@ -219,10 +254,10 @@ ASTNode* infixParser::infixparseAssignment() {
 ASTNode* infixParser::infixparseEquality() {
     std::unique_ptr<ASTNode> left(infixparseComparison());
 
-    while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "==" || currentToken.text == "!=")) {
+    while (currentToken.type == TokenType::OPERATOR &&
+        (currentToken.text == "==" || currentToken.text == "!=")) {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparseComparison());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -233,10 +268,10 @@ ASTNode* infixParser::infixparseEquality() {
 ASTNode* infixParser::infixparseFactor() {
     std::unique_ptr<ASTNode> left(infixparsePrimary());
 
-    while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "*" || currentToken.text == "/" || currentToken.text == "%")) {
+    while (currentToken.type == TokenType::OPERATOR &&
+        (currentToken.text == "*" || currentToken.text == "/" || currentToken.text == "%")) {
         std::string op = currentToken.text;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> right(infixparsePrimary());
         left = std::make_unique<BinaryOperation>(op, left.release(), right.release());
     }
@@ -252,37 +287,45 @@ ASTNode* infixParser::infixparsePrimary() {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_unique<Number>(value).release();
-    } else if (currentToken.type == TokenType::BOOLEAN) {
+    }
+    else if (currentToken.type == TokenType::BOOLEAN) {
         if (currentToken.text == "true") {
             nextToken();
             return new BooleanNode(true);
-        } else if (currentToken.text == "false") {
+        }
+        else if (currentToken.text == "false") {
             nextToken();
             return new BooleanNode(false);
         }
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-    } else if (currentToken.type == TokenType::IDENTIFIER) {
+    }
+    else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT) {
             nextToken();
             std::unique_ptr<ASTNode> expr(infixparseExpression());
             return std::make_unique<Assignment>(varName, expr.release()).release();
-        } else {
+        }
+        else {
             return std::make_unique<Variable>(varName).release();
         }
-    } else if (currentToken.type == TokenType::LEFT_PAREN) {
+    }
+    else if (currentToken.type == TokenType::LEFT_PAREN) {
         nextToken();
         std::unique_ptr<ASTNode> result(infixparseExpression());
         if (currentToken.type == TokenType::RIGHT_PAREN) {
             nextToken();
             return result.release();
-        } else {
+        }
+        else {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
-    } else if (currentToken.type == TokenType::RIGHT_PAREN) {
+    }
+    else if (currentToken.type == TokenType::RIGHT_PAREN) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-    } else {
+    }
+    else {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 }
@@ -300,19 +343,24 @@ std::string infixParser::printInfix(ASTNode* node) {
         std::string leftStr = printInfix(binOp->left);
         std::string rightStr = printInfix(binOp->right);
         return "(" + leftStr + " " + binOp->op + " " + rightStr + ")";
-    } else if (dynamic_cast<Number*>(node) != nullptr) {
+    }
+    else if (dynamic_cast<Number*>(node) != nullptr) {
         std::ostringstream oss;
         oss << dynamic_cast<Number*>(node)->value;
         return oss.str();
-    } else if (dynamic_cast<Assignment*>(node) != nullptr) {
+    }
+    else if (dynamic_cast<Assignment*>(node) != nullptr) {
         Assignment* assignment = dynamic_cast<Assignment*>(node);
         return "(" + assignment->variableName + " = " + printInfix(assignment->expression) + ")";
-    } else if (dynamic_cast<BooleanNode*>(node) != nullptr) {
+    }
+    else if (dynamic_cast<BooleanNode*>(node) != nullptr) {
         return dynamic_cast<BooleanNode*>(node)->toInfix();
-    } else if (dynamic_cast<Variable*>(node) != nullptr) {
+    }
+    else if (dynamic_cast<Variable*>(node) != nullptr) {
         Variable* variable = dynamic_cast<Variable*>(node);
         return variable->variableName;
-    } else {
+    }
+    else {
         std::cout << "Invalid node type" << std::endl;
         exit(4);
     }

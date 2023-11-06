@@ -143,4 +143,19 @@ std::vector<Token> Lexer::tokenize() {
     return myTokens;
 }
 
+Token Lexer::tokenizeIfStatement() {
+    // Tokenize the "if" keyword
+    return Token(line, column, "if", TokenType::IF);
+}
 
+// Function to tokenize a while statement
+Token Lexer::tokenizeWhileStatement() {
+    // Tokenize the "while" keyword
+    return Token(line, column, "while", TokenType::WHILE);
+}
+
+// Function to tokenize a print statement
+Token Lexer::tokenizePrintStatement() {
+    // Tokenize the "print" keyword
+    return Token(line, column, "print", TokenType::PRINT);
+}
