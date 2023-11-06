@@ -22,7 +22,7 @@ int main() {
             break;
         }
         // Below line is debug helper that prints out the input
-        std::cout << "Debug Input: " << inputLine << std::endl;
+        // std::cout << "Debug Input: " << inputLine << std::endl;
         std::istringstream inputStream(inputLine);
         Lexer lexer(inputStream);
 
