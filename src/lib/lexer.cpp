@@ -80,14 +80,16 @@ Token Lexer::nextToken() {
                         char followingChar = sExpression.peek();  // Peek at the next character
                         if (!std::isdigit(followingChar)) {  // Check if it's not a digit
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
-                            throw SyntaxError(line, column);
+                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
+                            exit(1);
                         }
                     }
                     column++;
 
                       if (nextChar == '.' && num.find('.') != std::string::npos) {
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
-                            throw SyntaxError(line, column);
+                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
+                            exit(1);
                     }
                     num += nextChar;
                 } else {
@@ -118,7 +120,8 @@ Token Lexer::nextToken() {
                 return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
             }
         } else {
-            throw SyntaxError(line, column);
+            std::cout << "Syntax error on line " << line << " column " << column << "." << std::endl;
+            exit(1);
         }
     }
 
@@ -139,3 +142,5 @@ std::vector<Token> Lexer::tokenize() {
 
     return myTokens;
 }
+
+
