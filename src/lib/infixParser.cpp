@@ -65,7 +65,9 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
         }
         return leftValue / rightValue;
     }
-    if (op == "%") return std::fmod(leftValue, rightValue);
+    if (op == "%") {
+        return std::fmod(leftValue, rightValue);
+    }
     if (op == "<") return leftValue < rightValue ? 1 : 0;
     if (op == ">") return leftValue > rightValue ? 1 : 0;
     if (op == "<=") return leftValue <= rightValue ? 1 : 0;
