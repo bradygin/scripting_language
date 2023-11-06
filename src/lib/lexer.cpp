@@ -82,7 +82,7 @@ Token Lexer::nextToken() {
                             // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
                             // std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
                             // exit(1);
-                            throw SyntaxError(line, column);
+                            throw SyntaxError(line, column+2);
                         }
                     }
                     column++;
