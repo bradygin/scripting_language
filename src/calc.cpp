@@ -62,18 +62,9 @@ int main() {
                     } else {
                         std::cout << result << std::endl;
                     }
-                } catch (const DivisionByZeroException& e) {
+                } catch (const std::runtime_error& e) {
                     std::cout << e.what() << std::endl;
-                } catch (const InvalidOperatorException& e) {
-                    std::cout << e.what() << std::endl;
-                } catch (const UnknownIdentifierException& e) {
-                    std::cout << e.what() << std::endl;
-                } catch (const SyntaxError& e) {
-                    std::cout << e.what() << std::endl;
-                } catch (const TypeError& e) {
-                    std::cout << "Runtime error: " << e.what() << std::endl;
                 }
-
                 delete root;
             } else {
                 std::cout << "Failed to parse the input expression." << std::endl;
