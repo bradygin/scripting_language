@@ -47,10 +47,11 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
             throw InvalidOperandTypeException();
         }
     }
-        // Type checking for logical operations
+    // Type checking for logical operations
     if (op == "&" || op == "^" || op == "|") {
         if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) || 
-            (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right))) {
+            (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right)) ||
+            (leftValue != static_cast<int>(leftValue) || rightValue != static_cast<int>(rightValue))) {
             throw InvalidOperandTypeException();
         }
     }
