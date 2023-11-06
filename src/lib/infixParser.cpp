@@ -39,7 +39,6 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
             throw InvalidOperandTypeException();
         }
     }
-
     // Type checking for comparison operations
     if (op == "<" || op == ">" || op == "<=" || op == ">=" || op == "==" || op == "!=") {
         if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) || 
@@ -49,9 +48,7 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
     }
     // Type checking for logical operations
     if (op == "&" || op == "^" || op == "|") {
-        if ((dynamic_cast<BooleanNode*>(left) && !dynamic_cast<BooleanNode*>(right)) || 
-            (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right)) ||
-            (leftValue != static_cast<int>(leftValue) || rightValue != static_cast<int>(rightValue))) {
+        if ((leftValue != 1.0 && leftValue != 0.0) || (rightValue != 1.0 && rightValue != 0.0)) {
             throw InvalidOperandTypeException();
         }
     }
