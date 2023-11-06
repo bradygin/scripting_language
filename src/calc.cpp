@@ -21,8 +21,8 @@ int main() {
         if (!std::getline(std::cin, inputLine)) {
             break;
         }
-        // TODO: Remove this debug print statement after debugging
-        std::cerr << "Debug Input: " << inputLine << std::endl;
+        // Below line is debug helper that prints out the input
+        // std::cerr << "Debug Input: " << inputLine << std::endl;
         std::istringstream inputStream(inputLine);
         Lexer lexer(inputStream);
 
