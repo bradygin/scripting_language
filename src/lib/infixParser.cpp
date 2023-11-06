@@ -114,10 +114,7 @@ ASTNode* infixParser::infixparseExpression() {
     std::unique_ptr<ASTNode> left(infixparseTerm());
 
     while (currentToken.type == TokenType::OPERATOR && 
-      (currentToken.text == "+" || currentToken.text == "-" || 
-       currentToken.text == "<" || currentToken.text == ">" || 
-       currentToken.text == "<=" || currentToken.text == ">=" || 
-       currentToken.text == "==" || currentToken.text == "!=")) {
+      (currentToken.text == "==" || currentToken.text == "!=")) {
         std::string op = currentToken.text;
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseTerm());
@@ -139,10 +136,12 @@ Assignment::~Assignment() {
 ASTNode* infixParser::infixparseTerm() {
     std::unique_ptr<ASTNode> left (infixparseFactor());
 
-    while (currentToken.type == TokenType::OPERATOR && 
+while (currentToken.type == TokenType::OPERATOR && 
       (currentToken.text == "*" || currentToken.text == "/" || 
        currentToken.text == "%" || currentToken.text == "&" || 
-       currentToken.text == "^" || currentToken.text == "|")) {
+       currentToken.text == "^" || currentToken.text == "|" || 
+       currentToken.text == "<" || currentToken.text == ">" || 
+       currentToken.text == "<=" || currentToken.text == ">=")) {
         std::string op = currentToken.text;
         nextToken();  
         std::unique_ptr<ASTNode> right(infixparseFactor());
