@@ -107,13 +107,6 @@ infixParser::infixParser(const std::vector<Token>& tokens, std::map<std::string,
         currentToken = tokens[index];
     }
 }
-std::vector<ASTNode*> infixParser::infixparse() {
-    while (index < tokens.size() && tokens[index].text != "END") {
-       auto root = infixparseStatement();
-       roots.push_back(root);
-    }
-    return roots;
-}
 
 void infixParser::nextToken() {
     if (index < tokens.size() - 1) {
