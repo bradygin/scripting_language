@@ -16,19 +16,18 @@ int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
 
     while (true) {
-        // Reads inputs
+        // Reads input
         std::string inputLine;
         if (!std::getline(std::cin, inputLine)) {
             break;
         }
-        // Below line is debug helper that prints out the input
-        // std::cout << "Debug Input: " << inputLine << std::endl;
+
         std::istringstream inputStream(inputLine);
-        Lexer lexer(inputStream);
+        InfixLexer lexer(inputStream);
 
         try {
             // Tokenize and parse the current line
-            std::vector<Token> tokens = lexer.tokenize();
+            std::vector<Token> tokens = lexer.infixtokenize();
 
             int openParenthesesCount = 0;  // Track open parentheses
             for (const Token& token : tokens) {
@@ -47,8 +46,8 @@ int main() {
             }
 
             infixParser parser(tokens, symbolTable);
-            ASTNode* root = parser.infixparse();
-        
+            std::vector<ASTNode*> asts = parser.infixparse();
+        for (ASTNode* root : asts) {
             if (root) {
                 // Print the AST in infix notation
                 std::string infixExpression = parser.printInfix(root);
@@ -90,6 +89,7 @@ int main() {
             } else {
                 std::cout << "Failed to parse the input expression." << std::endl;
             }
+         }
         } catch (const UnexpectedTokenException& e) {
             std::cout << e.what() << std::endl;
         } catch (const SyntaxError& e) {
