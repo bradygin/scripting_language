@@ -2,23 +2,25 @@
 #define PARSER_H
 #include "token.h"
 #include <vector>
+#include <unordered_map>
 
 class Node {
 public:
+    static std::unordered_map<std::string, double> variableMap;  //store variable's value
     std::string value;
-    std::vector<Node*> children; // vector to store children nodes
-    //std::vector<Node*> parse(); //add?
-    std::string operation;
+    TokenType type;
+    std::vector<Node*> children;   // Vector to store children nodes
 
-    Node(const std::string& val) : value(val), operation("") {}
-    Node(const std::string& val, const std::string& op) : value(val), operation(op) {}
+
+    Node(const std::string& val) : value(val), type(TokenType::OPERATOR) {}
+    Node(const std::string& val, const TokenType& tp) : value(val), type(tp) {}
     ~Node();
     double evaluate();
 
     int getPrecedence() const {
-        if (operation == "*" || operation == "/") {
+        if (value == "*" || value == "/") {
             return 2;
-        } else if (operation == "+" || operation == "-") {
+        } else if (value == "+" || value == "-") {
             return 1;
         } else {
             return 0;
@@ -31,15 +33,16 @@ public:
     Parser(const std::vector<Token>& tokens);
     ~Parser();
 
-    Node* parse();
+    std::vector<Node*> parse();
     Node* parseExpression();
     double evaluate(Node* node);
     std::string printInfix(Node* node);
 
 private:
     const std::vector<Token> tokens;
+    
     size_t currentTokenIndex;
-    Node* root;
+    std::vector<Node*> roots;
 };
 
 #endif
