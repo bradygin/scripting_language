@@ -41,7 +41,7 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
     if (op == "&") return static_cast<int>(leftValue) & static_cast<int>(rightValue);
     if (op == "^") return static_cast<int>(leftValue) ^ static_cast<int>(rightValue);
     if (op == "|") return static_cast<int>(leftValue) | static_cast<int>(rightValue);
-std::cout << "Daisy BinaryOperation::evaluate() 1" << std::endl;
+//std::cout << "Daisy BinaryOperation::evaluate() 1" << std::endl;
     throw InvalidOperatorException();
 }
 
@@ -76,7 +76,7 @@ double Variable::evaluate(std::map<std::string, double>& symbolTable) const {
     if (symbolTable.find(variableName) != symbolTable.end()) {
         return symbolTable.at(variableName);
     } else {
-std::cout << "Daisy Variable::evaluate() variableName = " << variableName << std::endl;
+//std::cout << "Daisy Variable::evaluate() variableName = " << variableName << std::endl;
         throw UnknownIdentifierException(symbolTable, variableName);
     }
 }
@@ -222,7 +222,7 @@ void infixParser::nextToken() {
         currentToken = tokens[index];
     } else {
         // when END is reached
-std::cout << "Daisy infixParser::nextToken() index " << index << " : " << tokens.size() << std::endl;
+//std::cout << "Daisy infixParser::nextToken() index " << index << " : " << tokens.size() << std::endl;
         currentToken = Token(0, 0, "END", TokenType::OPERATOR);
     }
 }
@@ -256,12 +256,12 @@ ASTNode* infixParser::infixparseStatement() {
         nextToken();
         std::unique_ptr<ASTNode> condition(infixparseCondition());
         if (!condition) {
-std::cout << "Daisy infixParser::infixparseStatement() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseStatement() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         std::unique_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
         if (!bracedBlock) {
-std::cout << "Daisy infixParser::infixparseStatement() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseStatement() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_unique<WhileStatement>(condition.release(), bracedBlock.release()).release();
@@ -288,7 +288,7 @@ ASTNode* infixParser::infixparseCondition() {
 BracedBlock* infixParser::infixparseBracedBlock() {
 //std::cout << "Daisy infixParser::infixparseBracedBlock() 1  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
     if (currentToken.text != "{") { 
-std::cout << "Daisy infixParser::infixparseBracedBlock() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseBracedBlock() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     nextToken();
@@ -301,7 +301,7 @@ std::cout << "Daisy infixParser::infixparseBracedBlock() 2  " << currentToken.li
             if (statement) {
                 bracedBlock->block->statements.push_back(statement);
             } else {
-std::cout << "Daisy infixParser::infixparseBracedBlock() 6  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseBracedBlock() 6  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
                 throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
             }
         }
@@ -315,12 +315,12 @@ IfStatement* infixParser::infixparseIfStatement() {
 //std::cout << "Daisy infixParser::infixparseIfStatement() 1  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
     std::unique_ptr<ASTNode> condition(infixparseCondition());
     if (!condition) {
-std::cout << "Daisy infixParser::infixparseIfStatement() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseIfStatement() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     std::unique_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
     if (!bracedBlock) {
-std::cout << "Daisy infixParser::infixparseIfStatement() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparseIfStatement() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 
@@ -389,7 +389,7 @@ ASTNode* infixParser::infixparsePrimary() {
         double value = std::stod(currentToken.text);
         nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT && currentToken.text == "=") {
-std::cout << "Daisy infixParser::infixparsePrimary() 1  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparsePrimary() 1  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_unique<Number>(value).release();
@@ -401,7 +401,7 @@ std::cout << "Daisy infixParser::infixparsePrimary() 1  " << currentToken.line <
             nextToken();
             return new BooleanNode(false);
         }
-std::cout << "Daisy infixParser::infixparsePrimary() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparsePrimary() 2  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
@@ -420,14 +420,14 @@ std::cout << "Daisy infixParser::infixparsePrimary() 2  " << currentToken.line <
             nextToken();
             return result.release();
         } else {
-std::cout << "Daisy infixParser::infixparsePrimary() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparsePrimary() 3  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
     } else if (currentToken.type == TokenType::RIGHT_PAREN) {
-std::cout << "Daisy infixParser::infixparsePrimary() 4  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparsePrimary() 4  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
-std::cout << "Daisy infixParser::infixparsePrimary() 5  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
+//std::cout << "Daisy infixParser::infixparsePrimary() 5  " << currentToken.line << " : " << currentToken.column << " : " << currentToken.text << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 }
