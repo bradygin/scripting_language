@@ -121,6 +121,26 @@ Token Lexer::nextToken() {
             } else {
                 return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
             }
+        } else if (isalpha(currChar) || currChar == '_') {
+            std::string identifier;
+            identifier += currChar;
+            char nextChar;
+
+            while (sExpression.get(nextChar)) {
+                if (isalnum(nextChar) || nextChar == '_') {
+                    identifier += nextChar;
+                } else {
+                    sExpression.unget();
+                    break;
+                }
+            }
+            int tempColumn = column;
+            column += identifier.length() -1 ;
+            if (identifier == "true" || identifier == "false") {
+                return Token(line, tempColumn , identifier, TokenType::BOOLEAN);
+            } else {
+                return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
+            }
         } else {
             // std::cout << "Syntax error on line " << line << " column " << column << "." << std::endl;
             // exit(1);
@@ -145,5 +165,3 @@ std::vector<Token> Lexer::tokenize() {
 
     return myTokens;
 }
-
-
