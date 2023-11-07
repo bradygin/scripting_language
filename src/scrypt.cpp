@@ -15,17 +15,16 @@ int main() {
         std::vector<Token> tokens = lexer.tokenize();
         infixParser parser(tokens, symbolTable);
         std::vector<ASTNode*> asts = parser.infixparse();
-        
+        double result = 0.0;
         for (ASTNode* root : asts) {
             if (root) {
-                // Print the AST in infix notation
-                std::string infixExpression = parser.printInfix(root);
-                std::cout << infixExpression << std::endl;
+                result = parser.evaluate(root, symbolTable);
                 delete root;
             } else {
                 std::cout << "Failed to parse the input expression." << std::endl;
             }
         }
+        std::cout << result << std::endl;
     } catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
