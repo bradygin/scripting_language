@@ -47,7 +47,7 @@ int main() {
             }
 
             infixParser parser(tokens, symbolTable);
-            ASTNode* root = parser.infixparse();
+            std::vector<ASTNode*> asts = parser.infixparse();
         for (ASTNode* root : asts) {
             if (root) {
                 // Print the AST in infix notation
