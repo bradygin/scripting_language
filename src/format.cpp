@@ -19,7 +19,7 @@ int main() {
         for (ASTNode* root : asts) {
             if (root) {
                 // Print the AST in infix notation
-                std::string infixExpression = parser.printInfix(root, true);
+                std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
                 delete root;
             } else {

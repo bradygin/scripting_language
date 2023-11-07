@@ -4,7 +4,7 @@
 #include <cmath>
 #include "infixParser.h"
 
-
+int indent = 0;
 std::map<std::string, double> symbolTable;
 
 BinaryOperation::~BinaryOperation() {
@@ -12,9 +12,9 @@ BinaryOperation::~BinaryOperation() {
         delete right;
     }
 
-std::string BinaryOperation::toInfix(int indent) const {
-    std::string leftStr = left->toInfix(indent);
-    std::string rightStr = right->toInfix(indent);
+std::string BinaryOperation::toInfix() const {
+    std::string leftStr = left->toInfix();
+    std::string rightStr = right->toInfix();
     return "(" + leftStr + " " + op + " " + rightStr + ")";
 }
 
@@ -46,7 +46,7 @@ std::cout << "Daisy BinaryOperation::evaluate() 1" << std::endl;
 }
 
 
-std::string Number::toInfix(int) const {
+std::string Number::toInfix() const {
     std::ostringstream oss;
     oss << value;
     std::string num = oss.str();
@@ -61,10 +61,8 @@ Assignment::~Assignment() {
         delete expression;
     }
 
-std::string Assignment::toInfix(int indent) const {
-    std::string indent_str = std::string(indent, ' ');
-    return indent_str + "(" + variableName + " = " + expression->toInfix(indent) + ")";
-    //return "(" + variableName + " = " + expression->toInfix(indent) + ")";
+std::string Assignment::toInfix() const {
+    return "(" + variableName + " = " + expression->toInfix() + ")";
 }
 
 double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
@@ -75,7 +73,6 @@ double Assignment::evaluate(std::map<std::string, double>& symbolTable) const {
 
 
 double Variable::evaluate(std::map<std::string, double>& symbolTable) const {
-//std::cout << "Daisy Variable::evaluate() variableName = " << variableName << " = " << symbolTable[variableName] << std::endl;
     if (symbolTable.find(variableName) != symbolTable.end()) {
         return symbolTable.at(variableName);
     } else {
@@ -94,14 +91,15 @@ Block::Block(ASTNode* statement) {
     statements.push_back(statement);
 }
 
-std::string Block::toInfix(int indent) const {
-//std::cout << "Daisy Block::toInfix() indent =  " << indent << std::endl;
+std::string Block::toInfix() const {
+    indent += 4;
     std::string ret_str;
     std::string indent_str = std::string(indent, ' ');
     for (auto statement : statements) {
-        ret_str += "\n" + indent_str + statement->toInfix(indent);
+        ret_str += "\n" + indent_str + statement->toInfix();
     }
-    ret_str += "\n" + indent_str + "}";
+    indent -= 4;
+    ret_str += "\n" + std::string(indent, ' ') + "}";
     return ret_str;
 }
 
@@ -116,10 +114,9 @@ double Block::evaluate(std::map<std::string, double>& symbolTable) const {
 BracedBlock::BracedBlock(Block* blk)
     : block(blk) {}
 
-std::string BracedBlock::toInfix(int indent) const {
-//std::cout << "Daisy BracedBlock::toInfix() indent =  " << indent << std::endl;
+std::string BracedBlock::toInfix() const {
     std::string ret_str;
-    if (block) ret_str += block->toInfix(indent);
+    if (block) ret_str += block->toInfix();
     return ret_str;
 }
 
@@ -135,10 +132,10 @@ double BracedBlock::evaluate(std::map<std::string, double>& symbolTable) const {
 IfStatement::IfStatement(ASTNode* cond, BracedBlock* blk)
     : condition(cond), bracedBlock(blk) {}
 
-std::string IfStatement::toInfix(int indent) const {
-    std::string ret_str = "if " + condition->toInfix(indent) + " {";
-    if (bracedBlock) ret_str += bracedBlock->toInfix(indent);
-    if (elseNode) ret_str += elseNode->toInfix(indent);
+std::string IfStatement::toInfix() const {
+    std::string ret_str = "if " + condition->toInfix() + " {";
+    if (bracedBlock) ret_str += bracedBlock->toInfix();
+    if (elseNode) ret_str += elseNode->toInfix();
     return ret_str;
 }
 
@@ -147,17 +144,17 @@ double IfStatement::evaluate(std::map<std::string, double>& symbolTable) const {
     if (condition && condition->evaluate(symbolTable) != 0.0) {
         if (bracedBlock) result = bracedBlock->evaluate(symbolTable);
     } else if (elseNode) result = elseNode->evaluate(symbolTable);
-    return result;   
+    return result;
 }
 
 
 ElseStatement::ElseStatement(IfStatement* state, BracedBlock* blk)
     : ifStatement(state), bracedBlock(blk) {}
 
-std::string ElseStatement::toInfix(int indent) const {
+std::string ElseStatement::toInfix() const {
     std::string ret_str = "\n" + std::string(indent, ' ') + "else ";
-    if (ifStatement) ret_str += ifStatement->toInfix(indent);
-    else if (bracedBlock) ret_str += "{" + bracedBlock->toInfix(indent);
+    if (ifStatement) ret_str += ifStatement->toInfix();
+    else if (bracedBlock) ret_str += "{" + bracedBlock->toInfix();
     return ret_str;
 }
 
@@ -175,9 +172,9 @@ double ElseStatement::evaluate(std::map<std::string, double>& symbolTable) const
 WhileStatement::WhileStatement(ASTNode* cond, BracedBlock* blk)
     : condition(cond), bracedBlock(blk) {}
 
-std::string WhileStatement::toInfix(int indent) const {
-    std::string ret_str = "while " + condition->toInfix(indent) + " {";
-    if (bracedBlock) ret_str += bracedBlock->toInfix(indent);
+std::string WhileStatement::toInfix() const {
+    std::string ret_str = "while " + condition->toInfix() + " {";
+    if (bracedBlock) ret_str += bracedBlock->toInfix();
     return ret_str;
 }
 
@@ -193,8 +190,8 @@ double WhileStatement::evaluate(std::map<std::string, double>& symbolTable) cons
 PrintStatement::PrintStatement(ASTNode* expression)
     : expression(expression) {}
 
-std::string PrintStatement::toInfix(int indent) const {
-    return "print " + expression->toInfix(indent);
+std::string PrintStatement::toInfix() const {
+    return "print " + expression->toInfix();
 }
 
 double PrintStatement::evaluate(std::map<std::string, double>& symbolTable) const {
@@ -437,14 +434,11 @@ std::cout << "Daisy infixParser::infixparsePrimary() 5  " << currentToken.line <
 
 
 
-std::string infixParser::printInfix(ASTNode* node, bool root) {
-    static int indent = 0;
-    std::string indent_str;
-    if (root) indent_str = std::string(indent, ' ');
+std::string infixParser::printInfix(ASTNode* node) {
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
-        std::string leftStr = printInfix(binOp->left, false);
-        std::string rightStr = printInfix(binOp->right, false);
+        std::string leftStr = printInfix(binOp->left);
+        std::string rightStr = printInfix(binOp->right);
         return "(" + leftStr + " " + binOp->op + " " + rightStr + ")";
     } else if (dynamic_cast<Number*>(node) != nullptr) {
         std::ostringstream oss;
@@ -452,40 +446,34 @@ std::string infixParser::printInfix(ASTNode* node, bool root) {
         return oss.str();
     } else if (dynamic_cast<Assignment*>(node) != nullptr) {
         Assignment* assignment = dynamic_cast<Assignment*>(node);
-        return "(" + assignment->variableName + " = " + printInfix(assignment->expression, false) + ")";
+        return "(" + assignment->variableName + " = " + printInfix(assignment->expression) + ")";
     } else if (dynamic_cast<Variable*>(node) != nullptr) {
         Variable* variable = dynamic_cast<Variable*>(node);
         return variable->variableName;
     } else if (dynamic_cast<Block*>(node) != nullptr) {
         Block* block = dynamic_cast<Block*>(node);
-        return block->toInfix(indent);
+        return block->toInfix();
     } else if (dynamic_cast<BracedBlock*>(node) != nullptr) {
-        //indent += 4;
         BracedBlock* block = dynamic_cast<BracedBlock*>(node);
-        std::string block_str = block->toInfix(indent);
-        //indent -= 4;
+        std::string block_str = block->toInfix();
         return block_str;
     } else if (dynamic_cast<IfStatement*>(node) != nullptr) {
         IfStatement* ifStatement = dynamic_cast<IfStatement*>(node);
-        return ifStatement->toInfix(indent);
+        return ifStatement->toInfix();
     } else if (dynamic_cast<ElseStatement*>(node) != nullptr) {
         ElseStatement* elseStatement = dynamic_cast<ElseStatement*>(node);
-        return elseStatement->toInfix(indent);
+        return elseStatement->toInfix();
     } else if (dynamic_cast<WhileStatement*>(node) != nullptr) {
-        indent += 4;
         WhileStatement* whileStatement = dynamic_cast<WhileStatement*>(node);
-        std::string while_str = whileStatement->toInfix(indent);
-        indent -= 4;
+        std::string while_str = whileStatement->toInfix();
         return while_str;
     } else if (dynamic_cast<PrintStatement*>(node) != nullptr) {
         PrintStatement* printStatement = dynamic_cast<PrintStatement*>(node);
-        return "print " + printInfix(printStatement->expression, false);
+        return "print " + printInfix(printStatement->expression);
     } else if (dynamic_cast<EndStatement*>(node) != nullptr) {
-std::cout << "Daisy BracedBlock::printInfix() EndStatement  indent =  " << indent << std::endl;
-        if (root) indent_str = std::string(indent, ' ');
-        return indent_str + "}";
+        return "}";
     } else if (dynamic_cast<EmptyStatement*>(node) != nullptr) {
-        return indent_str;
+        return "";
     } else {
         std::cout << "Invalid node type" << std::endl;
         exit(4);
@@ -529,3 +517,4 @@ double infixParser::evaluate(ASTNode* node, std::map<std::string, double>& symbo
         exit(4);
     }
 }
+
