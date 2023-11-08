@@ -30,6 +30,16 @@ public:
     ASTNode* right;
 };
 
+class BooleanNode : public ASTNode {
+  public:
+    BooleanNode(bool value);
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    std::string toInfix() const override;
+
+private:
+    bool value;
+};
+
 
 struct Number : public ASTNode {
 public:
@@ -39,36 +49,6 @@ public:
     double value;
 };
 
-class Assignment : public ASTNode {
-public:
-    Assignment(const std::string& varName, ASTNode* expression);
-    ~Assignment();
-    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
-    std::string toInfix() const override;
-    std::string variableName;
-    ASTNode* expression;
-};
-
-
-class Variable : public ASTNode {
-public:
-    Variable(const std::string& varName) : variableName(varName) {}
-    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
-    std::string toInfix() const override {
-        return variableName;
-    }
-    std::string variableName;
-};
-
-class BooleanNode : public ASTNode {
-  public:
-    BooleanNode(bool value) : value(value) {}
-    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
-    std::string toInfix() const override {
-        return value ? "true" : "false";
-    }
-    bool value;
-};
 
 class Block : public ASTNode {
   public:
@@ -142,29 +122,55 @@ class infixParser {
 public:
     infixParser(const std::vector<Token>& tokens);
     std::string printInfix(ASTNode* node);
-    double evaluate(ASTNode* node, std::map<std::string, double>& symbolTable);
-    std::vector<ASTNode*> infixparse();
+    ASTNode* infixparse();
     infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable);
     Token PeekNextToken();
+    double evaluate(ASTNode* node, std::map<std::string, double>& symbolTable);
 
 private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
     std::map<std::string, double>& symbolTable;
-    std::vector<ASTNode*> roots;
 
     void nextToken();
     ASTNode* infixparsePrimary();
     ASTNode* infixparseExpression();
     ASTNode* infixparseTerm();
     ASTNode* infixparseFactor();
+    ASTNode* infixparseAssignment();
+    ASTNode* infixparseComparison();
+    ASTNode* infixparseEquality();
+    ASTNode* infixparseLogicalAnd();
+    ASTNode* infixparseLogicalOr();
+    ASTNode* infixparseLogicalXor();
     ASTNode* infixparseStatement();
-    
     ASTNode* infixparseCondition();
     BracedBlock* infixparseBracedBlock();
     IfStatement* infixparseIfStatement();
     ElseStatement* infixparseElseStatement();
+};
+
+
+class Assignment : public ASTNode {
+public:
+    Assignment(const std::string& varName, ASTNode* expression);
+    ~Assignment();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override;
+    std::string variableName;
+    ASTNode* expression;
+};
+
+
+class Variable : public ASTNode {
+public:
+    Variable(const std::string& varName) : variableName(varName) {}
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override {
+        return variableName;
+    }
+    std::string variableName;
 };
 
 //EXCEPTION HANDLING
@@ -201,11 +207,19 @@ public:
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("8 Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }
 };
 
+class InvalidOperandTypeException : public std::runtime_error {
+public:
+    InvalidOperandTypeException() : std::runtime_error("Runtime error: invalid operand type.") {}
+
+    int getErrorCode() const {
+        return 3; 
+    }
+};
 
 #endif
