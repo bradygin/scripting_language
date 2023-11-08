@@ -22,6 +22,9 @@ int main() {
         std::cout << result << std::endl;
     } catch (const SyntaxError& error) {
         std::cout << error.what() << std::endl;
+        return 1;
+    } catch (const UnexpectedTokenException& e) {
+            std::cout << e.what() << std::endl;
     }catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
