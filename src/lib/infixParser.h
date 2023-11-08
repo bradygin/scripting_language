@@ -1,4 +1,3 @@
-
 #ifndef INFIXPARSER_H
 #define INFIXPARSER_H
 
@@ -54,6 +53,7 @@ public:
 class Block : public ASTNode {
   public:
     Block(ASTNode* statement);
+    ~Block();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     std::vector<ASTNode*> statements;
@@ -62,6 +62,7 @@ class Block : public ASTNode {
 class BracedBlock : public ASTNode {
   public:
     BracedBlock(Block* blk);
+    ~BracedBlock();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     Block* block;
@@ -71,6 +72,7 @@ class ElseStatement;
 class IfStatement : public ASTNode {
   public:
     IfStatement(ASTNode* cond, BracedBlock* blk);
+    ~IfStatement();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     ASTNode* condition;
@@ -81,6 +83,7 @@ class IfStatement : public ASTNode {
 class ElseStatement : public ASTNode {
   public:
     ElseStatement(IfStatement* state, BracedBlock* blk);
+    ~ElseStatement();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     IfStatement* ifStatement;
@@ -90,6 +93,7 @@ class ElseStatement : public ASTNode {
 class WhileStatement : public ASTNode {
   public:
     WhileStatement(ASTNode* cond, BracedBlock* blk);
+    ~WhileStatement();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     ASTNode* condition;
@@ -100,6 +104,7 @@ class WhileStatement : public ASTNode {
 class PrintStatement : public ASTNode {
   public:
     PrintStatement(ASTNode* expression);
+    ~PrintStatement();
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     ASTNode* expression;

@@ -223,6 +223,12 @@ Block::Block(ASTNode* statement) {
     statements.push_back(statement);
 }
 
+Block::~Block() {
+    for (auto statement : statements) {
+        delete statement;
+    }
+}
+
 std::string Block::toInfix() const {
     indent += 4;
     std::string ret_str;
@@ -246,6 +252,10 @@ double Block::evaluate(std::map<std::string, double>& symbolTable) const {
 BracedBlock::BracedBlock(Block* blk)
     : block(blk) {}
 
+BracedBlock::~BracedBlock() {
+    delete block;
+}
+
 std::string BracedBlock::toInfix() const {
     std::string ret_str;
     if (block) ret_str += block->toInfix();
@@ -263,6 +273,11 @@ double BracedBlock::evaluate(std::map<std::string, double>& symbolTable) const {
 
 IfStatement::IfStatement(ASTNode* cond, BracedBlock* blk)
     : condition(cond), bracedBlock(blk) {}
+
+IfStatement::~IfStatement() {
+    if (bracedBlock) delete bracedBlock;
+    if (elseNode) delete elseNode;
+}
 
 std::string IfStatement::toInfix() const {
     std::string ret_str = "if " + condition->toInfix() + " {";
@@ -282,6 +297,11 @@ double IfStatement::evaluate(std::map<std::string, double>& symbolTable) const {
 
 ElseStatement::ElseStatement(IfStatement* state, BracedBlock* blk)
     : ifStatement(state), bracedBlock(blk) {}
+
+ElseStatement::~ElseStatement() {
+    if (ifStatement) delete ifStatement;
+    if (bracedBlock) delete bracedBlock;
+}
 
 std::string ElseStatement::toInfix() const {
     std::string ret_str = "\n" + std::string(indent, ' ') + "else ";
@@ -304,6 +324,11 @@ double ElseStatement::evaluate(std::map<std::string, double>& symbolTable) const
 WhileStatement::WhileStatement(ASTNode* cond, BracedBlock* blk)
     : condition(cond), bracedBlock(blk) {}
 
+WhileStatement::~WhileStatement() {
+    if (condition) delete condition;
+    if (bracedBlock) delete bracedBlock;
+}
+
 std::string WhileStatement::toInfix() const {
     std::string ret_str = "while " + condition->toInfix() + " {";
     if (bracedBlock) ret_str += bracedBlock->toInfix();
@@ -321,6 +346,10 @@ double WhileStatement::evaluate(std::map<std::string, double>& symbolTable) cons
 
 PrintStatement::PrintStatement(ASTNode* expression)
     : expression(expression) {}
+
+PrintStatement::~PrintStatement() {
+    if (expression) delete expression;
+}
 
 std::string PrintStatement::toInfix() const {
     return "print " + expression->toInfix();
@@ -345,13 +374,13 @@ ASTNode* infixParser::infixparseExpression() {
 }
 
 BinaryOperation::~BinaryOperation() {
-        delete left;
-        delete right;
-    }
+    if (left) delete left;
+    if (right) delete right;
+}
 
 Assignment::~Assignment() {
-        delete expression;
-    }
+    delete expression;
+}
 
 ASTNode* infixParser::infixparseTerm() {
     std::unique_ptr<ASTNode> left(infixparseFactor());
@@ -462,7 +491,6 @@ ASTNode* infixParser::infixparseFactor() {
     return left.release();
 }
 
-
 ASTNode* infixParser::infixparsePrimary() {
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
@@ -474,13 +502,10 @@ ASTNode* infixParser::infixparsePrimary() {
     } else if (currentToken.type == TokenType::BOOLEAN) {
         if (currentToken.text == "true") {
             nextToken();
-            // return new BooleanNode(true);
-            return std::make_unique<BooleanNode>(true).release();
+            return new BooleanNode(true);
         } else if (currentToken.text == "false") {
             nextToken();
-            // return new BooleanNode(false);
-            return std::make_unique<BooleanNode>(false).release();
-
+            return new BooleanNode(false);
         }
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
