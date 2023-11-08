@@ -20,7 +20,9 @@ int main() {
             delete root;
         }
         std::cout << result << std::endl;
-    } catch (const std::runtime_error& error) {
+    } catch (const SyntaxError& error) {
+        std::cout << error.what() << std::endl;
+    }catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
     }
