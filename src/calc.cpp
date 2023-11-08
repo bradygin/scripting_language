@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -21,7 +22,8 @@ int main() {
         if (!std::getline(std::cin, inputLine)) {
             break;
         }
-
+        // Below line is debug helper that prints out the input
+        // std::cout << "Debug Input: " << inputLine << std::endl;
         std::istringstream inputStream(inputLine);
         Lexer lexer(inputStream);
 
@@ -46,8 +48,8 @@ int main() {
             }
 
             infixParser parser(tokens, symbolTable);
-            std::vector<ASTNode*> asts = parser.infixparse();
-        for (ASTNode* root : asts) {
+            ASTNode* root = parser.infixparse();
+
             if (root) {
                 // Print the AST in infix notation
                 std::string infixExpression = parser.printInfix(root);
@@ -89,7 +91,6 @@ int main() {
             } else {
                 std::cout << "Failed to parse the input expression." << std::endl;
             }
-         }
         } catch (const UnexpectedTokenException& e) {
             std::cout << e.what() << std::endl;
         } catch (const SyntaxError& e) {
