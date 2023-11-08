@@ -70,7 +70,6 @@ private:
     ASTNode* expression;
 };
 
-
 struct BinaryOperation : public ASTNode {
 public:
     BinaryOperation(const std::string& op, ASTNode* left, ASTNode* right)
@@ -93,7 +92,6 @@ private:
     bool value;
 };
 
-
 struct Number : public ASTNode {
 public:
     Number(double value) : value(value) {}
@@ -101,7 +99,6 @@ public:
     std::string toInfix() const override;
     double value;
 };
-
 
 class infixParser {
 public:
@@ -130,15 +127,16 @@ private:
     ASTNode* infixparseLogicalXor();
 };
 
-
 class Assignment : public ASTNode {
 public:
-    Assignment(const std::string& varName, ASTNode* expression);
+    Assignment(const std::string& varName, ASTNode* expr);  // Change the parameter name
     ~Assignment();
-    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    double evaluate(std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
     std::string variableName;
-    ASTNode* expression;
+
+private:
+    ASTNode* expression;  // Store the expression as a member
 };
 
 
@@ -148,7 +146,7 @@ public:
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override {
     return variableName;
-}
+    }
     std::string variableName;
 };
 
@@ -159,36 +157,33 @@ public:
     : std::runtime_error("Runtime error: unknown identifier " + variableName) {}
 
     int getErrorCode() const {
-    return 3;
+        return 3;
     }
 };
-
 
 class DivisionByZeroException : public std::runtime_error {
 public:
     DivisionByZeroException() : std::runtime_error("Runtime error: division by zero.") {}
     
     int getErrorCode() const {
-    return 3;
+        return 3;
     }
 };
-
 
 class InvalidOperatorException : public std::runtime_error {
 public:
     InvalidOperatorException() : std::runtime_error("Invalid operator") {}
     int getErrorCode() const {
-    return 2;
+        return 2;
     }
 };
-
 
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
     : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
-    return 2;
+        return 2;
     }
 };
 
