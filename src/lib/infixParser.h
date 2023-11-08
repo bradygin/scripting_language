@@ -221,7 +221,7 @@ public:
 
 class InvalidOperandTypeException : public std::runtime_error {
 public:
-    InvalidOperandTypeException() : std::runtime_error("Runtime error: condition is not a bool.") {}
+    InvalidOperandTypeException() : std::runtime_error("Runtime error: invalid operand type.") {}
 
     int getErrorCode() const {
         return 3; 
