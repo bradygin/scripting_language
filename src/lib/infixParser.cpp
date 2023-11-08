@@ -125,15 +125,41 @@ ASTNode* infixParser::infixparse() {
     return nullptr;
 }
 
+// ASTNode* infixParser::infixparseStatement() {
+//     std::string tokenName = currentToken.text;
+//     if  (tokens.size() == 1 && tokenName == "END") {
+//         return std::make_unique<EmptyStatement>().release();
+//     }
+//     if (tokenName == "if") {
+//         nextToken();
+//         std::unique_ptr<IfStatement> satement(infixparseIfStatement());
+//         return satement.release();
+//     } else if (tokenName == "while") {
+//         nextToken();
+//         std::unique_ptr<ASTNode> condition(infixparseCondition());
+//         if (!condition) {
+//             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+//         }
+//         std::unique_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
+//         if (!bracedBlock) {
+//             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+//         }
+//         return std::make_unique<WhileStatement>(condition.release(), bracedBlock.release()).release();
+//     } else if (tokenName == "print") {
+//         nextToken();
+//         std::unique_ptr<ASTNode> expr(infixparseExpression());        
+//         return std::make_unique<PrintStatement>(expr.release()).release();
+//     }
+//     return infixparseAssignment();
+// }
 ASTNode* infixParser::infixparseStatement() {
     std::string tokenName = currentToken.text;
-    if  (tokens.size() == 1 && tokenName == "END") {
-        return std::make_unique<EmptyStatement>().release();
-    }
+    
+    // Check for specific keywords and their corresponding conditions
     if (tokenName == "if") {
         nextToken();
-        std::unique_ptr<IfStatement> satement(infixparseIfStatement());
-        return satement.release();
+        std::unique_ptr<IfStatement> statement(infixparseIfStatement());
+        return statement.release();
     } else if (tokenName == "while") {
         nextToken();
         std::unique_ptr<ASTNode> condition(infixparseCondition());
@@ -147,11 +173,17 @@ ASTNode* infixParser::infixparseStatement() {
         return std::make_unique<WhileStatement>(condition.release(), bracedBlock.release()).release();
     } else if (tokenName == "print") {
         nextToken();
-        std::unique_ptr<ASTNode> expr(infixparseExpression());        
+        std::unique_ptr<ASTNode> expr(infixparseExpression());
+        if (!expr) {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
         return std::make_unique<PrintStatement>(expr.release()).release();
+    } else {
+        // Unexpected token for other cases
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
-    return infixparseAssignment();
 }
+
 
 ASTNode* infixParser::infixparseCondition() {
     std::unique_ptr<ASTNode> left (infixparseFactor());
