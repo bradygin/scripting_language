@@ -45,7 +45,12 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) con
             (!dynamic_cast<BooleanNode*>(left) && dynamic_cast<BooleanNode*>(right))) {
             throw InvalidOperandTypeException();
         }
+        
+    // The == and != operators will compare as not equal instead of a type error
+        if (op == "==") return leftValue == rightValue ? 1 : 0;
+        if (op == "!=") return leftValue != rightValue ? 1 : 0;
     }
+
     // Type checking for logical operations
     if (op == "&" || op == "^" || op == "|") {
         if ((leftValue != 1.0 && leftValue != 0.0) || (rightValue != 1.0 && rightValue != 0.0)) {
@@ -127,30 +132,38 @@ ASTNode* infixParser::infixparse() {
 
 ASTNode* infixParser::infixparseStatement() {
     std::string tokenName = currentToken.text;
-    if  (tokens.size() == 1 && tokenName == "END") {
+    if (tokens.size() == 1 && tokenName == "END") {
         return std::make_unique<EmptyStatement>().release();
     }
+
     if (tokenName == "if") {
-        nextToken();
-        std::unique_ptr<IfStatement> satement(infixparseIfStatement());
-        return satement.release();
+        // ... existing code ...
     } else if (tokenName == "while") {
-        nextToken();
-        std::unique_ptr<ASTNode> condition(infixparseCondition());
-        if (!condition) {
-            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-        }
-        std::unique_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
-        if (!bracedBlock) {
-            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-        }
-        return std::make_unique<WhileStatement>(condition.release(), bracedBlock.release()).release();
+        // ... existing code ...
     } else if (tokenName == "print") {
         nextToken();
-        std::unique_ptr<ASTNode> expr(infixparseExpression());    
+        std::unique_ptr<ASTNode> expr(infixparseExpression());
+
+        // Require a trailing semicolon for print statements
+        if (currentToken.type == TokenType::SEMICOLON) {
+            nextToken();  // Consume the semicolon
+        } else {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
+
         return std::make_unique<PrintStatement>(expr.release()).release();
     }
-    return infixparseAssignment();
+
+    // For other statements, including assignments
+    ASTNode* result = infixparseAssignment();
+
+    // Require a trailing semicolon for bare expressions and assignments
+    if (currentToken.type == TokenType::SEMICOLON) {
+        nextToken();  // Consume the semicolon
+    } else {
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+    }
+    return result;
 }
 
 ASTNode* infixParser::infixparseCondition() {
@@ -188,7 +201,6 @@ BracedBlock* infixParser::infixparseBracedBlock() {
 }
 
 IfStatement* infixParser::infixparseIfStatement() {
-    //condition = new ASTNode(infixparseCondition());
     std::unique_ptr<ASTNode> condition(infixparseCondition());
     if (!condition) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
@@ -226,10 +238,10 @@ Block::Block(ASTNode* statement) {
 
 Block::~Block() {
     for (auto statement : statements) {
-    delete statement;
+        delete statement;
     }
-    statements.clear();  // Clear the vector after deleting its elements.
 }
+
 
 std::string Block::toInfix() const {
     indent += 4;
@@ -239,9 +251,10 @@ std::string Block::toInfix() const {
         ret_str += "\n" + indent_str + statement->toInfix();
     }
     indent -= 4;
-    ret_str += "\n" + std::string(indent, ' ') + "}";
-    return ret_str;
+    return ret_str;  // Remove the closing brace and indentation here
 }
+
+
 
 double Block::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = 0.0;
@@ -255,17 +268,16 @@ BracedBlock::BracedBlock(Block* blk)
     : block(blk) {}
 
 BracedBlock::~BracedBlock() {
-    if (block) {
-        delete block;
-        block = nullptr;
-    }
+    delete block;
 }
 
 std::string BracedBlock::toInfix() const {
+    std::string indent_str = std::string(indent, ' ');
     std::string ret_str;
-    if (block) ret_str += block->toInfix();
+    if (block) ret_str += indent_str + block->toInfix();
     return ret_str;
 }
+
 
 double BracedBlock::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = 0.0;
@@ -277,27 +289,33 @@ double BracedBlock::evaluate(std::map<std::string, double>& symbolTable) const {
 
 
 IfStatement::IfStatement(ASTNode* cond, BracedBlock* blk)
-    : condition(cond), bracedBlock(blk) {
-        condition = nullptr;
-        bracedBlock = nullptr;
-        elseNode = nullptr;
-    }
+    : condition(cond), bracedBlock(blk) {}
 
 IfStatement::~IfStatement() {
     if (bracedBlock) delete bracedBlock;
     if (elseNode) delete elseNode;
 }
 
+
 std::string IfStatement::toInfix() const {
-    if (condition != nullptr){
-        std::string ret_str = "if " + condition->toInfix() + " {";
-        if (bracedBlock) ret_str += bracedBlock->toInfix();
-        if (elseNode) ret_str += elseNode->toInfix();
-        return ret_str;
+    std::string ret_str = "if " + condition->toInfix() + " %{";
+    if (bracedBlock) {
+        ret_str += bracedBlock->toInfix(); // Indent the bracedBlock
     }
-    std::cout << "Condition is nullptr and shouldn't be?" << std::endl;
-    return "";
+    if (elseNode) {
+        // Check if the elseNode is an ElseStatement (else if case)
+        if (dynamic_cast<ElseStatement*>(elseNode)) {
+            ret_str += std::string(indent, ' ') + elseNode->toInfix();
+        } else {
+            ret_str += "\n" + std::string(indent + 4, ' ') + elseNode->toInfix(); // Indent the elseNode
+        }
+    }
+    //ret_str += "\n" + std::string(indent, ' '); // Add closing brace with proper indentation
+    return ret_str;
 }
+
+
+
 
 double IfStatement::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = 0.0;
@@ -317,11 +335,21 @@ ElseStatement::~ElseStatement() {
 }
 
 std::string ElseStatement::toInfix() const {
-    std::string ret_str = "\n" + std::string(indent, ' ') + "else { \n";
-    if (ifStatement) ret_str += ifStatement->toInfix();
-    else if (bracedBlock) ret_str += "{" + bracedBlock->toInfix();
+    std::string indent_str = std::string(indent, ' ');
+    std::string ret_str = "\n" + indent_str + "else ";
+    if (ifStatement) {
+        // Check if the ifStatement is an IfStatement (else if case)
+        if (dynamic_cast<IfStatement*>(ifStatement)) {
+            ret_str += "{\n" + ifStatement->toInfix() + "\n" + indent_str + "}";
+        } else {
+            ret_str += ifStatement->toInfix();
+        }
+    } else if (bracedBlock) {
+        ret_str += "{\n" + bracedBlock->toInfix() + "\n" + indent_str + "}"; // Properly indent bracedBlock
+    }
     return ret_str;
 }
+
 
 double ElseStatement::evaluate(std::map<std::string, double>& symbolTable) const {
     double result = 0.0;
@@ -383,8 +411,13 @@ double EmptyStatement::evaluate(std::map<std::string, double>& /* unused */) con
 }
 
 ASTNode* infixParser::infixparseExpression() {
-    return infixparseAssignment();
+    std::unique_ptr<ASTNode> expr(infixparseAssignment());
+    if (currentToken.type == TokenType::SEMICOLON) {
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+    }
+    return expr.release();
 }
+
 
 BinaryOperation::~BinaryOperation() {
     if (left) delete left;
@@ -467,8 +500,11 @@ ASTNode* infixParser::infixparseAssignment() {
     std::unique_ptr<ASTNode> left(infixparseLogicalOr());
 
     while (currentToken.type == TokenType::OPERATOR && currentToken.text == "=") {
+        if (dynamic_cast<Variable*>(left.get()) == nullptr) {
+            throw RuntimeParseException("Runtime error: invalid assignee");
+        }
         std::string varName = dynamic_cast<Variable*>(left.get())->variableName;
-        nextToken();  
+        nextToken();
         std::unique_ptr<ASTNode> expr(infixparseLogicalOr());
         left = std::make_unique<Assignment>(varName, expr.release());
     }
@@ -555,6 +591,12 @@ Token infixParser::PeekNextToken() {
 }
 
 std::string infixParser::printInfix(ASTNode* node) {
+    if (dynamic_cast<ASTStatement*>(node) != nullptr) {
+        if (dynamic_cast<ASTStatement*>(node)->requiresSemicolon()) {
+            return dynamic_cast<ASTStatement*>(node)->toInfix() + ";";
+        }
+    }
+
     if (dynamic_cast<BinaryOperation*>(node) != nullptr) {
         BinaryOperation* binOp = dynamic_cast<BinaryOperation*>(node);
         std::string leftStr = printInfix(binOp->left);

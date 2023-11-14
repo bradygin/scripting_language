@@ -15,8 +15,16 @@ public:
     virtual ~ASTNode() {}
     virtual double evaluate(std::map<std::string, double>& symbolTable /* unused */) const = 0;
     virtual std::string toInfix() const = 0;
+    virtual bool requiresSemicolon() const = 0;
 };
 
+class ASTStatement : public ASTNode {
+public:
+    virtual ~ASTStatement() {}
+    virtual double evaluate(std::map<std::string, double>& symbolTable /* unused */) const = 0;
+    virtual std::string toInfix() const = 0;
+    virtual bool requiresSemicolon() const { return false; }
+};
 
 struct BinaryOperation : public ASTNode {
 public:
@@ -28,6 +36,7 @@ public:
     std::string op; 
     ASTNode* left;
     ASTNode* right;
+    bool requiresSemicolon() const override { return false; }
 };
 
 class BooleanNode : public ASTNode {
@@ -35,11 +44,11 @@ class BooleanNode : public ASTNode {
     BooleanNode(bool value);
     double evaluate(std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
+    bool requiresSemicolon() const override { return false; };
 
 private:
     bool value;
 };
-
 
 struct Number : public ASTNode {
 public:
@@ -47,8 +56,8 @@ public:
     double evaluate(std::map<std::string, double>& /* unused */) const override { return value; }
     std::string toInfix() const override;
     double value;
+    bool requiresSemicolon() const override { return false; }
 };
-
 
 class Block : public ASTNode {
   public:
@@ -57,6 +66,7 @@ class Block : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     std::vector<ASTNode*> statements;
+    bool requiresSemicolon() const override { return false; }
 };
 
 class BracedBlock : public ASTNode {
@@ -66,6 +76,7 @@ class BracedBlock : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     Block* block;
+    bool requiresSemicolon() const override { return false; }
 };
 
 class ElseStatement;
@@ -78,6 +89,7 @@ class IfStatement : public ASTNode {
     ASTNode* condition;
     BracedBlock* bracedBlock;
     ElseStatement* elseNode;
+    bool requiresSemicolon() const override { return false; }
 };
 
 class ElseStatement : public ASTNode {
@@ -88,6 +100,7 @@ class ElseStatement : public ASTNode {
     std::string toInfix() const override;
     IfStatement* ifStatement;
     BracedBlock* bracedBlock;
+    bool requiresSemicolon() const override { return false; }
 };
 
 class WhileStatement : public ASTNode {
@@ -98,7 +111,7 @@ class WhileStatement : public ASTNode {
     std::string toInfix() const override;
     ASTNode* condition;
     BracedBlock* bracedBlock;
-
+    bool requiresSemicolon() const override { return false; }
 };
 
 class PrintStatement : public ASTNode {
@@ -108,6 +121,7 @@ class PrintStatement : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override;
     ASTNode* expression;
+    bool requiresSemicolon() const override { return true; }
 };
 
 class EndStatement : public ASTNode {
@@ -115,13 +129,15 @@ class EndStatement : public ASTNode {
     EndStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override { return "}"; }
+    bool requiresSemicolon() const override { return false; }
 };
 
 class EmptyStatement : public ASTNode {
   public:
     EmptyStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
-    std::string toInfix() const override { return {}; }
+    std::string toInfix() const override { return ";"; }
+    bool requiresSemicolon() const override { return true; }
 };
 
 class infixParser {
@@ -157,7 +173,6 @@ private:
     ElseStatement* infixparseElseStatement();
 };
 
-
 class Assignment : public ASTNode {
 public:
     Assignment(const std::string& varName, ASTNode* expression);
@@ -166,8 +181,8 @@ public:
     std::string toInfix() const override;
     std::string variableName;
     ASTNode* expression;
+    bool requiresSemicolon() const override { return false; }
 };
-
 
 class Variable : public ASTNode {
 public:
@@ -177,6 +192,7 @@ public:
         return variableName;
     }
     std::string variableName;
+    bool requiresSemicolon() const override { return false; }
 };
 
 //EXCEPTION HANDLING
@@ -190,7 +206,6 @@ public:
     }
 };
 
-
 class DivisionByZeroException : public std::runtime_error {
 public:
     DivisionByZeroException() : std::runtime_error("Runtime error: division by zero.") {}
@@ -200,7 +215,6 @@ public:
     }
 };
 
-
 class InvalidOperatorException : public std::runtime_error {
 public:
     InvalidOperatorException() : std::runtime_error("Invalid operator") {}
@@ -208,7 +222,6 @@ public:
     return 2;
     }
 };
-
 
 class UnexpectedTokenException : public std::runtime_error {
 public:
@@ -227,5 +240,12 @@ public:
         return 3; 
     }
 };
+
+class RuntimeParseException : public std::runtime_error {
+public:
+    RuntimeParseException(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
 
 #endif
