@@ -137,21 +137,38 @@ ASTNode* infixParser::infixparseStatement() {
     }
 
     if (tokenName == "if") {
-        // ... existing code ...
+        nextToken();
+        std::unique_ptr<IfStatement> satement(infixparseIfStatement());
+        return satement.release();
+
     } else if (tokenName == "while") {
-        // ... existing code ...
+        std::unique_ptr<ASTNode> condition(infixparseCondition());
+        if (!condition) {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
+        std::unique_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
+        if (!bracedBlock) {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
+        return std::make_unique<WhileStatement>(condition.release(), bracedBlock.release()).release();
+
     } else if (tokenName == "print") {
         nextToken();
+
+        // Require a trailing semicolon for print statements
+        if (currentToken.type == TokenType::SEMICOLON) {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
+
         std::unique_ptr<ASTNode> expr(infixparseExpression());
 
         // Require a trailing semicolon for print statements
         if (currentToken.type == TokenType::SEMICOLON) {
             nextToken();  // Consume the semicolon
+            return std::make_unique<PrintStatement>(expr.release()).release();
         } else {
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
-
-        return std::make_unique<PrintStatement>(expr.release()).release();
     }
 
     // For other statements, including assignments
@@ -411,10 +428,13 @@ double EmptyStatement::evaluate(std::map<std::string, double>& /* unused */) con
 }
 
 ASTNode* infixParser::infixparseExpression() {
-    std::unique_ptr<ASTNode> expr(infixparseAssignment());
+    // Require a trailing semicolon for bare expressions
     if (currentToken.type == TokenType::SEMICOLON) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
+
+    std::unique_ptr<ASTNode> expr(infixparseAssignment());
+
     return expr.release();
 }
 
