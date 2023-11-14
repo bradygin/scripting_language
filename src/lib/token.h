@@ -14,7 +14,9 @@ enum class TokenType {
     IF,    
     ELSE,  
     WHILE,   
-    PRINT
+    PRINT,
+    COMMA,      
+    SEMICOLON
 };
 
 struct Token {

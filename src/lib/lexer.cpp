@@ -4,10 +4,8 @@
 #include <stdexcept>
 #include <cmath>
 
-// Constructor: Initializes Lexer object with input stream
 Lexer::Lexer(std::istream& input) : sExpression(input) {}
 
-// Function to fetch the next token from the input stream
 Token Lexer::nextToken() {
     char currChar;
 
@@ -26,17 +24,17 @@ Token Lexer::nextToken() {
         } else if (currChar == ')') {
             return Token(line, column, ")", TokenType::RIGHT_PAREN);
         } else if (currChar == '+'
-                   || currChar == '-'
-                   || currChar == '*'
-                   || currChar == '/'
-                   || currChar == '%') {
+            || currChar == '-'
+            || currChar == '*'
+            || currChar == '/'
+            || currChar == '%') {
             return Token(line, column, std::string(1, currChar), TokenType::OPERATOR);
         } else if (currChar == '=') {
             char nextChar = sExpression.peek();
             if (nextChar == '=') {
                 sExpression.get();
-                column ++;
-                return Token(line, column-1, "==", TokenType::OPERATOR);
+                column++;
+                return Token(line, column - 1, "==", TokenType::OPERATOR);
             } else {
                 return Token(line, column, "=", TokenType::ASSIGNMENT);
             }
@@ -45,7 +43,7 @@ Token Lexer::nextToken() {
             if (nextChar == '=') {
                 sExpression.get();
                 column++;
-                return Token(line, column-1, std::string(1, currChar) + "=", TokenType::OPERATOR);
+                return Token(line, column - 1, std::string(1, currChar) + "=", TokenType::OPERATOR);
             } else {
                 return Token(line, column, std::string(1, currChar), TokenType::OPERATOR);
             }
@@ -53,8 +51,8 @@ Token Lexer::nextToken() {
             char nextChar = sExpression.peek();
             if (nextChar == '=') {
                 sExpression.get();
-                column ++;
-                return Token(line, column-1, "!=", TokenType::OPERATOR);
+                column++;
+                return Token(line, column - 1, "!=", TokenType::OPERATOR);
             } else {
                 throw SyntaxError(line, column);
             }
@@ -68,7 +66,11 @@ Token Lexer::nextToken() {
             return Token(line, column, "{", TokenType::OPERATOR);
         } else if (currChar == '}') {
             return Token(line, column, "}", TokenType::OPERATOR);
-        }else if (std::isdigit(currChar)) {
+        } else if (currChar == ',') {  // New: Tokenize comma
+            return Token(line, column, ",", TokenType::COMMA);
+        } else if (currChar == ';') {  // New: Tokenize semicolon
+            return Token(line, column, ";", TokenType::SEMICOLON);
+        } else if (std::isdigit(currChar)) {
             std::string num;
             num += currChar;
             char nextChar;
@@ -78,18 +80,16 @@ Token Lexer::nextToken() {
                     // Check if the next character following a '.' is a digit
                     if (nextChar == '.' && num.find('.') == std::string::npos) {
                         char followingChar = sExpression.peek();  // Peek at the next character
-                        if (!std::isdigit(followingChar)) {  // Check if it's not a digit
-                            // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column + 2) + ".");
+                        if (!std::isdigit(followingChar)) {      // Check if it's not a digit
                             std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column + 2) << "." << std::endl;
                             exit(1);
                         }
                     }
                     column++;
 
-                      if (nextChar == '.' && num.find('.') != std::string::npos) {
-                            // throw std::runtime_error("Syntax error on line " + std::to_string(line) + " column " + std::to_string(column) + ".");
-                            std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
-                            exit(1);
+                    if (nextChar == '.' && num.find('.') != std::string::npos) {
+                        std::cout << "Syntax error on line " << std::to_string(line) << " column " << std::to_string(column) << "." << std::endl;
+                        exit(1);
                     }
                     num += nextChar;
                 } else {
@@ -113,9 +113,9 @@ Token Lexer::nextToken() {
                 }
             }
             int tempColumn = column;
-            column += identifier.length() -1 ;
+            column += identifier.length() - 1;
             if (identifier == "true" || identifier == "false") {
-                return Token(line, tempColumn , identifier, TokenType::BOOLEAN);
+                return Token(line, tempColumn, identifier, TokenType::BOOLEAN);
             } else {
                 return Token(line, tempColumn, identifier, TokenType::IDENTIFIER);
             }
@@ -129,7 +129,6 @@ Token Lexer::nextToken() {
     return Token(line, column + 1, "END", TokenType::OPERATOR);
 }
 
-// Function to tokenize the entire input stream and return a vector of tokens
 std::vector<Token> Lexer::tokenize() {
     Token currToken = nextToken();
 
@@ -137,25 +136,19 @@ std::vector<Token> Lexer::tokenize() {
         myTokens.push_back(currToken);
         currToken = nextToken();
     }
-    // Token lastToken = myTokens[myTokens.size() - 1];
     myTokens.push_back(currToken);
 
     return myTokens;
 }
 
 Token Lexer::tokenizeIfStatement() {
-    // Tokenize the "if" keyword
     return Token(line, column, "if", TokenType::IF);
 }
 
-// Function to tokenize a while statement
 Token Lexer::tokenizeWhileStatement() {
-    // Tokenize the "while" keyword
     return Token(line, column, "while", TokenType::WHILE);
 }
 
-// Function to tokenize a print statement
 Token Lexer::tokenizePrintStatement() {
-    // Tokenize the "print" keyword
     return Token(line, column, "print", TokenType::PRINT);
 }
