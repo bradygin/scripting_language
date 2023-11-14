@@ -17,58 +17,6 @@ public:
     virtual std::string toInfix() const = 0;
 };
 
-class Statement : public ASTNode {
-public:
-    virtual ~Statement() {}
-    virtual double evaluate(std::map<std::string, double>& symbolTable) const override = 0;
-};
-
-class Block : public Statement {
-public:
-    Block(const std::vector<Statement*>& statements);
-    ~Block();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
-    std::string toInfix() const override;
-
-private:
-    std::vector<Statement*> statements;
-};
-
-class IfStatement : public Statement {
-public:
-    IfStatement(ASTNode* condition, Statement* ifBlock, Statement* elseBlock = nullptr);
-    ~IfStatement();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
-    std::string toInfix() const override;
-
-private:
-    ASTNode* condition;
-    Statement* ifBlock;
-    Statement* elseBlock;
-};
-
-class WhileStatement : public Statement {
-public:
-    WhileStatement(ASTNode* condition, Statement* loopBlock);
-    ~WhileStatement();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
-    std::string toInfix() const override;
-
-private:
-    ASTNode* condition;
-    Statement* loopBlock;
-};
-
-class PrintStatement : public Statement {
-public:
-    PrintStatement(ASTNode* expression);
-    ~PrintStatement();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
-    std::string toInfix() const override;
-
-private:
-    ASTNode* expression;
-};
 
 struct BinaryOperation : public ASTNode {
 public:
@@ -83,7 +31,7 @@ public:
 };
 
 class BooleanNode : public ASTNode {
-public:
+  public:
     BooleanNode(bool value);
     double evaluate(std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
@@ -91,6 +39,7 @@ public:
 private:
     bool value;
 };
+
 
 struct Number : public ASTNode {
 public:
@@ -100,6 +49,81 @@ public:
     double value;
 };
 
+
+class Block : public ASTNode {
+  public:
+    Block(ASTNode* statement);
+    ~Block();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    std::vector<ASTNode*> statements;
+};
+
+class BracedBlock : public ASTNode {
+  public:
+    BracedBlock(Block* blk);
+    ~BracedBlock();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    Block* block;
+};
+
+class ElseStatement;
+class IfStatement : public ASTNode {
+  public:
+    IfStatement(ASTNode* cond, BracedBlock* blk);
+    ~IfStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* condition;
+    BracedBlock* bracedBlock;
+    ElseStatement* elseNode;
+};
+
+class ElseStatement : public ASTNode {
+  public:
+    ElseStatement(IfStatement* state, BracedBlock* blk);
+    ~ElseStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override;
+    IfStatement* ifStatement;
+    BracedBlock* bracedBlock;
+};
+
+class WhileStatement : public ASTNode {
+  public:
+    WhileStatement(ASTNode* cond, BracedBlock* blk);
+    ~WhileStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* condition;
+    BracedBlock* bracedBlock;
+
+};
+
+class PrintStatement : public ASTNode {
+  public:
+    PrintStatement(ASTNode* expression);
+    ~PrintStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* expression;
+};
+
+class EndStatement : public ASTNode {
+  public:
+    EndStatement() = default;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override { return "}"; }
+};
+
+class EmptyStatement : public ASTNode {
+  public:
+    EmptyStatement() = default;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override { return {}; }
+};
+
 class infixParser {
 public:
     infixParser(const std::vector<Token>& tokens);
@@ -107,11 +131,12 @@ public:
     ASTNode* infixparse();
     infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable);
     Token PeekNextToken();
-    Token currentToken;
+    double evaluate(ASTNode* node, std::map<std::string, double>& symbolTable);
 
 private:
     std::vector<Token> tokens;
     size_t index;
+    Token currentToken;
     std::map<std::string, double>& symbolTable;
 
     void nextToken();
@@ -125,18 +150,22 @@ private:
     ASTNode* infixparseLogicalAnd();
     ASTNode* infixparseLogicalOr();
     ASTNode* infixparseLogicalXor();
+    ASTNode* infixparseStatement();
+    ASTNode* infixparseCondition();
+    BracedBlock* infixparseBracedBlock();
+    IfStatement* infixparseIfStatement();
+    ElseStatement* infixparseElseStatement();
 };
+
 
 class Assignment : public ASTNode {
 public:
-    Assignment(const std::string& varName, ASTNode* expr);  // Change the parameter name
+    Assignment(const std::string& varName, ASTNode* expression);
     ~Assignment();
-    double evaluate(std::map<std::string, double>& symbolTable) const override;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     std::string variableName;
-
-private:
-    ASTNode* expression;  // Store the expression as a member
+    ASTNode* expression;
 };
 
 
@@ -145,7 +174,7 @@ public:
     Variable(const std::string& varName) : variableName(varName) {}
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override {
-    return variableName;
+        return variableName;
     }
     std::string variableName;
 };
@@ -157,33 +186,36 @@ public:
     : std::runtime_error("Runtime error: unknown identifier " + variableName) {}
 
     int getErrorCode() const {
-        return 3;
+    return 3;
     }
 };
+
 
 class DivisionByZeroException : public std::runtime_error {
 public:
     DivisionByZeroException() : std::runtime_error("Runtime error: division by zero.") {}
     
     int getErrorCode() const {
-        return 3;
+    return 3;
     }
 };
+
 
 class InvalidOperatorException : public std::runtime_error {
 public:
     InvalidOperatorException() : std::runtime_error("Invalid operator") {}
     int getErrorCode() const {
-        return 2;
+    return 2;
     }
 };
+
 
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
     : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
-        return 2;
+    return 2;
     }
 };
 

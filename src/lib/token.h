@@ -10,7 +10,11 @@ enum class TokenType {
     NUMBER,
     IDENTIFIER,
     ASSIGNMENT,
-    BOOLEAN
+    BOOLEAN,
+    IF,    
+    ELSE,  
+    WHILE,   
+    PRINT
 };
 
 struct Token {
