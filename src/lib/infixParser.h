@@ -26,12 +26,12 @@ public:
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     std::string op; 
-    ASTNode* left;
-    ASTNode* right;
+    ASTNode* left{nullptr};
+    ASTNode* right{nullptr};
 };
 
 class BooleanNode : public ASTNode {
-public:
+  public:
     BooleanNode(bool value);
     double evaluate(std::map<std::string, double>& symbolTable) const override;
     std::string toInfix() const override;
@@ -50,6 +50,80 @@ public:
 };
 
 
+class Block : public ASTNode {
+  public:
+    Block(ASTNode* statement);
+    ~Block();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    std::vector<ASTNode*> statements;
+};
+
+class BracedBlock : public ASTNode {
+  public:
+    BracedBlock(Block* blk);
+    ~BracedBlock();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    Block* block{nullptr};
+};
+
+class ElseStatement;
+class IfStatement : public ASTNode {
+  public:
+    IfStatement(ASTNode* cond, BracedBlock* blk);
+    ~IfStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* condition{nullptr};
+    BracedBlock* bracedBlock{nullptr};
+    ElseStatement* elseNode{nullptr};
+};
+
+class ElseStatement : public ASTNode {
+  public:
+    ElseStatement(IfStatement* state, BracedBlock* blk);
+    ~ElseStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override;
+    IfStatement* ifStatement{nullptr};
+    BracedBlock* bracedBlock{nullptr};
+};
+
+class WhileStatement : public ASTNode {
+  public:
+    WhileStatement(ASTNode* cond, BracedBlock* blk);
+    ~WhileStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* condition{nullptr};
+    BracedBlock* bracedBlock{nullptr};
+
+};
+
+class PrintStatement : public ASTNode {
+  public:
+    PrintStatement(ASTNode* expression);
+    ~PrintStatement();
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
+    std::string toInfix() const override;
+    ASTNode* expression{nullptr};
+};
+
+class EndStatement : public ASTNode {
+  public:
+    EndStatement() = default;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override { return "}"; }
+};
+
+class EmptyStatement : public ASTNode {
+  public:
+    EmptyStatement() = default;
+    double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
+    std::string toInfix() const override { return {}; }
+};
+
 class infixParser {
 public:
     infixParser(const std::vector<Token>& tokens);
@@ -57,6 +131,7 @@ public:
     ASTNode* infixparse();
     infixParser(const std::vector<Token>& tokens, std::map<std::string, double>& symbolTable);
     Token PeekNextToken();
+    double evaluate(ASTNode* node, std::map<std::string, double>& symbolTable);
 
 private:
     std::vector<Token> tokens;
@@ -75,6 +150,11 @@ private:
     ASTNode* infixparseLogicalAnd();
     ASTNode* infixparseLogicalOr();
     ASTNode* infixparseLogicalXor();
+    ASTNode* infixparseStatement();
+    ASTNode* infixparseCondition();
+    BracedBlock* infixparseBracedBlock();
+    IfStatement* infixparseIfStatement();
+    ElseStatement* infixparseElseStatement();
 };
 
 
@@ -85,7 +165,7 @@ public:
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override;
     std::string toInfix() const override;
     std::string variableName;
-    ASTNode* expression;
+    ASTNode* expression{nullptr};
 };
 
 
@@ -94,8 +174,8 @@ public:
     Variable(const std::string& varName) : variableName(varName) {}
     double evaluate(std::map<std::string, double>& symbolTable /* unused */) const override; 
     std::string toInfix() const override {
-    return variableName;
-}
+        return variableName;
+    }
     std::string variableName;
 };
 
