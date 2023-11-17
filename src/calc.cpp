@@ -16,7 +16,7 @@ int main() {
     std::map<std::string, double> symbolTable; // Create the symbol table
 
     while (true) {
-        // Reads inputs
+        // Reads input
         std::string inputLine;
         if (!std::getline(std::cin, inputLine)) {
             break;
@@ -48,7 +48,7 @@ int main() {
 
             infixParser parser(tokens, symbolTable);
             ASTNode* root = parser.infixparse();
-        
+
             if (root) {
                 // Print the AST in infix notation
                 std::string infixExpression = parser.printInfix(root);

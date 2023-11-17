@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -14,18 +15,22 @@ int main() {
     try {
         std::vector<Token> tokens = lexer.tokenize();
         infixParser parser(tokens, symbolTable);
-        std::vector<ASTNode*> asts = parser.infixparse();
         double result = 0.0;
-        for (ASTNode* root : asts) {
-            if (root) {
-                result = parser.evaluate(root, symbolTable);
-                delete root;
-            } else {
-                std::cout << "Failed to parse the input expression." << std::endl;
-            }
+        while (auto root = parser.infixparse()) {              
+            result = parser.evaluate(root, symbolTable);
+            delete root;
         }
         std::cout << result << std::endl;
-    } catch (const std::runtime_error& error) {
+    } catch (const SyntaxError& error) {
+        std::cout << error.what() << std::endl;
+        return 1;
+    } catch (const UnexpectedTokenException& error) {
+        std::cout << error.what() << std::endl;
+        return 2;
+    }catch (const InvalidOperandTypeException& error) {
+        std::cout << error.what() << std::endl;
+        return 3;
+    }catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
     }

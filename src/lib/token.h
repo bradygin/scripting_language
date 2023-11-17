@@ -1,3 +1,4 @@
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -10,7 +11,15 @@ enum class TokenType {
     NUMBER,
     IDENTIFIER,
     ASSIGNMENT,
-    BOOLEAN
+    BOOLEAN,
+    IF,    
+    ELSE,  
+    WHILE,   
+    PRINT,
+    COMMA,      
+    SEMICOLON,
+    LEFT_SQUARE,
+    RIGHT_SQUARE
 };
 
 struct Token {

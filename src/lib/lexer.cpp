@@ -68,7 +68,15 @@ Token Lexer::nextToken() {
             return Token(line, column, "{", TokenType::OPERATOR);
         } else if (currChar == '}') {
             return Token(line, column, "}", TokenType::OPERATOR);
-        }else if (std::isdigit(currChar)) {
+        } else if (currChar == ',') {  // New: Tokenize comma
+            return Token(line, column, ",", TokenType::COMMA);
+        } else if (currChar == ';') {  // New: Tokenize semicolon
+            return Token(line, column, ";", TokenType::SEMICOLON);
+        } else if (currChar == '[') {  //New
+            return Token(line, column, "[", TokenType::LEFT_SQUARE);
+        } else if (currChar == ']') {  //New
+            return Token(line, column, "]", TokenType::RIGHT_SQUARE);
+        } else if (std::isdigit(currChar)) {
             std::string num;
             num += currChar;
             char nextChar;
@@ -145,5 +153,3 @@ std::vector<Token> Lexer::tokenize() {
 
     return myTokens;
 }
-
-
