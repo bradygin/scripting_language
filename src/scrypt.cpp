@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -9,16 +8,14 @@
 #include "lib/infixParser.h"
 
 int main() {
-    std::map<std::string, double> symbolTable; // Create the symbol table
     Lexer lexer(std::cin);
     
     try {
         std::vector<Token> tokens = lexer.tokenize();
-        infixParser parser(tokens, symbolTable);
+        infixParser parser(tokens);
         double result = 0.0;
         while (auto root = parser.infixparse()) {              
-            result = parser.evaluate(root, symbolTable);
-            delete root;
+            result = parser.evaluate(root);
         }
         std::cout << result << std::endl;
     } catch (const SyntaxError& error) {
