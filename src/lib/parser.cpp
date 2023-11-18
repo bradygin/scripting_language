@@ -5,18 +5,9 @@
 
 std::unordered_map<std::string, double> Node::variableMap;
 
-Node::~Node() {
-    for (Node* child : children) {
-        delete child;
-    }
-}
-
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
-Parser::~Parser() {
-}
-
-std::vector<Node*> Parser::parse() {
+std::vector<std::shared_ptr<Node>> Parser::parse() {
     while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
         auto root = parseExpression();
         roots.push_back(root);
@@ -24,8 +15,8 @@ std::vector<Node*> Parser::parse() {
     return roots;
 }
 
-Node* Parser::parseExpression() {
-    Node* node = new Node("");
+std::shared_ptr<Node> Parser::parseExpression() {
+    auto node = std::make_shared<Node>("");
     while (currentTokenIndex < tokens.size()) {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
@@ -33,11 +24,11 @@ Node* Parser::parseExpression() {
 
             if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/" && next_token != "=") {
                 if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "1 Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 } else {
-                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "2 Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 }
@@ -54,12 +45,12 @@ Node* Parser::parseExpression() {
                 if (node->type == TokenType::ASSIGNMENT) {
                     // Check for unexpected token cases in assignment
                     if (node->children.empty()) {
-                        std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                        std::cout << "3 Unexpected token at line " << tokens[currentTokenIndex].line
                                   << " column " << tokens[currentTokenIndex].column
                                   << ": " << tokens[currentTokenIndex].text << std::endl;
                         exit(2);
                     } else if (node->children.size() == 1) {
-                        std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                        std::cout << "4 Unexpected token at line " << tokens[currentTokenIndex].line
                                   << " column " << tokens[currentTokenIndex].column
                                   << ": " << tokens[currentTokenIndex].text << std::endl;
                         exit(2);
@@ -68,11 +59,11 @@ Node* Parser::parseExpression() {
                 return node;
             } else {
                 if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "5 Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 } else {
-                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "6 Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 }
@@ -84,11 +75,11 @@ Node* Parser::parseExpression() {
             return node;
         } else {
             if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-               std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+               std::cout << "7 Unexpected token at line " << tokens[currentTokenIndex].line
                           << " column " << tokens[currentTokenIndex].column
                           << ": " << tokens[currentTokenIndex].text << std::endl;
             } else {
-                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
+                std::cout << "8 Unexpected token at line " << tokens[currentTokenIndex].line
                           << " column " << tokens[currentTokenIndex].column
                           << ": " << tokens[currentTokenIndex].text << std::endl;
             }
@@ -113,7 +104,7 @@ std::string customToString(double numericValue) {
     return stringValue.substr(0, pos + 1);
 }
 
-std::string Parser::printInfix(Node* node) {
+std::string Parser::printInfix(std::shared_ptr<Node> node) {
     if (node == nullptr) {
         return "";
     } else if (node->type == TokenType::IDENTIFIER) {
@@ -143,7 +134,7 @@ double Node::evaluate() {
 
     if (type == TokenType::OPERATOR) {
         if (value == "+") {
-            for (Node* child : children) {
+            for (auto child : children) {
                 result += child->evaluate();
             }
         } else if (value == "-") {
@@ -157,7 +148,7 @@ double Node::evaluate() {
             }
         } else if (value == "*") {
             result = 1.0;
-            for (Node* child : children) {
+            for (auto child : children) {
                 result *= child->evaluate();
             }
         } else if (value == "/") {
