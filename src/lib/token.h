@@ -1,4 +1,3 @@
-
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -12,11 +11,7 @@ enum class TokenType {
     IDENTIFIER,
     ASSIGNMENT,
     BOOLEAN,
-    IF,    
-    ELSE,  
-    WHILE,   
-    PRINT,
-    COMMA,      
+    COMMA,
     SEMICOLON,
     LEFT_SQUARE,
     RIGHT_SQUARE
