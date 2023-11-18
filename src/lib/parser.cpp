@@ -1,4 +1,3 @@
-
 #include "parser.h"
 #include <iostream>
 #include <sstream>
@@ -6,18 +5,9 @@
 
 std::unordered_map<std::string, double> Node::variableMap;
 
-Node::~Node() {
-    for (Node* child : children) {
-        delete child;
-    }
-}
-
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), currentTokenIndex(0) {}
 
-Parser::~Parser() {
-}
-
-std::vector<Node*> Parser::parse() {
+std::vector<std::shared_ptr<Node>> Parser::parse() {
     while (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].text != "END") {
         auto root = parseExpression();
         roots.push_back(root);
@@ -25,8 +15,8 @@ std::vector<Node*> Parser::parse() {
     return roots;
 }
 
-Node* Parser::parseExpression() {
-    Node* node = new Node("");
+std::shared_ptr<Node> Parser::parseExpression() {
+    auto node = std::make_shared<Node>("");
     while (currentTokenIndex < tokens.size()) {
         if (tokens[currentTokenIndex].type == TokenType::LEFT_PAREN) {
             currentTokenIndex++;
@@ -114,7 +104,7 @@ std::string customToString(double numericValue) {
     return stringValue.substr(0, pos + 1);
 }
 
-std::string Parser::printInfix(Node* node) {
+std::string Parser::printInfix(std::shared_ptr<Node> node) {
     if (node == nullptr) {
         return "";
     } else if (node->type == TokenType::IDENTIFIER) {
@@ -144,7 +134,7 @@ double Node::evaluate() {
 
     if (type == TokenType::OPERATOR) {
         if (value == "+") {
-            for (Node* child : children) {
+            for (auto child : children) {
                 result += child->evaluate();
             }
         } else if (value == "-") {
@@ -158,7 +148,7 @@ double Node::evaluate() {
             }
         } else if (value == "*") {
             result = 1.0;
-            for (Node* child : children) {
+            for (auto child : children) {
                 result *= child->evaluate();
             }
         } else if (value == "/") {
