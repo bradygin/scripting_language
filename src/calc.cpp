@@ -13,7 +13,6 @@ public:
 };
 
 int main() {
-    std::map<std::string, double> symbolTable; // Create the symbol table
 
     while (true) {
         // Reads input
@@ -46,26 +45,26 @@ int main() {
                 throw UnexpectedTokenException("END", lexer.line, lexer.column+1);
             }
 
-            infixParser parser(tokens, symbolTable);
-            ASTNode* root = parser.infixparse();
+            infixParser parser(tokens);
+            auto root = parser.infixparse();
 
             if (root) {
                 // Print the AST in infix notation
                 std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
                 try {
-                    std::map<std::string, double> temp = symbolTable;
-                    double result = root->evaluate(temp);
-                    symbolTable = temp;
+                    double result = parser.evaluate(root);
                 // Check for assignment that evaluates to a boolean value
-                Assignment* assignmentNode = dynamic_cast<Assignment*>(root);
+                auto assignmentNode = std::dynamic_pointer_cast<Assignment>(root);
                 if (assignmentNode && (result == 1.0 || result == 0.0)) {
                     if (result == 1.0) {
                         std::cout << "true" << std::endl;
                     } else {
                         std::cout << "false" << std::endl;
                     }
-                } else if (dynamic_cast<BooleanNode*>(root) || (dynamic_cast<Variable*>(root) && (result == 1.0 || result == 0.0)) || (dynamic_cast<BinaryOperation*>(root) && (
+                } else if (std::dynamic_pointer_cast<BooleanNode>(root) || 
+                    (std::dynamic_pointer_cast<Variable>(root) && (result == 1.0 || result == 0.0)) || 
+                    (std::dynamic_pointer_cast<BinaryOperation>(root) && (
                     root->toInfix().find("<") != std::string::npos ||
                     root->toInfix().find(">") != std::string::npos ||
                     root->toInfix().find("==") != std::string::npos ||
@@ -86,7 +85,6 @@ int main() {
                 } catch (const std::runtime_error& e) {
                     std::cout << e.what() << std::endl;
                 }
-                delete root;
             } else {
                 std::cout << "Failed to parse the input expression." << std::endl;
             }
