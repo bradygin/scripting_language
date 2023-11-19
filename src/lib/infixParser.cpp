@@ -545,6 +545,9 @@ double infixParser::evaluate(std::shared_ptr<ASTNode> node) {
     if (std::dynamic_pointer_cast<BinaryOperation>(node) != nullptr) {
         auto obj = std::dynamic_pointer_cast<BinaryOperation>(node);
         return obj->evaluate(symbolTable);
+    } else if (std::dynamic_pointer_cast<BooleanNode>(node) != nullptr) {
+        auto obj = std::dynamic_pointer_cast<BooleanNode>(node);
+        return obj->evaluate(symbolTable);
     } else if (std::dynamic_pointer_cast<Number>(node) != nullptr) {
         auto obj = std::dynamic_pointer_cast<Number>(node);
         return obj->evaluate(symbolTable);
