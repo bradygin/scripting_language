@@ -247,6 +247,9 @@ std::shared_ptr<ASTNode> infixParser::infixparse() {
 std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
     std::string tokenName = currentToken.text;
     if (tokenName == "if") {
+        if (PeekNextToken().type == TokenType::BOOLEAN) {
+             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
         nextToken();
         std::shared_ptr<IfStatement> satement(infixparseIfStatement());
         return satement;
@@ -262,6 +265,9 @@ std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
         }
         return std::make_shared<WhileStatement>(condition, bracedBlock);
     } else if (tokenName == "print") {
+        if (PeekNextToken().type == TokenType::NUMBER) {
+             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
         nextToken();
         std::shared_ptr<ASTNode> expr(infixparseExpression());        
         return std::make_shared<PrintStatement>(expr);
