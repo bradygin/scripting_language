@@ -28,6 +28,12 @@ struct Token {
 
     Token() : line(0), column(0), text(""), type(TokenType::OPERATOR) {}
 
+    // ADDED FOR ARRAY SUPPORT
+    // Helper function
+    bool isSquareBracket() const {
+        return type == TokenType::LEFT_SQUARE || type == TokenType::RIGHT_SQUARE;
+    }
+
 };
 
 #endif 

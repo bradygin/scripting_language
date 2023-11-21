@@ -77,6 +77,7 @@ double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) {
     throw InvalidOperatorException();
 }
 
+
 std::string BinaryOperation::toInfix() const {
     std::string leftStr = left->toInfix();
     std::string rightStr = right->toInfix();
@@ -503,15 +504,25 @@ std::shared_ptr<FunctionCall> infixParser::infixparseFunctionCall() {
     return functionReturnn;
 }
 
-
+// ADDED FUNCTIONALITY FOR ARRAYS
 std::shared_ptr<ASTNode> infixParser::infixparseExpression() {
-//std::cout << "Daisy  infixParser::infixparseExpression()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
-    if (currentToken.type == TokenType::IDENTIFIER &&
-        functionTable.find(currentToken.text) != functionTable.end()) {
-      return infixparseFunctionCall(); 
+    std::shared_ptr<ASTNode> expr(infixparseTerm());
+
+    while (currentToken.type == TokenType::OPERATOR && (currentToken.text == "+" || currentToken.text == "-")) {
+        std::string op = currentToken.text;
+        nextToken();
+        std::shared_ptr<ASTNode> right(infixparseTerm());
+        expr = std::make_shared<BinaryOperation>(op, expr, right);
     }
-    return infixparseAssignment();
+
+    // Handle array assignments
+    if (currentToken.type == TokenType::LEFT_SQUARE && PeekNextToken().isSquareBracket()) {
+        expr = infixparseArrayAssignment(expr);
+    }
+
+    return expr;
 }
+
 
 std::shared_ptr<ASTNode> infixParser::infixparseTerm() {
 //std::cout << "Daisy  infixParser::infixparseTerm()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
@@ -627,16 +638,51 @@ std::shared_ptr<ASTNode> infixParser::infixparseFactor() {
         left = std::make_shared<BinaryOperation>(op, left, right);
     }
 
+     // Handle array literals
+    if (currentToken.type == TokenType::LEFT_SQUARE) {
+        return infixparseArrayLiteral();
+    }
+
+    // Handle array lookups and assignments
+    if (currentToken.type == TokenType::LEFT_SQUARE && PeekNextToken().isSquareBracket()) {
+        return infixparseArrayLookup(left);
+    }
+
     return left;
 }
 
+double ArrayLiteral::evaluate(std::map<std::string, double>& symbolTable) {
+    // For simplicity, let's assume the array elements are numbers and sum them up
+    double sum = 0.0;
+    for (const auto& element : elements) {
+        sum += element->evaluate(symbolTable);
+    }
+    return sum;
+}
+
+std::string ArrayLiteral::toInfix() const {
+    // Create a string representation of the array
+    std::string result = "[";
+    for (const auto& element : elements) {
+        result += element->toInfix() + ", ";
+    }
+    // Remove the trailing ", " if there are elements
+    if (!elements.empty()) {
+        result.erase(result.length() - 2);
+    }
+    result += "]";
+    return result;
+}
+
+// ADDED FUNCTIONALITY FOR ARRAYS
 std::shared_ptr<ASTNode> infixParser::infixparsePrimary() {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+    //std::cout << "Daisy infixParser::infixparsePrimary() 0 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+    
     if (currentToken.type == TokenType::NUMBER) {
         double value = std::stod(currentToken.text);
         nextToken();
         if (currentToken.type == TokenType::ASSIGNMENT && currentToken.text == "=") {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  1 " << std::endl;
+            //std::cout << "Daisy infixParser::infixparsePrimary() 1 " << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         return std::make_shared<Number>(value);
@@ -648,50 +694,185 @@ std::shared_ptr<ASTNode> infixParser::infixparsePrimary() {
             nextToken();
             return std::make_shared<BooleanNode>(false);
         }
-//std::cout << "Daisy  infixParser::infixparsePrimary() 2  " << std::endl;
+        //std::cout << "Daisy infixParser::infixparsePrimary() 2 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else if (currentToken.type == TokenType::IDENTIFIER) {
         std::string varName = currentToken.text;
         nextToken();
-        if (currentToken.type == TokenType::ASSIGNMENT) {
+        if (currentToken.type == TokenType::LEFT_SQUARE) {
+            // Check if it's an array lookup or array literal
+            if (PeekNextToken().type == TokenType::LEFT_SQUARE) {
+                return infixparseArrayLookup(std::make_shared<Variable>(varName));
+            } else {
+                return infixparseArrayLiteral();
+            }
+        } else if (currentToken.type == TokenType::ASSIGNMENT) {
             nextToken();
-//std::cout << "Daisy  infixParser::infixparsePrimary()  3   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+            //std::cout << "Daisy infixParser::infixparsePrimary() 3 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
             std::shared_ptr<ASTNode> expr(infixparseExpression());
             if (currentToken.type != TokenType::SEMICOLON) {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  3.1   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
-              throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+                //std::cout << "Daisy infixParser::infixparsePrimary() 3.1 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+                throw std::runtime_error("Runtime error: invalid assignee");
             } else {
-              nextToken();
+                nextToken();
             }
             return std::make_shared<Assignment>(varName, expr);
-/*        } else if (currentToken.type == TokenType::OPERATOR) {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  3.2   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
-            return std::make_shared<BinaryOperation>(varName);
-*/
         } else {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  3.3   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+            //std::cout << "Daisy infixParser::infixparsePrimary() 3.3 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
             return std::make_shared<Variable>(varName);
         }
     } else if (currentToken.type == TokenType::LEFT_PAREN) {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  4   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+        //std::cout << "Daisy infixParser::infixparsePrimary() 4 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
         nextToken();
         std::shared_ptr<ASTNode> result(infixparseExpression());
-//std::cout << "Daisy  infixParser::infixparsePrimary()  4.1   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
+        //std::cout << "Daisy infixParser::infixparsePrimary() 4.1 " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
         if (currentToken.type == TokenType::RIGHT_PAREN) {
             nextToken();
             return result;
         } else {
-//std::cout << "Daisy  infixParser::infixparsePrimary() 4.2  " << std::endl;
+            //std::cout << "Daisy infixParser::infixparsePrimary() 4.2 " << std::endl;
             throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
-        }        
+        }
     } else if (currentToken.type == TokenType::RIGHT_PAREN) {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  6 " << std::endl;
+        //std::cout << "Daisy infixParser::infixparsePrimary() 6 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
-//std::cout << "Daisy  infixParser::infixparsePrimary()  7 " << std::endl;
+        //std::cout << "Daisy infixParser::infixparsePrimary() 7 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
 }
+
+double ArrayLookup::evaluate(std::map<std::string, double>& symbolTable) {
+    // Check if the array and index are valid
+    if (!array || !index) {
+        throw std::runtime_error("Array and index cannot be null.");
+    }
+
+    // Check if the array is a valid array (ArrayLiteral)
+    auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+    if (!arrayLiteral) {
+        throw std::runtime_error("Invalid array type for lookup.");
+    }
+
+    // Evaluate the index to get its value
+    double indexValue = index->evaluate(symbolTable);
+
+    // Check if the index is a valid integer
+    if (std::floor(indexValue) != indexValue) {
+        throw std::runtime_error("Array index must be an integer.");
+    }
+
+    int arrayIndex = static_cast<int>(indexValue);
+
+    // Check if the array index is within bounds
+    if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
+        throw std::runtime_error("Array index out of bounds.");
+    }
+
+    // Use the ArrayLiteral class method to get the value at the specified index
+    return arrayLiteral->elements[arrayIndex]->evaluate(symbolTable);
+}
+
+
+std::string ArrayLookup::toInfix() const {
+    // Create a string representation of the array lookup
+    return array->toInfix() + "[" + index->toInfix() + "]";
+}
+
+// START OF ARRAY UTILITY FUNCTIONS
+// Implement the new array utility functions
+double infixParser::getArrayLength(std::shared_ptr<ASTNode> array) {
+    auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+    if (arrayLiteral) {
+        return static_cast<double>(arrayLiteral->elements.size());
+    } else {
+        throw std::runtime_error("Runtime error: not an array");
+    }
+}
+
+double infixParser::arrayPop(std::shared_ptr<ASTNode> array) {
+    auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+    if (arrayLiteral && !arrayLiteral->elements.empty()) {
+        // Assuming the array contains numeric values
+        auto poppedValue = std::dynamic_pointer_cast<Number>(arrayLiteral->elements.back());
+        
+        if (poppedValue) {
+            // Successfully cast to Number
+            arrayLiteral->elements.pop_back();
+            return poppedValue->value;
+        } else {
+            throw std::runtime_error("Runtime error: array element is not a numeric value");
+        }
+    } else {
+        throw std::runtime_error("Runtime error: underflow");
+    }
+}
+
+
+void infixParser::arrayPush(std::shared_ptr<ASTNode> array, double value) {
+    auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+    if (arrayLiteral) {
+        // Create a shared_ptr<Number> from the double value
+        auto numberValue = std::make_shared<Number>(value);
+        arrayLiteral->elements.push_back(numberValue);
+    } else {
+        throw std::runtime_error("Runtime error: not an array");
+    }
+}
+
+// END OF ARRAY UTILITY FUNCTIONS
+
+// START OF ARRAY PARSING FUNCTIONS
+// Implement the new array parsing functions
+std::shared_ptr<ArrayLiteral> infixParser::infixparseArrayLiteral() {
+    // Parse array literals here
+    auto arrayLiteral = std::make_shared<ArrayLiteral>();
+    nextToken(); // Consume '['
+    
+    while (currentToken.type != TokenType::RIGHT_SQUARE) {
+        auto expression = infixparseExpression();
+        arrayLiteral->elements.push_back(expression);
+
+        if (currentToken.type == TokenType::COMMA) {
+            nextToken(); // Consume ','
+        } else if (currentToken.type != TokenType::RIGHT_SQUARE) {
+            throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+        }
+    }
+
+    nextToken(); // Consume ']'
+    return arrayLiteral;
+}
+
+
+std::shared_ptr<ArrayLookup> infixParser::infixparseArrayLookup(std::shared_ptr<ASTNode> array) {
+    // Parse array lookup here
+    nextToken(); // Consume '['
+    auto indexExpression = infixparseExpression();
+    if (currentToken.type == TokenType::RIGHT_SQUARE) {
+        nextToken(); // Consume ']'
+        return std::make_shared<ArrayLookup>(array, indexExpression);
+    } else {
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+    }
+}
+
+std::shared_ptr<ASTNode> infixParser::infixparseArrayAssignment(std::shared_ptr<ASTNode> array) {
+    // Parse array assignment here
+    auto arrayAssignment = infixparseArrayLookup(array);
+
+    if (currentToken.type == TokenType::ASSIGNMENT) {
+        nextToken(); // Consume '='
+        auto valueExpression = infixparseExpression();
+        arrayAssignment->setAssignmentValue(valueExpression);
+        return arrayAssignment;
+    } else {
+        throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
+    }
+}
+// END OF ARRAY PARSING FUNCTIONS
+
+
 
 Token infixParser::PeekNextToken() {
     if (index < tokens.size() - 1) {

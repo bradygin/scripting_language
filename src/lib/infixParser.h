@@ -12,6 +12,17 @@
 
 static std::map<std::string, double> symbolTable;
 
+// FOR ARRAYS: Define Expr and ExprPtr
+class Expr;
+using ExprPtr = std::shared_ptr<Expr>;
+
+// Define Expr and ExprPtr
+class Expr {
+public:
+    virtual ~Expr() {}
+};
+
+
 // Class for node
 class ASTNode {
   public:
@@ -166,23 +177,111 @@ class FunctionCall : public ASTNode {
 };
 
 
+// ADDED FOR ARRAYS
+// Forward declaration for new expression types
+class ArrayLiteralExpr;
+class ArrayLookupExpr;
+class ArrayAssignExpr;
+
+
+// Define ArrayLiteral
+class ArrayLiteral : public ASTNode {
+public:
+    ArrayLiteral() = default;  // Add this line for the default constructor
+
+    ArrayLiteral(const std::vector<std::shared_ptr<ASTNode>>& elements)
+        : elements(elements) {}
+
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::string toInfix() const override;
+    std::vector<std::shared_ptr<ASTNode>> elements;
+};
+
+
+class ArrayLookup : public ASTNode {
+public:
+    ArrayLookup(std::shared_ptr<ASTNode> array, std::shared_ptr<ASTNode> index)
+        : array(array), index(index) {}
+
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::string toInfix() const override;
+    std::shared_ptr<ASTNode> array;
+    std::shared_ptr<ASTNode> index;
+
+    void setAssignmentValue(std::shared_ptr<ASTNode> value) {
+        // Check if the array and index are valid
+        if (!array || !index) {
+            throw std::runtime_error("Array and index cannot be null.");
+        }
+
+        // Evaluate the array and index to get their values
+        //double arrayValue = array->evaluate(symbolTable);
+        double indexValue = index->evaluate(symbolTable);
+
+        // Check if the array is a valid array (ArrayLiteral)
+        auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+        if (!arrayLiteral) {
+            throw std::runtime_error("Invalid array type for assignment.");
+        }
+
+        // Check if the index is a valid integer
+        if (std::floor(indexValue) != indexValue) {
+            throw std::runtime_error("Array index must be an integer.");
+        }
+
+        int arrayIndex = static_cast<int>(indexValue);
+
+        // Check if the array index is within bounds
+        if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
+            throw std::runtime_error("Array index out of bounds.");
+        }
+
+        // Update the array element with the new value
+        arrayLiteral->elements[arrayIndex] = value;
+    }
+};
+
+class ArrayAssignExpr : public Expr {
+public:
+    ExprPtr array;
+    ExprPtr index;
+    ExprPtr value;
+
+    ArrayAssignExpr(ExprPtr array, ExprPtr index, ExprPtr value)
+        : array(array), index(index), value(value) {}
+};
+
+// END FOR ARRAYS
+
+
 
 class infixParser {
-  public:
+public:
     infixParser(const std::vector<Token>& tokens);
     std::string printInfix(std::shared_ptr<ASTNode> node);
     std::shared_ptr<ASTNode> infixparse();
     Token PeekNextToken();
     double evaluate(std::shared_ptr<ASTNode> node);
 
-  private:
+    // Add array utility functions
+    double getArrayLength(std::shared_ptr<ASTNode> array);
+    double arrayPop(std::shared_ptr<ASTNode> array);
+    void arrayPush(std::shared_ptr<ASTNode> array, double value);
+
+    // Add array parsing functions
+    std::shared_ptr<ArrayLiteral> infixparseArrayLiteral();
+    std::shared_ptr<ArrayLookup> infixparseArrayLookup(std::shared_ptr<ASTNode> array);
+    std::shared_ptr<ASTNode> infixparseArrayAssignment(std::shared_ptr<ASTNode> array);
+
+    // Update infixparseExpression and infixparsePrimary
+    std::shared_ptr<ASTNode> infixparsePrimary();
+
+private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
-//    std::map<std::string, double> symbolTable;
 
     void nextToken();
-    std::shared_ptr<ASTNode> infixparsePrimary();
     std::shared_ptr<ASTNode> infixparseExpression();
     std::shared_ptr<ASTNode> infixparseTerm();
     std::shared_ptr<ASTNode> infixparseFactor();
@@ -201,6 +300,7 @@ class infixParser {
     std::shared_ptr<FunctionReturn> infixparseFunctionReturn();
     std::shared_ptr<FunctionCall> infixparseFunctionCall();
 };
+
 
 
 //EXCEPTION HANDLING
