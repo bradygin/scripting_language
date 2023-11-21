@@ -43,7 +43,7 @@ private:
 class ArrayLiteral : public ASTNode {
 public:
     ArrayLiteral(const std::vector<std::shared_ptr<ASTNode>>& elements);
-    std::variant<double, std::vector<double>> ArrayLiteral::evaluate(std::map<std::string, std::variant<double, std::vector<double>>>& symbolTable) const;
+    std::variant<double, std::vector<double>> evaluate(std::map<std::string, std::variant<double, std::vector<double>>>& symbolTable) const;
     std::string toInfix() const override;
 
 private:

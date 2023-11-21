@@ -202,8 +202,7 @@ class infixParser {
     std::shared_ptr<FunctionCall> infixparseFunctionCall();
 
     //array code
-    std::shared_ptr<ASTNode> infixParser::infixparseExpression();
-    std::shared_ptr<ASTNode> infixParser::infixparseArrayLiteral();
+    std::shared_ptr<ASTNode> infixparseArrayLiteral();
 
 };
 
