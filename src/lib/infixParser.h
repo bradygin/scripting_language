@@ -10,7 +10,6 @@
 #include "lexer.h"
 #include "token.h"
 
-static std::map<std::string, double> symbolTable;
 
 // Class for node
 class ASTNode {
@@ -140,7 +139,9 @@ class FunctionDefinition : public ASTNode {
     ~FunctionDefinition() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
     std::string toInfix() const override;
+    bool isCalled{false};
     std::string functionName;
+    std::string functionAliasName;
     std::map<std::string, double> mySymbolTable;
     std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
     std::shared_ptr<BracedBlock> bracedBlock{nullptr};
@@ -162,6 +163,7 @@ class FunctionCall : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable) override; 
     std::string toInfix() const override;
     std::string functionName;
+    bool isAliasName{false};
     std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
 };
 
@@ -198,7 +200,6 @@ class infixParser {
     std::shared_ptr<IfStatement> infixparseIfStatement();
     std::shared_ptr<ElseStatement> infixparseElseStatement();
     std::shared_ptr<FunctionDefinition> infixparseFunctionDefinition();
-    std::shared_ptr<FunctionReturn> infixparseFunctionReturn();
     std::shared_ptr<FunctionCall> infixparseFunctionCall();
 };
 
