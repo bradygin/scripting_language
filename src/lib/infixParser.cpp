@@ -265,7 +265,7 @@ std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
         }
         return std::make_shared<WhileStatement>(condition, bracedBlock);
     } else if (tokenName == "print") {
-        if (PeekNextToken().type == TokenType::NUMBER) {
+        if (PeekNextToken().text == "true") {
              throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         nextToken();
