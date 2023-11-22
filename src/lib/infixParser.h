@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include "lexer.h"
 #include "token.h"
+#include <cmath>
 
 static std::map<std::string, double> symbolTable;
 
