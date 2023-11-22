@@ -27,7 +27,7 @@ int main() {
     }catch (const InvalidOperandTypeException& error) {
         std::cout << error.what() << std::endl;
         return 3;
-    } catch (const std::runtime_error& error) {
+    }catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
     }
