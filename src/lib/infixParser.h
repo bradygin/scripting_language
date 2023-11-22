@@ -340,7 +340,7 @@ class InvalidOperatorException : public std::runtime_error {
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("0  Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }

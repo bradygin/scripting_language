@@ -335,8 +335,8 @@ std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
              throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
         }
         nextToken();
-        std::shared_ptr<IfStatement> satement(infixparseIfStatement());
-        return satement;
+        std::shared_ptr<IfStatement> statement(infixparseIfStatement());
+        return statement;
     } else if (tokenName == "while") {
         nextToken();
         std::shared_ptr<ASTNode> condition(infixparseCondition());
