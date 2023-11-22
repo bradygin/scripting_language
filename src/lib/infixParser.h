@@ -14,7 +14,7 @@ static std::map<std::string, double> symbolTable;
     
 // Class for node
 class ASTNode {
-public:
+  public:
     virtual ~ASTNode() {}
     virtual double evaluate(std::map<std::string, double>& symbolTable) = 0;
     virtual std::string toInfix() const = 0;
@@ -38,13 +38,13 @@ class BooleanNode : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
 
-private:
+  private:
     bool value;
 };
 
 
 struct Number : public ASTNode {
-public:
+  public:
     Number(double value) : value(value) {}
     double evaluate(std::map<std::string, double>&) override { return value; }
     std::string toInfix() const override;
@@ -132,20 +132,57 @@ class PrintStatement : public ASTNode {
     std::shared_ptr<ASTNode> expression{nullptr};
 };
 
+class FunctionReturn;
+class FunctionCall;
+class FunctionDefinition : public ASTNode {
+  public:
+    FunctionDefinition(std::string name);
+    ~FunctionDefinition() = default;
+    double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::string toInfix() const override;
+    bool isCalled{false};
+    std::string functionName;
+    std::string functionAliasName;
+    std::map<std::string, double> mySymbolTable;
+    std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
+    std::shared_ptr<BracedBlock> bracedBlock{nullptr};
+};
+
+class FunctionReturn : public ASTNode {
+  public:
+    FunctionReturn(std::shared_ptr<ASTNode> expression);
+    ~FunctionReturn() = default;
+    double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::string toInfix() const override;
+    std::shared_ptr<ASTNode> expression{nullptr};
+};
+
+class FunctionCall : public ASTNode {
+  public:
+    FunctionCall(std::string name);
+    ~FunctionCall() = default;
+    double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::string toInfix() const override;
+    std::string functionName;
+    bool isAliasName{false};
+    std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
+};
+
+
 
 class infixParser {
-public:
+  public:
     infixParser(const std::vector<Token>& tokens);
     std::string printInfix(std::shared_ptr<ASTNode> node);
     std::shared_ptr<ASTNode> infixparse();
     Token PeekNextToken();
     double evaluate(std::shared_ptr<ASTNode> node);
 
-private:
+  private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
-
+//    std::map<std::string, double> symbolTable;
 
     void nextToken();
     std::shared_ptr<ASTNode> infixparsePrimary();
@@ -163,12 +200,14 @@ private:
     std::shared_ptr<BracedBlock> infixparseBracedBlock();
     std::shared_ptr<IfStatement> infixparseIfStatement();
     std::shared_ptr<ElseStatement> infixparseElseStatement();
+    std::shared_ptr<FunctionDefinition> infixparseFunctionDefinition();
+    std::shared_ptr<FunctionCall> infixparseFunctionCall();
 };
 
 
 //EXCEPTION HANDLING
 class UnknownIdentifierException : public std::runtime_error{
-public:
+  public:
     UnknownIdentifierException(std::map<std::string, double>&, const std::string& variableName)
     : std::runtime_error("Runtime error: unknown identifier " + variableName) {}
 
@@ -179,7 +218,7 @@ public:
 
 
 class DivisionByZeroException : public std::runtime_error {
-public:
+  public:
     DivisionByZeroException() : std::runtime_error("Runtime error: division by zero.") {}
     
     int getErrorCode() const {
@@ -189,7 +228,7 @@ public:
 
 
 class InvalidOperatorException : public std::runtime_error {
-public:
+  public:
     InvalidOperatorException() : std::runtime_error("Invalid operator") {}
     int getErrorCode() const {
     return 2;
@@ -200,7 +239,7 @@ public:
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("0  Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }

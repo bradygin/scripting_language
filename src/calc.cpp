@@ -54,34 +54,34 @@ int main() {
                 std::cout << infixExpression << std::endl;
                 try {
                     double result = parser.evaluate(root);
-                // Check for assignment that evaluates to a boolean value
-                auto assignmentNode = std::dynamic_pointer_cast<Assignment>(root);
-                if (assignmentNode && (result == 1.0 || result == 0.0)) {
-                    if (result == 1.0) {
-                        std::cout << "true" << std::endl;
-                    } else {
-                        std::cout << "false" << std::endl;
-                    }
-                } else if (std::dynamic_pointer_cast<BooleanNode>(root) || 
-                    (std::dynamic_pointer_cast<Variable>(root) && (result == 1.0 || result == 0.0)) || 
-                    (std::dynamic_pointer_cast<BinaryOperation>(root) && (
-                    root->toInfix().find("<") != std::string::npos ||
-                    root->toInfix().find(">") != std::string::npos ||
-                    root->toInfix().find("==") != std::string::npos ||
-                    root->toInfix().find("!=") != std::string::npos ||
-                    root->toInfix().find("<=") != std::string::npos ||
-                    root->toInfix().find(">=") != std::string::npos ||
-                    root->toInfix().find("&") != std::string::npos ||
-                    root->toInfix().find("^") != std::string::npos ||
-                    root->toInfix().find("|") != std::string::npos))) {
+                    // Check for assignment that evaluates to a boolean value
+                    auto assignmentNode = std::dynamic_pointer_cast<Assignment>(root);
+                    if (assignmentNode && (result == 1.0 || result == 0.0)) {
                         if (result == 1.0) {
                             std::cout << "true" << std::endl;
                         } else {
                             std::cout << "false" << std::endl;
                         }
-                } else {
-                    std::cout << result << std::endl;
-                }
+                    } else if (std::dynamic_pointer_cast<BooleanNode>(root) || 
+                        (std::dynamic_pointer_cast<Variable>(root) && (result == 1.0 || result == 0.0)) || 
+                        (std::dynamic_pointer_cast<BinaryOperation>(root) && (
+                        root->toInfix().find("<") != std::string::npos ||
+                        root->toInfix().find(">") != std::string::npos ||
+                        root->toInfix().find("==") != std::string::npos ||
+                        root->toInfix().find("!=") != std::string::npos ||
+                        root->toInfix().find("<=") != std::string::npos ||
+                        root->toInfix().find(">=") != std::string::npos ||
+                        root->toInfix().find("&") != std::string::npos ||
+                        root->toInfix().find("^") != std::string::npos ||
+                        root->toInfix().find("|") != std::string::npos))) {
+                            if (result == 1.0) {
+                                std::cout << "true" << std::endl;
+                            } else {
+                                std::cout << "false" << std::endl;
+                            }
+                    } else {
+                        std::cout << result << std::endl;
+                    }
                 } catch (const std::runtime_error& e) {
                     std::cout << e.what() << std::endl;
                 }
