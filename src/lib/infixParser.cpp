@@ -932,7 +932,6 @@ double infixParser::evaluate(std::shared_ptr<ASTNode> node) {
     } else if (std::dynamic_pointer_cast<ArrayLookup>(node) != nullptr) {
         auto arrayLookup = std::dynamic_pointer_cast<ArrayLookup>(node);
         // Evaluate the array and index to get the array element value
-        double arrayValue = arrayLookup->array->evaluate(mainSymbolTable);
         double indexValue = arrayLookup->index->evaluate(mainSymbolTable);
 
         // Check if the array is a valid array (ArrayLiteral)
@@ -958,7 +957,6 @@ double infixParser::evaluate(std::shared_ptr<ASTNode> node) {
     } else if (std::dynamic_pointer_cast<ArrayAssignExpr>(node) != nullptr) {
         auto arrayAssign = std::dynamic_pointer_cast<ArrayAssignExpr>(node);
         // Evaluate the array and index to get the array element value
-        double arrayValue = arrayAssign->array->evaluate(mainSymbolTable);
         double indexValue = arrayAssign->index->evaluate(mainSymbolTable);
 
         // Check if the array is a valid array (ArrayLiteral)
@@ -987,3 +985,4 @@ double infixParser::evaluate(std::shared_ptr<ASTNode> node) {
         exit(4);
     }
 }
+
