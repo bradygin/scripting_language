@@ -11,11 +11,7 @@ enum class TokenType {
     IDENTIFIER,
     ASSIGNMENT,
     BOOLEAN,
-    IF,    
-    ELSE,  
-    WHILE,   
-    PRINT,
-    COMMA,      
+    COMMA,
     SEMICOLON,
     LEFT_SQUARE,
     RIGHT_SQUARE
@@ -31,6 +27,12 @@ struct Token {
         : line(line), column(column), text(text), type(type) {}
 
     Token() : line(0), column(0), text(""), type(TokenType::OPERATOR) {}
+
+    // ADDED FOR ARRAY SUPPORT
+    // Helper function
+    bool isSquareBracket() const {
+        return type == TokenType::LEFT_SQUARE || type == TokenType::RIGHT_SQUARE;
+    }
 
 };
 
