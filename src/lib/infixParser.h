@@ -9,8 +9,21 @@
 #include <stdexcept>
 #include "lexer.h"
 #include "token.h"
+#include <cmath>
 
 static std::map<std::string, double> symbolTable;
+
+// FOR ARRAYS: Define Expr and ExprPtr
+class Expr;
+using ExprPtr = std::shared_ptr<Expr>;
+
+// Define Expr and ExprPtr
+class Expr {
+public:
+    virtual ~Expr() {}
+    virtual std::string toInfix() const = 0;
+};
+
 
 // Class for node
 class ASTNode {
@@ -21,7 +34,7 @@ class ASTNode {
 };
 
 struct BinaryOperation : public ASTNode {
-  public:
+public:
     BinaryOperation(const std::string& op, std::shared_ptr<ASTNode> left, std::shared_ptr<ASTNode> right)
     : op(op), left(left), right(right) {}
     ~BinaryOperation() = default;
@@ -140,7 +153,9 @@ class FunctionDefinition : public ASTNode {
     ~FunctionDefinition() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
     std::string toInfix() const override;
+    bool isCalled{false};
     std::string functionName;
+    std::string functionAliasName;
     std::map<std::string, double> mySymbolTable;
     std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
     std::shared_ptr<BracedBlock> bracedBlock{nullptr};
@@ -162,27 +177,123 @@ class FunctionCall : public ASTNode {
     double evaluate(std::map<std::string, double>& symbolTable) override; 
     std::string toInfix() const override;
     std::string functionName;
+    bool isAliasName{false};
     std::vector<std::pair<std::string, std::shared_ptr<ASTNode>>> parameters;
 };
 
 
+// ADDED FOR ARRAYS
+// Forward declaration for new expression types
+class ArrayLiteralExpr;
+class ArrayLookupExpr;
+class ArrayAssignExpr;
+
+
+// Define ArrayLiteral
+class ArrayLiteral : public ASTNode {
+public:
+    ArrayLiteral() = default;  // Add this line for the default constructor
+
+    ArrayLiteral(const std::vector<std::shared_ptr<ASTNode>>& elements)
+        : elements(elements) {}
+
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::string toInfix() const override;
+    std::vector<std::shared_ptr<ASTNode>> elements;
+};
+
+
+class ArrayLookup : public ASTNode {
+public:
+    ArrayLookup(std::shared_ptr<ASTNode> array, std::shared_ptr<ASTNode> index)
+        : array(array), index(index) {}
+
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::string toInfix() const override;
+    std::shared_ptr<ASTNode> array;
+    std::shared_ptr<ASTNode> index;
+
+    void setAssignmentValue(std::shared_ptr<ASTNode> value) {
+        // Check if the array and index are valid
+        if (!array || !index) {
+            throw std::runtime_error("Array and index cannot be null.");
+        }
+
+        // Evaluate the array and index to get their values
+        //double arrayValue = array->evaluate(symbolTable);
+        double indexValue = index->evaluate(symbolTable);
+
+        // Check if the array is a valid array (ArrayLiteral)
+        auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
+        if (!arrayLiteral) {
+            throw std::runtime_error("Invalid array type for assignment.");
+        }
+
+        // Check if the index is a valid integer
+        if (std::floor(indexValue) != indexValue) {
+            throw std::runtime_error("Array index must be an integer.");
+        }
+
+        int arrayIndex = static_cast<int>(indexValue);
+
+        // Check if the array index is within bounds
+        if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
+            throw std::runtime_error("Array index out of bounds.");
+        }
+
+        // Update the array element with the new value
+        arrayLiteral->elements[arrayIndex] = value;
+    }
+};
+
+class ArrayAssignExpr : public Expr {
+public:
+    using ExprPtr = std::shared_ptr<ASTNode>;
+
+    ExprPtr array;
+    ExprPtr index;
+    ExprPtr value;
+
+    ArrayAssignExpr(ExprPtr array, ExprPtr index, ExprPtr value)
+        : array(array), index(index), value(value) {}
+
+    std::string toInfix() const override {
+        return array->toInfix() + "[" + index->toInfix() + "] = " + value->toInfix();
+    }
+};
+
+
+// END FOR ARRAYS
+
+
 
 class infixParser {
-  public:
+public:
     infixParser(const std::vector<Token>& tokens);
     std::string printInfix(std::shared_ptr<ASTNode> node);
     std::shared_ptr<ASTNode> infixparse();
     Token PeekNextToken();
     double evaluate(std::shared_ptr<ASTNode> node);
 
-  private:
+    // Add array utility functions
+    double getArrayLength(std::shared_ptr<ASTNode> array);
+    double arrayPop(std::shared_ptr<ASTNode> array);
+    void arrayPush(std::shared_ptr<ASTNode> array, double value);
+
+    // Add array parsing functions
+    std::shared_ptr<ArrayLiteral> infixparseArrayLiteral();
+    std::shared_ptr<ArrayLookup> infixparseArrayLookup(std::shared_ptr<ASTNode> array);
+    std::shared_ptr<ASTNode> infixparseArrayAssignment(std::shared_ptr<ASTNode> array);
+
+    // Update infixparseExpression and infixparsePrimary
+    std::shared_ptr<ASTNode> infixparsePrimary();
+
+private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
-//    std::map<std::string, double> symbolTable;
 
     void nextToken();
-    std::shared_ptr<ASTNode> infixparsePrimary();
     std::shared_ptr<ASTNode> infixparseExpression();
     std::shared_ptr<ASTNode> infixparseTerm();
     std::shared_ptr<ASTNode> infixparseFactor();
@@ -198,13 +309,9 @@ class infixParser {
     std::shared_ptr<IfStatement> infixparseIfStatement();
     std::shared_ptr<ElseStatement> infixparseElseStatement();
     std::shared_ptr<FunctionDefinition> infixparseFunctionDefinition();
-    std::shared_ptr<FunctionReturn> infixparseFunctionReturn();
     std::shared_ptr<FunctionCall> infixparseFunctionCall();
-
-    //array code
-    std::shared_ptr<ASTNode> infixparseArrayLiteral();
-
 };
+
 
 
 //EXCEPTION HANDLING
@@ -241,7 +348,7 @@ class InvalidOperatorException : public std::runtime_error {
 class UnexpectedTokenException : public std::runtime_error {
 public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("0  Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }
