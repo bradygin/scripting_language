@@ -329,7 +329,6 @@ double ArrayLiteral::evaluate(std::map<std::string, double>& symbolTable) {
     // For simplicity, let's assume the array elements are numbers and sum them up
     double sum = 0.0;
     std::cout << "[" << std::endl;
-    
     for (const auto& element : elements) {
         sum += element->evaluate(symbolTable);
     }
@@ -414,7 +413,7 @@ double ArrayAssignment::evaluate(std::map<std::string, double>& symbolTable) {
     if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
         throw std::runtime_error("Array index out of bounds.");
     }
-    // Use the ArrayLiteral class method to get the value at the specified index
+    // Use the ArrayLiteral class method to assign the value at the specified index
     return arrayLiteral->elements[arrayIndex]->evaluate(symbolTable);
 }
 
@@ -503,7 +502,7 @@ std::shared_ptr<BracedBlock> infixParser::infixparseBracedBlock() {
 }
 
 std::shared_ptr<IfStatement> infixParser::infixparseIfStatement() {
-    nextToken();
+    nextToken();  //skip "if"
     if (currentToken.text == "true") {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
@@ -537,7 +536,7 @@ std::shared_ptr<ElseStatement> infixParser::infixparseElseStatement() {
 }
 
 std::shared_ptr<WhileStatement> infixParser::infixparseWhileStatement() {
-    nextToken();
+    nextToken();  //skip "while"
     std::shared_ptr<ASTNode> condition(infixparseCondition());
     if (!condition) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
@@ -564,7 +563,7 @@ std::shared_ptr<PrintStatement> infixParser::infixparsePrintStatement() {
 }
 
 std::shared_ptr<FunctionDefinition> infixParser::infixparseFunctionDefinition() {
-    nextToken();
+    nextToken();  //skip "def"
     if (currentToken.type != TokenType::IDENTIFIER) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
@@ -590,8 +589,8 @@ std::shared_ptr<FunctionDefinition> infixParser::infixparseFunctionDefinition() 
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     if (PeekNextToken().text == "}") {
-      nextToken();
-      nextToken();
+      nextToken();  //skip "{"
+      nextToken();  //skip "}"
     } else {
         std::shared_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
         functionDefinition->bracedBlock = bracedBlock;
@@ -600,7 +599,7 @@ std::shared_ptr<FunctionDefinition> infixParser::infixparseFunctionDefinition() 
 }
 
 std::shared_ptr<FunctionReturn> infixParser::infixparseReturnStatement() {
-    nextToken();
+    nextToken();  //skip "return"
     if (currentToken.type == TokenType::SEMICOLON) {
         nextToken();
         return std::make_shared<FunctionReturn>(nullptr);
@@ -617,17 +616,17 @@ std::shared_ptr<FunctionReturn> infixParser::infixparseReturnStatement() {
 std::shared_ptr<FunctionCall> infixParser::infixparseFunctionCall() {
     auto functionname = currentToken.text;
     auto functionCall = std::make_shared<FunctionCall>(functionname);    
-    nextToken();
+    nextToken(); // skip functionname
     if (currentToken.type == TokenType::SEMICOLON) {
-        functionCall->isAliasName = true;
+        functionCall->isAliasName = true; // only a function name, 
         return functionCall;
     }
     if (currentToken.type != TokenType::LEFT_PAREN) {
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
-    nextToken();
+    nextToken();  // skip "("
     if (currentToken.type == TokenType::RIGHT_PAREN) {
-        nextToken();
+        nextToken();  // skip ")"
         if (currentToken.type == TokenType::SEMICOLON) {
             nextToken();
         }
@@ -660,6 +659,7 @@ std::shared_ptr<ASTNode> infixParser::infixparseExpression() {
 
 std::shared_ptr<ASTNode> infixParser::infixparseTerm() {
     std::shared_ptr<ASTNode> left(infixparseFactor());
+
     while (currentToken.type == TokenType::OPERATOR && 
       (currentToken.text == "+" || currentToken.text == "-")) {
         std::string op = currentToken.text;
@@ -731,9 +731,6 @@ std::shared_ptr<ASTNode> infixParser::infixparseAssignment() {
         if (functionTable.find(varName) != functionTable.end()) {
             auto functionCall = infixparseFunctionCall();
             return functionCall;
-        /*else if (arrayTable.find(varName) != arrayTable.end()) {
-            auto arrayAssignment = infixparseArrayAssignment();
-            return arrayAssignment;*/
         } else if (PeekNextToken().text == "(") {
             auto functionCall = infixparseFunctionCall();
             return functionCall;
@@ -1094,8 +1091,10 @@ std::vector<std::string> Variable::evaluateToArray(std::map<std::string, double>
     }
     if (symbolTable.find(variableName) != symbolTable.end()) {
         auto result = symbolTable.at(variableName);
-        auto ret_str = std::to_string(result);
-        return {{ret_str}};
+        // convert double to string
+        std::stringstream sstream;
+        sstream << result;
+        return {{sstream.str()}};
     } else {
         throw UnknownIdentifierException(symbolTable, variableName);
     }
@@ -1147,7 +1146,10 @@ std::vector<std::string> BinaryOperation::evaluateToArray(std::map<std::string, 
         getValue = false;
     }
     if (getValue) {
-        return {{std::to_string(value)}};
+        // convert double to string
+        std::stringstream sstream;
+        sstream << value;
+        return {{sstream.str()}};
     }
     std::string value_str;
     getValue = true;
@@ -1173,8 +1175,10 @@ std::vector<std::string> BooleanNode::evaluateToArray(std::map<std::string, doub
 }
 
 std::vector<std::string> Number::evaluateToArray(std::map<std::string, double>& /* unused */) {
-    auto result = std::to_string(value);
-    return {{result}};
+    // convert double to string
+    std::stringstream sstream;
+    sstream << value;
+    return {{sstream.str()}};
 }
 
 std::vector<std::string> Block::evaluateToArray(std::map<std::string, double>& symbolTable) {
