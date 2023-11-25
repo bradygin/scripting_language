@@ -13,11 +13,23 @@ int main() {
     try {
         std::vector<Token> tokens = lexer.tokenize();
         infixParser parser(tokens);
-        double result = 0.0;
+        //double result = 0.0;
         while (auto root = parser.infixparse()) {              
-            result = parser.evaluate(root);
+            std::vector<std::string> results = parser.evaluateToArray(root);
+            if (results.empty()) continue;
+            if (results.size() == 1) std::cout << results[0] << std::endl;
+            else {
+                std::cout << "[";
+                int size = (int)results.size();
+                int count = 0;
+                for (auto result : results) {
+                    std::cout << result;
+                    if (++count < size) std::cout << ", ";
+                    else std::cout << "]\n";
+                }
+            }
         }
-        std::cout << result << std::endl;
+        //std::cout << result << std::endl;
     } catch (const SyntaxError& error) {
         std::cout << error.what() << std::endl;
         return 1;
@@ -27,7 +39,7 @@ int main() {
     }catch (const InvalidOperandTypeException& error) {
         std::cout << error.what() << std::endl;
         return 3;
-    }catch (const std::runtime_error& error) {
+    } catch (const std::runtime_error& error) {
         std::cerr << error.what() << std::endl;
         return 1;
     }
