@@ -24,11 +24,11 @@ std::shared_ptr<Node> Parser::parseExpression() {
 
             if (next_token != "+" && next_token != "-" && next_token != "*" && next_token != "/" && next_token != "=") {
                 if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                    std::cout << "1 Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 } else {
-                    std::cout << "2 Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 }
@@ -45,12 +45,12 @@ std::shared_ptr<Node> Parser::parseExpression() {
                 if (node->type == TokenType::ASSIGNMENT) {
                     // Check for unexpected token cases in assignment
                     if (node->children.empty()) {
-                        std::cout << "3 Unexpected token at line " << tokens[currentTokenIndex].line
+                        std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                                   << " column " << tokens[currentTokenIndex].column
                                   << ": " << tokens[currentTokenIndex].text << std::endl;
                         exit(2);
                     } else if (node->children.size() == 1) {
-                        std::cout << "4 Unexpected token at line " << tokens[currentTokenIndex].line
+                        std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                                   << " column " << tokens[currentTokenIndex].column
                                   << ": " << tokens[currentTokenIndex].text << std::endl;
                         exit(2);
@@ -59,11 +59,11 @@ std::shared_ptr<Node> Parser::parseExpression() {
                 return node;
             } else {
                 if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-                    std::cout << "5 Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 } else {
-                    std::cout << "6 Unexpected token at line " << tokens[currentTokenIndex].line
+                    std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                               << " column " << tokens[currentTokenIndex].column
                               << ": " << tokens[currentTokenIndex].text << std::endl;
                 }
@@ -75,11 +75,11 @@ std::shared_ptr<Node> Parser::parseExpression() {
             return node;
         } else {
             if (currentTokenIndex < tokens.size() && tokens[currentTokenIndex].type == TokenType::RIGHT_PAREN) {
-               std::cout << "7 Unexpected token at line " << tokens[currentTokenIndex].line
+               std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                           << " column " << tokens[currentTokenIndex].column
                           << ": " << tokens[currentTokenIndex].text << std::endl;
             } else {
-                std::cout << "8 Unexpected token at line " << tokens[currentTokenIndex].line
+                std::cout << "Unexpected token at line " << tokens[currentTokenIndex].line
                           << " column " << tokens[currentTokenIndex].column
                           << ": " << tokens[currentTokenIndex].text << std::endl;
             }
