@@ -1105,9 +1105,12 @@ std::vector<std::string> BinaryOperation::evaluateToArray(std::map<std::string, 
     double rightValue = 0.0;
     auto leftValues = left->evaluateToArray(symbolTable);
     auto rightValues = right->evaluateToArray(symbolTable);
-    if (!leftValues.empty()) leftValue = std::stod((leftValues)[0]);
-    if (!rightValues.empty()) rightValue = std::stod((rightValues)[0]);
-
+    if (!leftValues.empty()) {
+        leftValue = std::stod(leftValues[0]);
+    }
+    if (!rightValues.empty()) {
+        rightValue = std::stod(rightValues[0]);
+    }
     // Type checking for arithmetic operations
     if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%") {
         if (std::dynamic_pointer_cast<BooleanNode>(left) || std::dynamic_pointer_cast<BooleanNode>(right)) {
@@ -1153,15 +1156,15 @@ std::vector<std::string> BinaryOperation::evaluateToArray(std::map<std::string, 
     }
     std::string value_str;
     getValue = true;
-    if (op == "<") value_str = leftValue < rightValue ? 1 : 0;
-    else if (op == ">") value_str = leftValue > rightValue ? 1 : 0;
-    else if (op == "<=") value_str = leftValue <= rightValue ? 1 : 0;
-    else if (op == ">=") value_str = leftValue >= rightValue ? 1 : 0;
-    else if (op == "==") value_str = leftValue == rightValue ? 1 : 0;
-    else if (op == "!=") value_str = leftValue != rightValue ? 1 : 0;
-    else if (op == "&") value_str = static_cast<int>(leftValue) & static_cast<int>(rightValue);
-    else if (op == "^") value_str = static_cast<int>(leftValue) ^ static_cast<int>(rightValue);
-    else if (op == "|") value_str = static_cast<int>(leftValue) | static_cast<int>(rightValue);
+    if (op == "<") value_str = leftValue < rightValue ? "true" : "false";
+    else if (op == ">") value_str = leftValue > rightValue ? "true" : "false";
+    else if (op == "<=") value_str = leftValue <= rightValue ? "true" : "false";
+    else if (op == ">=") value_str = leftValue >= rightValue ? "true" : "false";
+    else if (op == "==") value_str = leftValue == rightValue ? "true" : "false";
+    else if (op == "!=") value_str = leftValue != rightValue ? "true" : "false";
+    else if (op == "&") value_str = (static_cast<int>(leftValue) & static_cast<int>(rightValue)) ? "true" : "false";
+    else if (op == "^") value_str = (static_cast<int>(leftValue) ^ static_cast<int>(rightValue)) ? "true" : "false";
+    else if (op == "|") value_str = (static_cast<int>(leftValue) | static_cast<int>(rightValue)) ? "true" : "false";
     else getValue = false;
     if (getValue) {
         return {{value_str}};
@@ -1199,7 +1202,8 @@ std::vector<std::string> BracedBlock::evaluateToArray(std::map<std::string, doub
 
 std::vector<std::string> IfStatement::evaluateToArray(std::map<std::string, double>& symbolTable) {
     std::vector<std::string> result;
-    if (condition && !condition->evaluateToArray(symbolTable).empty()) {
+    if (condition && !condition->evaluateToArray(symbolTable).empty() &&
+        condition->evaluateToArray(symbolTable)[0] != "false" ) {
         if (bracedBlock) result = bracedBlock->evaluateToArray(symbolTable);
     } else if (elseNode) result = elseNode->evaluateToArray(symbolTable);
     return result;
@@ -1217,7 +1221,8 @@ std::vector<std::string> ElseStatement::evaluateToArray(std::map<std::string, do
 
 std::vector<std::string> WhileStatement::evaluateToArray(std::map<std::string, double>& symbolTable) {
     std::vector<std::string> result;
-    while (condition && !condition->evaluateToArray(symbolTable).empty()) {
+    while (condition && !condition->evaluateToArray(symbolTable).empty() &&
+           condition->evaluateToArray(symbolTable)[0] != "false" ) {
         if (bracedBlock) result = bracedBlock->evaluateToArray(symbolTable);
     }
     return result;
