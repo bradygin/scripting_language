@@ -13,22 +13,18 @@ Assignment::Assignment(const std::string& varName, std::shared_ptr<ASTNode> expr
     : variableName(varName), expression(expression) {}
 
 std::string Assignment::toInfix() const {
-//std::cout << "Daisy Assignment::toInfix()  0   " << std::endl;
     return "(" + variableName + " = " + expression->toInfix() + ");";
 }
 
 double Assignment::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  Assignment::evaluate()  0 " << std::endl;
     double result = expression->evaluate(symbolTable);
     symbolTable[variableName] = result;
     return result;   
 }
 
 double Variable::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  Variable::evaluate()  0 variableName=" << variableName << std::endl;
     if (variableName == "null") return 0.0;
     if (symbolTable.find(variableName) != symbolTable.end()) {
-//std::cout << "Daisy  Variable::evaluate()  0 symbolTable.at(variableName)=" << symbolTable.at(variableName) << std::endl;
         return symbolTable.at(variableName);
     } else {
         throw UnknownIdentifierException(symbolTable, variableName);
@@ -36,7 +32,6 @@ double Variable::evaluate(std::map<std::string, double>& symbolTable) {
 }
 
 double BinaryOperation::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  BinaryOperation::evaluate()  0 " << std::endl;
     double leftValue = left->evaluate(symbolTable);
     double rightValue = right->evaluate(symbolTable);
 
@@ -102,7 +97,6 @@ std::string Number::toInfix() const {
 BooleanNode::BooleanNode(bool value) : value(value) {}
 
 double BooleanNode::evaluate(std::map<std::string, double>& /* unused */) {
-//std::cout << "Daisy  BooleanNode::evaluate()  0 " << std::endl;
     return value ? 1.0 : 0.0;  
 }
 
@@ -116,12 +110,10 @@ Block::Block(std::shared_ptr<ASTNode> statement) {
 }
 
 std::string Block::toInfix() const {
-//std::cout << "Daisy Block::toInfix()  0   " << std::endl;
     indent += 4;
     std::string ret_str;
     std::string indent_str = std::string(indent, ' ');
     for (auto statement : statements) {
-//std::cout << "Daisy Block::toInfix()  1   " << std::endl;
         ret_str += "\n" + indent_str + statement->toInfix();
     }
     indent -= 4;
@@ -141,10 +133,8 @@ BracedBlock::BracedBlock(std::shared_ptr<Block> blk)
     : block(blk) {}
 
 std::string BracedBlock::toInfix() const {
-//std::cout << "Daisy BracedBlock::toInfix()  0   " << std::endl;
     std::string ret_str;
     if (block) ret_str += block->toInfix();
-//std::cout << "Daisy BracedBlock::toInfix()  1   " << std::endl;
     return ret_str;
 }
 
@@ -223,7 +213,6 @@ std::string PrintStatement::toInfix() const {
 }
 
 double PrintStatement::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  PrintStatement::evaluate()  0 " << std::endl;
     double result = expression->evaluate(symbolTable);
     return result;   
 }
@@ -323,7 +312,6 @@ double FunctionCall::evaluate(std::map<std::string, double>& symbolTable) {
 
 
 std::string ArrayLiteral::toInfix() const {
-//std::cout << "Daisy  ArrayLiteral::toInfix()  0 " << std::endl;
     // Create a string representation of the array
     std::string result = "[";
     for (const auto& element : elements) {
@@ -338,7 +326,6 @@ std::string ArrayLiteral::toInfix() const {
 }
 
 double ArrayLiteral::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  ArrayLiteral::evaluate()  0 " << std::endl;
     // For simplicity, let's assume the array elements are numbers and sum them up
     double sum = 0.0;
     std::cout << "[" << std::endl;
@@ -350,13 +337,11 @@ double ArrayLiteral::evaluate(std::map<std::string, double>& symbolTable) {
 }
 
 std::string ArrayLookup::toInfix() const {
-//std::cout << "Daisy  ArrayLookup::toInfix()  0 " << std::endl;
     // Create a string representation of the array lookup
     return arrayName + "[" + index->toInfix() + "]";
 }
 
 double ArrayLookup::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  ArrayLookup::evaluate()  0 arrayName= " << arrayName << std::endl;
     // Check if the array and index are valid
     if (arrayTable.find(arrayName) == arrayTable.end()) {
         throw std::runtime_error("Invalid array type for lookup.");
@@ -372,7 +357,6 @@ double ArrayLookup::evaluate(std::map<std::string, double>& symbolTable) {
         throw std::runtime_error("Array index must be an integer.");
     }
     int arrayIndex = static_cast<int>(indexValue);
-//std::cout << "Daisy  ArrayLookup::evaluate()  1 arrayIndex= " << arrayIndex << std::endl;
     // Check if the array index is within bounds
     if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
         throw std::runtime_error("Array index out of bounds.");
@@ -382,7 +366,6 @@ double ArrayLookup::evaluate(std::map<std::string, double>& symbolTable) {
 }
 
 void ArrayLookup::setAssignmentValue(std::shared_ptr<ASTNode> value) {
-//std::cout << "Daisy  ArrayLookup::setAssignmentValue()  0  arrayName= " << arrayName << std::endl;
     // Check if the array and index are valid
     if (arrayTable.find(arrayName) == arrayTable.end()) {
         throw std::runtime_error("Invalid array type for assignment.");
@@ -407,13 +390,11 @@ void ArrayLookup::setAssignmentValue(std::shared_ptr<ASTNode> value) {
 }
 
 std::string ArrayAssignment::toInfix() const {
-//std::cout << "Daisy  ArrayAssignment::toInfix()  0 " << std::endl;
     // Create a string representation of the array lookup
     return "(" + arrayName + "[" + index->toInfix() + "] = " + asignment->toInfix() + ");";
 }
 
 double ArrayAssignment::evaluate(std::map<std::string, double>& symbolTable) {
-//std::cout << "Daisy  ArrayAssignment::evaluate()  0 arrayName= " << arrayName << std::endl;
     // Check if the array and index are valid
     if (arrayTable.find(arrayName) == arrayTable.end()) {
         throw std::runtime_error("Invalid array type for assignment.");
@@ -424,7 +405,6 @@ double ArrayAssignment::evaluate(std::map<std::string, double>& symbolTable) {
     auto arrayLiteral = arrayTable[arrayName];
     // Evaluate index to get their values
     double indexValue = index->evaluate(symbolTable);
-//std::cout << "Daisy  ArrayAssignment::evaluate()  1 indexValue= " << indexValue << std::endl;
     // Check if the index is a valid integer
     if (std::floor(indexValue) != indexValue) {
         throw std::runtime_error("Array index must be an integer.");
@@ -457,7 +437,6 @@ void infixParser::nextToken() {
 }
 
 std::shared_ptr<ASTNode> infixParser::infixparse() {
-//std::cout << "Daisy infixParser::infixparse()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     if (index < tokens.size() && tokens[index].text != "END") {
        return infixparseStatement();
     }
@@ -465,7 +444,6 @@ std::shared_ptr<ASTNode> infixParser::infixparse() {
 }
 
 std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
-//std::cout << "Daisy infixParser::infixparseStatement()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     std::string tokenName = currentToken.text;
     if (tokenName == "if") {
         auto statement = infixparseIfStatement();
@@ -486,39 +464,28 @@ std::shared_ptr<ASTNode> infixParser::infixparseStatement() {
         auto statement = infixparseArrayLiteral();
         return statement;
     }
-//std::cout << "Daisy infixParser::infixparseStatement()  7   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     auto asignment = infixparseAssignment();
-//std::cout << "Daisy infixParser::infixparseStatement()  8   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     return asignment;
 }
 
 std::shared_ptr<ASTNode> infixParser::infixparseCondition() {
-//std::cout << "Daisy infixParser::infixparseCondition()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     std::shared_ptr<ASTNode> left (infixparseFactor());
-//std::cout << "Daisy infixParser::infixparseCondition()  1   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     while (currentToken.type == TokenType::OPERATOR && currentToken.text != "{") {
         std::string op = currentToken.text;
         nextToken();
-//std::cout << "Daisy infixParser::infixparseCondition()  2   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
         std::shared_ptr<ASTNode> right(infixparseFactor());
-//std::cout << "Daisy infixParser::infixparseCondition()  3   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
         left = std::make_shared<BinaryOperation>(op, left, right);
     }
     return left;
 }
 
 std::shared_ptr<BracedBlock> infixParser::infixparseBracedBlock() {
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  0   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     if (currentToken.text != "{") { 
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  1 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     nextToken();
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  2   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     auto statement = infixparseStatement();
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  3   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
     if (statement) {
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  4   " << currentToken.line << ":" << currentToken.column << " : " << currentToken.text << std::endl;
         auto blk = std::make_shared<Block>(statement);
         auto bracedBlock = std::make_shared<BracedBlock>(blk);
         while (index < tokens.size() && currentToken.text != "}") {
@@ -526,7 +493,6 @@ std::shared_ptr<BracedBlock> infixParser::infixparseBracedBlock() {
             if (statement) {
                 bracedBlock->block->statements.push_back(statement);
             } else {
-//std::cout << "Daisy infixParser::infixparseBracedBlock()  2 " << std::endl;
                 throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
             }
         }
@@ -543,12 +509,10 @@ std::shared_ptr<IfStatement> infixParser::infixparseIfStatement() {
     }
     std::shared_ptr<ASTNode> condition(infixparseCondition());
     if (!condition) {
-//std::cout << "Daisy infixParser::infixparseIfStatement()  5 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     std::shared_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
     if (!bracedBlock) {
-//std::cout << "Daisy infixParser::infixparseIfStatement()  6 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     auto ifStatement = std::make_shared<IfStatement>(condition, bracedBlock);
@@ -576,12 +540,10 @@ std::shared_ptr<WhileStatement> infixParser::infixparseWhileStatement() {
     nextToken();
     std::shared_ptr<ASTNode> condition(infixparseCondition());
     if (!condition) {
-//std::cout << "Daisy infixParser::infixparseWhileStatement()  3 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     std::shared_ptr<BracedBlock> bracedBlock(infixparseBracedBlock());
     if (!bracedBlock) {
-//std::cout << "Daisy infixParser::infixparseWhileStatement()  4 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     }
     return std::make_shared<WhileStatement>(condition, bracedBlock);
@@ -594,7 +556,6 @@ std::shared_ptr<PrintStatement> infixParser::infixparsePrintStatement() {
     }
     std::shared_ptr<ASTNode> expr(infixparseExpression());
     if (currentToken.type != TokenType::SEMICOLON) {
-//std::cout << "Daisy infixParser::infixparsePrintStatement()  5 " << std::endl;
         throw UnexpectedTokenException(currentToken.text, currentToken.line, currentToken.column);
     } else {
         nextToken();
@@ -1308,8 +1269,6 @@ std::vector<std::string> ArrayLiteral::evaluateToArray(std::map<std::string, dou
             values.push_back(results[0]);
           
         }
-    }
-    for (const auto& value : values) {
     }
     return values;
 }
