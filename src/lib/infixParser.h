@@ -10,6 +10,7 @@
 #include "lexer.h"
 #include "token.h"
 #include <cmath>
+#include <optional>
 
 static std::map<std::string, double> symbolTable;
 
@@ -19,7 +20,7 @@ using ExprPtr = std::shared_ptr<Expr>;
 
 // Define Expr and ExprPtr
 class Expr {
-public:
+  public:
     virtual ~Expr() {}
 };
 
@@ -29,15 +30,17 @@ class ASTNode {
   public:
     virtual ~ASTNode() {}
     virtual double evaluate(std::map<std::string, double>& symbolTable) = 0;
+    virtual std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) = 0;
     virtual std::string toInfix() const = 0;
 };
 
 struct BinaryOperation : public ASTNode {
-public:
+  public:
     BinaryOperation(const std::string& op, std::shared_ptr<ASTNode> left, std::shared_ptr<ASTNode> right)
     : op(op), left(left), right(right) {}
     ~BinaryOperation() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::string op; 
     std::shared_ptr<ASTNode> left{nullptr};
@@ -48,6 +51,7 @@ class BooleanNode : public ASTNode {
   public:
     BooleanNode(bool value);
     double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
 
   private:
@@ -59,6 +63,7 @@ struct Number : public ASTNode {
   public:
     Number(double value) : value(value) {}
     double evaluate(std::map<std::string, double>&) override { return value; }
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     double value;
 };
@@ -68,6 +73,7 @@ class Assignment : public ASTNode {
     Assignment(const std::string& varName, std::shared_ptr<ASTNode> expression);
     ~Assignment() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::string variableName;
     std::shared_ptr<ASTNode> expression{nullptr};
@@ -78,6 +84,7 @@ class Variable : public ASTNode {
   public:
     Variable(const std::string& varName) : variableName(varName) {}
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override {
         return variableName;
     }
@@ -90,6 +97,7 @@ class Block : public ASTNode {
     Block(std::shared_ptr<ASTNode> statement);
     ~Block() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::vector<std::shared_ptr<ASTNode>> statements;
 };
@@ -99,6 +107,7 @@ class BracedBlock : public ASTNode {
     BracedBlock(std::shared_ptr<Block> blk);
     ~BracedBlock() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<Block> block{nullptr};
 };
@@ -109,6 +118,7 @@ class IfStatement : public ASTNode {
     IfStatement(std::shared_ptr<ASTNode> cond, std::shared_ptr<BracedBlock> blk);
     ~IfStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<ASTNode> condition{nullptr};
     std::shared_ptr<BracedBlock> bracedBlock{nullptr};
@@ -120,6 +130,7 @@ class ElseStatement : public ASTNode {
     ElseStatement(std::shared_ptr<IfStatement> state, std::shared_ptr<BracedBlock> blk);
     ~ElseStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<IfStatement> ifStatement{nullptr};
     std::shared_ptr<BracedBlock> bracedBlock{nullptr};
@@ -130,6 +141,7 @@ class WhileStatement : public ASTNode {
     WhileStatement(std::shared_ptr<ASTNode> cond, std::shared_ptr<BracedBlock> blk);
     ~WhileStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<ASTNode> condition{nullptr};
     std::shared_ptr<BracedBlock> bracedBlock{nullptr};
@@ -140,6 +152,7 @@ class PrintStatement : public ASTNode {
     PrintStatement(std::shared_ptr<ASTNode> expression);
     ~PrintStatement() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<ASTNode> expression{nullptr};
 };
@@ -151,6 +164,7 @@ class FunctionDefinition : public ASTNode {
     FunctionDefinition(std::string name);
     ~FunctionDefinition() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     bool isCalled{false};
     std::string functionName;
@@ -165,6 +179,7 @@ class FunctionReturn : public ASTNode {
     FunctionReturn(std::shared_ptr<ASTNode> expression);
     ~FunctionReturn() = default;
     double evaluate(std::map<std::string, double>& symbolTable) override; 
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::shared_ptr<ASTNode> expression{nullptr};
 };
@@ -173,7 +188,8 @@ class FunctionCall : public ASTNode {
   public:
     FunctionCall(std::string name);
     ~FunctionCall() = default;
-    double evaluate(std::map<std::string, double>& symbolTable) override; 
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::string functionName;
     bool isAliasName{false};
@@ -190,82 +206,73 @@ class ArrayAssignExpr;
 
 // Define ArrayLiteral
 class ArrayLiteral : public ASTNode {
-public:
+  public:
     ArrayLiteral() = default;  // Add this line for the default constructor
 
     ArrayLiteral(const std::vector<std::shared_ptr<ASTNode>>& elements)
         : elements(elements) {}
 
     double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
     std::string toInfix() const override;
     std::vector<std::shared_ptr<ASTNode>> elements;
+    std::vector<std::string> values;
 };
 
 
 class ArrayLookup : public ASTNode {
-public:
-    ArrayLookup(std::shared_ptr<ASTNode> array, std::shared_ptr<ASTNode> index)
-        : array(array), index(index) {}
-
-    double evaluate(std::map<std::string, double>& symbolTable) override;
+  public:
+    ArrayLookup(std::string name, std::shared_ptr<ASTNode> index)
+        : arrayName(name), index(index) {}
+    
     std::string toInfix() const override;
-    std::shared_ptr<ASTNode> array;
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
+    void setAssignmentValue(std::shared_ptr<ASTNode> value);
+
+    std::string arrayName;
     std::shared_ptr<ASTNode> index;
-
-    void setAssignmentValue(std::shared_ptr<ASTNode> value) {
-        // Check if the array and index are valid
-        if (!array || !index) {
-            throw std::runtime_error("Array and index cannot be null.");
-        }
-
-        // Evaluate the array and index to get their values
-        //double arrayValue = array->evaluate(symbolTable);
-        double indexValue = index->evaluate(symbolTable);
-
-        // Check if the array is a valid array (ArrayLiteral)
-        auto arrayLiteral = std::dynamic_pointer_cast<ArrayLiteral>(array);
-        if (!arrayLiteral) {
-            throw std::runtime_error("Invalid array type for assignment.");
-        }
-
-        // Check if the index is a valid integer
-        if (std::floor(indexValue) != indexValue) {
-            throw std::runtime_error("Array index must be an integer.");
-        }
-
-        int arrayIndex = static_cast<int>(indexValue);
-
-        // Check if the array index is within bounds
-        if (arrayIndex < 0 || arrayIndex >= static_cast<int>(arrayLiteral->elements.size())) {
-            throw std::runtime_error("Array index out of bounds.");
-        }
-
-        // Update the array element with the new value
-        arrayLiteral->elements[arrayIndex] = value;
-    }
 };
 
-class ArrayAssignExpr : public Expr {
-public:
+
+class ArrayAssignment : public ASTNode {
+  public:
+    ArrayAssignment(std::string name, std::shared_ptr<ASTNode> index)
+        : arrayName(name), index(index) {}
+
+    std::string toInfix() const override;
+    double evaluate(std::map<std::string, double>& symbolTable) override;
+    std::vector<std::string> evaluateToArray(std::map<std::string, double>& symbolTable) override;
+    void setAssignmentValue(std::shared_ptr<ASTNode> value);
+
+    std::string arrayName;
+    std::shared_ptr<ASTNode> index;
+    std::shared_ptr<ASTNode> asignment;
+};
+
+/*
+class ArrayAssignment : public Expr {
+  public:
     ExprPtr array;
     ExprPtr index;
     ExprPtr value;
 
-    ArrayAssignExpr(ExprPtr array, ExprPtr index, ExprPtr value)
+    ArrayAssignment(ExprPtr array, ExprPtr index, ExprPtr value)
         : array(array), index(index), value(value) {}
-};
+};*/
 
 // END FOR ARRAYS
 
 
 
 class infixParser {
-public:
+  public:
     infixParser(const std::vector<Token>& tokens);
     std::string printInfix(std::shared_ptr<ASTNode> node);
     std::shared_ptr<ASTNode> infixparse();
     Token PeekNextToken();
     double evaluate(std::shared_ptr<ASTNode> node);
+    std::vector<std::string> evaluateToArray(std::shared_ptr<ASTNode> node);
 
     // Add array utility functions
     double getArrayLength(std::shared_ptr<ASTNode> array);
@@ -274,13 +281,13 @@ public:
 
     // Add array parsing functions
     std::shared_ptr<ArrayLiteral> infixparseArrayLiteral();
-    std::shared_ptr<ArrayLookup> infixparseArrayLookup(std::shared_ptr<ASTNode> array);
-    std::shared_ptr<ASTNode> infixparseArrayAssignment(std::shared_ptr<ASTNode> array);
+    std::shared_ptr<ArrayLookup> infixparseArrayLookup(std::string arrayName);
+//    std::shared_ptr<ASTNode> infixparseArrayAssignment(std::shared_ptr<ASTNode> array);
 
     // Update infixparseExpression and infixparsePrimary
     std::shared_ptr<ASTNode> infixparsePrimary();
 
-private:
+  private:
     std::vector<Token> tokens;
     size_t index;
     Token currentToken;
@@ -300,7 +307,10 @@ private:
     std::shared_ptr<BracedBlock> infixparseBracedBlock();
     std::shared_ptr<IfStatement> infixparseIfStatement();
     std::shared_ptr<ElseStatement> infixparseElseStatement();
+    std::shared_ptr<WhileStatement> infixparseWhileStatement();
+    std::shared_ptr<PrintStatement> infixparsePrintStatement();
     std::shared_ptr<FunctionDefinition> infixparseFunctionDefinition();
+    std::shared_ptr<FunctionReturn> infixparseReturnStatement();
     std::shared_ptr<FunctionCall> infixparseFunctionCall();
 };
 
@@ -338,16 +348,16 @@ class InvalidOperatorException : public std::runtime_error {
 
 
 class UnexpectedTokenException : public std::runtime_error {
-public:
+  public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("0 Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }
 };
 
 class InvalidOperandTypeException : public std::runtime_error {
-public:
+  public:
     InvalidOperandTypeException() : std::runtime_error("Runtime error: invalid operand type.") {}
 
     int getErrorCode() const {
