@@ -53,41 +53,23 @@ int main() {
                 std::string infixExpression = parser.printInfix(root);
                 std::cout << infixExpression << std::endl;
                 try {
-                    double result = parser.evaluate(root);
-                    // Check for assignment that evaluates to a boolean value
-                    auto assignmentNode = std::dynamic_pointer_cast<Assignment>(root);
-                    if (assignmentNode && (result == 1.0 || result == 0.0)) {
-                        if (result == 1.0) {
-                            std::cout << "true" << std::endl;
-                        } else {
-                            std::cout << "false" << std::endl;
+                    std::vector<std::string> results = parser.evaluateToArray(root);
+                    if (results.empty()) continue;
+                    if (results.size() == 1) std::cout << results[0] << std::endl;
+                    else {
+                        std::cout << "[";
+                        int size = (int)results.size();
+                        int count = 0;
+                        for (auto result : results) {
+                            std::cout << result;
+                            if (++count < size) std::cout << ", ";
+                            else std::cout << "]\n";
                         }
-                    } else if (std::dynamic_pointer_cast<BooleanNode>(root) || 
-                        (std::dynamic_pointer_cast<Variable>(root) && (result == 1.0 || result == 0.0)) || 
-                        (std::dynamic_pointer_cast<BinaryOperation>(root) && (
-                        root->toInfix().find("<") != std::string::npos ||
-                        root->toInfix().find(">") != std::string::npos ||
-                        root->toInfix().find("==") != std::string::npos ||
-                        root->toInfix().find("!=") != std::string::npos ||
-                        root->toInfix().find("<=") != std::string::npos ||
-                        root->toInfix().find(">=") != std::string::npos ||
-                        root->toInfix().find("&") != std::string::npos ||
-                        root->toInfix().find("^") != std::string::npos ||
-                        root->toInfix().find("|") != std::string::npos))) {
-                            if (result == 1.0) {
-                                std::cout << "true" << std::endl;
-                            } else {
-                                std::cout << "false" << std::endl;
-                            }
-                    } else {
-                        std::cout << result << std::endl;
                     }
                 } catch (const std::runtime_error& e) {
                     std::cout << e.what() << std::endl;
                 }
-            } else {
-                std::cout << "Failed to parse the input expression." << std::endl;
-            }
+            } 
         } catch (const UnexpectedTokenException& e) {
             std::cout << e.what() << std::endl;
         } catch (const SyntaxError& e) {
