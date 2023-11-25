@@ -250,17 +250,6 @@ class ArrayAssignment : public ASTNode {
     std::shared_ptr<ASTNode> asignment;
 };
 
-/*
-class ArrayAssignment : public Expr {
-  public:
-    ExprPtr array;
-    ExprPtr index;
-    ExprPtr value;
-
-    ArrayAssignment(ExprPtr array, ExprPtr index, ExprPtr value)
-        : array(array), index(index), value(value) {}
-};*/
-
 // END FOR ARRAYS
 
 
@@ -282,7 +271,6 @@ class infixParser {
     // Add array parsing functions
     std::shared_ptr<ArrayLiteral> infixparseArrayLiteral();
     std::shared_ptr<ArrayLookup> infixparseArrayLookup(std::string arrayName);
-//    std::shared_ptr<ASTNode> infixparseArrayAssignment(std::shared_ptr<ASTNode> array);
 
     // Update infixparseExpression and infixparsePrimary
     std::shared_ptr<ASTNode> infixparsePrimary();
@@ -350,7 +338,7 @@ class InvalidOperatorException : public std::runtime_error {
 class UnexpectedTokenException : public std::runtime_error {
   public:
     UnexpectedTokenException(const std::string& tokenText, int line, int column)
-    : std::runtime_error("0 Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
+    : std::runtime_error("Unexpected token at line " + std::to_string(line) + " column " + std::to_string(column) + ": " + tokenText) {}
     int getErrorCode() const {
     return 2;
     }
